@@ -741,10 +741,24 @@ namespace md
         md::linear_hash hash_;
         std::vector<hash_bucket> buckets_;
     };
+}
 
+
+//------------------------------------------------------------------------------
+// neighbor_list
+//------------------------------------------------------------------------------
+
+#include <iterator>
+#include <utility>
+#include <vector>
+
+
+namespace md
+{
     namespace detail
     {
-        // compute_variance returns the population variance of given points.
+        // compute_variance returns the population variance of each coordinate
+        // of given points as a vector. Returns a zero vector for empty input.
         inline md::vector compute_variance(md::array_view<md::point const> points)
         {
             if (points.empty()) {
@@ -796,7 +810,7 @@ namespace md
                 hash.z_coeff = 0;
             }
 
-            // Heuristic: Good bucket occupancy.
+            // Heuristic: 10-30 give good bucket distribution for dense system.
             constexpr md::index bucket_occupancy = 16;
 
             hash.modulus = md::linear_hash::hash_t(points.size() / bucket_occupancy);
@@ -805,6 +819,76 @@ namespace md
             return hash;
         }
     }
+
+    // neighbor_list is a data structure for keeping track of neighbor pairs in
+    // a slowly moving particle system.
+    class neighbor_list
+    {
+    public:
+        using iterator = std::vector<std::pair<md::index, md::index>>::const_iterator;
+
+        void update(md::array_view<md::point const> points, md::scalar dcut)
+        {
+            if (!check_consistency(points, dcut)) {
+                rebuild(points, dcut);
+            }
+        }
+
+        iterator begin() const
+        {
+            return pairs_.begin();
+        }
+
+        iterator end() const
+        {
+            return pairs_.end();
+        }
+
+    private:
+        bool check_consistency(md::array_view<md::point const> points, md::scalar dcut) const
+        {
+            if (points.size() != cached_points_.size()) {
+                return false;
+            }
+
+            // False negatives (unlisted point pairs that fall actually within
+            // dcut) won't arise if the displacement from previous rebuild is
+            // less than or equal to this threshold.
+            md::scalar const threshold = (verlet_radius_ - dcut) / 2;
+
+            if (threshold <= 0) {
+                return false;
+            }
+
+            for (md::index i = 0; i < points.size(); i++) {
+                if (md::squared_distance(points[i], cached_points_[i]) > threshold * threshold) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        void rebuild(md::array_view<md::point const> points, md::scalar dcut)
+        {
+            // Rule-of-thumb parameters.
+            constexpr md::scalar skin_factor = 1.2;
+
+            verlet_radius_ = dcut * skin_factor;
+            cached_points_.assign(points.begin(), points.end());
+            pairs_.clear();
+
+            md::linear_hash hash = detail::determine_hash(points);
+            md::neighbor_searcher searcher{verlet_radius_, hash};
+            searcher.set_points(cached_points_);
+            searcher.search(std::back_inserter(pairs_));
+        }
+
+    private:
+        md::scalar verlet_radius_ = 0;
+        std::vector<md::point> cached_points_;
+        std::vector<std::pair<md::index, md::index>> pairs_;
+    };
 }
 
 
