@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "../include/md.hpp"
 #include "catch.hpp"
 
@@ -79,4 +81,99 @@ TEST_CASE("system::require - creates an attribute if it does not exist")
     CHECK(values[0] == 42);
     CHECK(values[1] == 42);
     CHECK(values[2] == 42);
+}
+
+TEST_CASE("system::add_forcefield - accepts a shared_ptr of a forcefield")
+{
+    class my_forcefield : public md::forcefield
+    {
+        md::scalar compute_energy(md::system const&) override
+        {
+            return 0;
+        }
+
+        void compute_force(md::system const&, md::array_view<md::vector>) override
+        {
+        }
+    };
+
+    md::system system;
+    system.add_forcefield(std::make_shared<my_forcefield>());
+}
+
+TEST_CASE("system::compute_potential_energy - returns zero if no force field is added")
+{
+    md::system system;
+
+    CHECK(system.compute_potential_energy() == 0);
+}
+
+TEST_CASE("system::compute_force - returns zero if no force field is added")
+{
+    md::system system;
+    system.add_particle();
+
+    std::vector<md::vector> forces(system.particle_count(), md::vector{1, 1, 1});
+    system.compute_force(forces);
+
+    CHECK(forces[0].x == 0);
+    CHECK(forces[0].y == 0);
+    CHECK(forces[0].z == 0);
+}
+
+TEST_CASE("system::compute_potential_energy - returns the sum of component energy values")
+{
+    class my_forcefield : public md::forcefield
+    {
+    public:
+        md::scalar compute_energy(md::system const&) override
+        {
+            return 1;
+        }
+
+        void compute_force(md::system const&, md::array_view<md::vector>) override
+        {
+        }
+    };
+
+    md::system system;
+
+    system.add_forcefield(std::make_shared<my_forcefield>());
+    system.add_forcefield(std::make_shared<my_forcefield>());
+
+    CHECK(system.compute_potential_energy() == 2);
+}
+
+TEST_CASE("system::compute_force - returns the sum of component force vectors")
+{
+    class my_forcefield : public md::forcefield
+    {
+    public:
+        md::scalar compute_energy(md::system const&) override
+        {
+            return 1;
+        }
+
+        void compute_force(md::system const&, md::array_view<md::vector> forces) override
+        {
+            for (md::vector& force : forces) {
+                force.x += 1;
+                force.y += 1;
+                force.z += 1;
+            }
+        }
+    };
+
+    md::system system;
+    system.add_particle();
+
+    system.add_forcefield(std::make_shared<my_forcefield>());
+    system.add_forcefield(std::make_shared<my_forcefield>());
+
+    std::vector<md::vector> forces(system.particle_count());
+    system.compute_force(forces);
+
+    CHECK(forces[0].x == 2);
+    CHECK(forces[0].y == 2);
+    CHECK(forces[0].z == 2);
 }
