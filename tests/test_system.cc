@@ -4,6 +4,38 @@
 #include "catch.hpp"
 
 
+TEST_CASE("system::time - returns zero on default state")
+{
+    md::system system;
+
+    CHECK(system.time() == 0);
+}
+
+TEST_CASE("system::advance_time - adds delta to system time")
+{
+    md::system system;
+
+    system.advance_time(1.23);
+    CHECK(system.time() == Approx(1.23));
+
+    system.advance_time(4.56);
+    CHECK(system.time() == Approx(1.23 + 4.56));
+}
+
+TEST_CASE("system::advance_time - accepts negative delta")
+{
+    md::system system;
+
+    system.advance_time(-1.23);
+    CHECK(system.time() == Approx(-1.23));
+
+    system.advance_time(4.56);
+    CHECK(system.time() == Approx(-1.23 + 4.56));
+
+    system.advance_time(-7.89);
+    CHECK(system.time() == Approx(-1.23 + 4.56 - 7.89));
+}
+
 TEST_CASE("system::particle_count - returns zero on default state")
 {
     md::system system;
