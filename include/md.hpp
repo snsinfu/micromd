@@ -7,6 +7,9 @@
 //
 // class neighbor_searcher
 // class neighbor_list
+//
+// class forcefield
+// class system
 
 //------------------------------------------------------------------------------
 // vendor - array_view
@@ -891,5 +894,62 @@ namespace md
     };
 }
 
+
+//------------------------------------------------------------------------------
+// forcefield
+//------------------------------------------------------------------------------
+
+namespace md
+{
+    class system;
+
+    class forcefield
+    {
+    public:
+        virtual ~forcefield() = default;
+        virtual md::scalar compute_energy(md::system const& system) = 0;
+        virtual void compute_force(md::system const& system, md::array_view<md::vector> forces) = 0;
+    };
+}
+
+//------------------------------------------------------------------------------
+// system
+//------------------------------------------------------------------------------
+
+#include <memory>
+
+
+namespace md
+{
+    // attribute_key is a type used to statically index system attribute. T is
+    // the type of attribute values and Tag is a unique tag type.
+    template<typename T, typename Tag = T>
+    using attribute_key = T(*)(Tag*);
+
+    // default_value returns the default value associated with given key.
+    template<typename T, typename Tag>
+    T default_value(md::attribute_key<T, Tag> key)
+    {
+        return key ? key(nullptr) : T{};
+    }
+
+    // system
+    class system
+    {
+    public:
+        md::index particle_count() const
+        {
+            return count_;
+        }
+
+        void add_particle()
+        {
+            count_++;
+        }
+
+    private:
+        md::index count_ = 0;
+    };
+}
 
 #endif
