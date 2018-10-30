@@ -10,28 +10,28 @@
 #include "catch.hpp"
 
 
-TEST_CASE("hashing_neighbor_searcher - outputs nothing by default")
+TEST_CASE("neighbor_searcher - outputs nothing by default")
 {
     std::vector<std::pair<md::index, md::index>> pairs;
-    md::hashing_neighbor_searcher searcher(1, md::linear_hash{});
+    md::neighbor_searcher searcher(1, md::linear_hash{});
     searcher.search(std::back_inserter(pairs));
 
     CHECK(pairs.empty());
 }
 
-TEST_CASE("hashing_neighbor_searcher - outputs nothing for empty points")
+TEST_CASE("neighbor_searcher - outputs nothing for empty points")
 {
     std::vector<md::point> points;
     std::vector<std::pair<md::index, md::index>> pairs;
 
-    md::hashing_neighbor_searcher searcher(1, md::linear_hash{});
+    md::neighbor_searcher searcher(1, md::linear_hash{});
     searcher.set_points(points);
     searcher.search(std::back_inserter(pairs));
 
     CHECK(pairs.empty());
 }
 
-TEST_CASE("hashing_neighbor_searcher - finds neighbors on a line")
+TEST_CASE("neighbor_searcher - finds neighbors on a line")
 {
     md::scalar const cutoff_distance = 0.1;
     md::vector const step_vector = {0.06571881, 0.00727112, 0.02298191};
@@ -49,7 +49,7 @@ TEST_CASE("hashing_neighbor_searcher - finds neighbors on a line")
 
     // Test
     std::multiset<std::pair<md::index, md::index>> pairs;
-    md::hashing_neighbor_searcher searcher(cutoff_distance, md::linear_hash{});
+    md::neighbor_searcher searcher(cutoff_distance, md::linear_hash{});
     searcher.set_points(points);
     searcher.search(std::inserter(pairs, pairs.end()));
 
@@ -57,7 +57,7 @@ TEST_CASE("hashing_neighbor_searcher - finds neighbors on a line")
     CHECK(pairs == expected_pairs);
 }
 
-TEST_CASE("hashing_neighbor_searcher - finds neighbors on a 2D grid")
+TEST_CASE("neighbor_searcher - finds neighbors on a 2D grid")
 {
     md::scalar const cutoff_distance = 0.1;
     md::scalar const spacing = 0.07;
@@ -88,7 +88,7 @@ TEST_CASE("hashing_neighbor_searcher - finds neighbors on a 2D grid")
 
     // Test
     std::multiset<std::pair<md::index, md::index>> pairs;
-    md::hashing_neighbor_searcher searcher(cutoff_distance, md::linear_hash{});
+    md::neighbor_searcher searcher(cutoff_distance, md::linear_hash{});
     searcher.set_points(points);
     searcher.search(std::inserter(pairs, pairs.end()));
 
@@ -96,7 +96,7 @@ TEST_CASE("hashing_neighbor_searcher - finds neighbors on a 2D grid")
     CHECK(pairs == expected_pairs);
 }
 
-TEST_CASE("hashing_neighbor_searcher - finds neighbors on a 3D grid")
+TEST_CASE("neighbor_searcher - finds neighbors on a 3D grid")
 {
     md::scalar const cutoff_distance = 0.1;
     md::scalar const spacing = 0.07;
@@ -129,7 +129,7 @@ TEST_CASE("hashing_neighbor_searcher - finds neighbors on a 3D grid")
 
     // Test
     std::multiset<std::pair<md::index, md::index>> pairs;
-    md::hashing_neighbor_searcher searcher(cutoff_distance, md::linear_hash{});
+    md::neighbor_searcher searcher(cutoff_distance, md::linear_hash{});
     searcher.set_points(points);
     searcher.search(std::inserter(pairs, pairs.end()));
 
@@ -137,7 +137,7 @@ TEST_CASE("hashing_neighbor_searcher - finds neighbors on a 3D grid")
     CHECK(pairs == expected_pairs);
 }
 
-TEST_CASE("hashing_neighbor_searcher - finds neighbors in a random walk path")
+TEST_CASE("neighbor_searcher - finds neighbors in a random walk path")
 {
     md::scalar const cutoff_distance = 0.1;
     md::scalar const spacing = 0.07;
@@ -168,7 +168,7 @@ TEST_CASE("hashing_neighbor_searcher - finds neighbors in a random walk path")
 
     // Test
     std::multiset<std::pair<md::index, md::index>> pairs;
-    md::hashing_neighbor_searcher searcher(cutoff_distance, md::linear_hash{});
+    md::neighbor_searcher searcher(cutoff_distance, md::linear_hash{});
     searcher.set_points(points);
     searcher.search(std::inserter(pairs, pairs.end()));
 
@@ -176,7 +176,7 @@ TEST_CASE("hashing_neighbor_searcher - finds neighbors in a random walk path")
     CHECK(pairs == expected_pairs);
 }
 
-TEST_CASE("hashing_neighbor_searcher - finds no false positives in a sparse system")
+TEST_CASE("neighbor_searcher - finds no false positives in a sparse system")
 {
     md::scalar const cutoff_distance = 0.1;
 
@@ -191,14 +191,14 @@ TEST_CASE("hashing_neighbor_searcher - finds no false positives in a sparse syst
     }
 
     std::set<std::pair<md::index, md::index>> actual;
-    md::hashing_neighbor_searcher searcher(cutoff_distance, md::linear_hash{});
+    md::neighbor_searcher searcher(cutoff_distance, md::linear_hash{});
     searcher.set_points(points);
     searcher.search(std::inserter(actual, actual.end()));
 
     CHECK(actual.empty());
 }
 
-TEST_CASE("hashing_neighbor_searcher - finds correct neighbors in a small example")
+TEST_CASE("neighbor_searcher - finds correct neighbors in a small example")
 {
     md::scalar const cutoff_distance = 1.0;
 
@@ -239,14 +239,14 @@ TEST_CASE("hashing_neighbor_searcher - finds correct neighbors in a small exampl
     hash.z_coeff = 435046583;
     hash.modulus = 11;
 
-    md::hashing_neighbor_searcher searcher(cutoff_distance, hash);
+    md::neighbor_searcher searcher(cutoff_distance, hash);
     searcher.set_points(points);
     searcher.search(std::inserter(actual, actual.end()));
 
     CHECK(actual == expected);
 }
 
-TEST_CASE("hashing_neighbor_searcher - finds correct neighbors in a large cloud", "[.][slow]")
+TEST_CASE("neighbor_searcher - finds correct neighbors in a large cloud", "[.][slow]")
 {
     std::mt19937 random;
     std::normal_distribution<md::scalar> normal;
@@ -269,7 +269,7 @@ TEST_CASE("hashing_neighbor_searcher - finds correct neighbors in a large cloud"
     }
 
     std::multiset<std::pair<md::index, md::index>> actual;
-    md::hashing_neighbor_searcher searcher(cutoff_distance, md::linear_hash{});
+    md::neighbor_searcher searcher(cutoff_distance, md::linear_hash{});
     searcher.set_points(points);
     searcher.search(std::inserter(actual, actual.end()));
 

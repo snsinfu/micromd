@@ -19,7 +19,7 @@ CXXFLAGS = \
 OBJECTS = \
   main.o \
   test_linear_hash.o \
-  test_hashing_neighbor_searcher.o
+  test_neighbor_searcher.o
 
 ARTIFACTS = \
   main \
@@ -44,4 +44,4 @@ main: $(OBJECTS)
 
 main.o: catch.hpp
 test_linear_hash.o: catch.hpp ../include/md.hpp
-test_hashing_neighbor_searcher.o: catch.hpp ../include/md.hpp
+test_neighbor_searcher.o: catch.hpp ../include/md.hpp

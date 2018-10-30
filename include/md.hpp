@@ -615,12 +615,12 @@ namespace md
     };
 
 
-    // hashing_neighbor_searcher
-    class hashing_neighbor_searcher
+    // neighbor_searcher
+    class neighbor_searcher
     {
     public:
         // Constructor takes the cut-off distance and a hash function.
-        hashing_neighbor_searcher(md::scalar dcut, md::linear_hash hash)
+        neighbor_searcher(md::scalar dcut, md::linear_hash hash)
             : dcut_{dcut}, hash_{hash}, buckets_(hash.modulus)
         {
             // Pre-compute neighborhood of each bucket for faster query.
@@ -779,8 +779,7 @@ namespace md
         }
 
         // determine_hash returns a linear_hash object that is heuristically
-        // parameterized to make hashing_neighbor_searcher perform good on
-        // given points.
+        // parameterized to make neighbor_searcher perform good on given points.
         inline md::linear_hash determine_hash(md::array_view<md::point const> points)
         {
             // Heuristic: Squash lowest-variance axis.
