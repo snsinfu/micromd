@@ -896,27 +896,14 @@ namespace md
 
 
 //------------------------------------------------------------------------------
-// forcefield
-//------------------------------------------------------------------------------
-
-namespace md
-{
-    class system;
-
-    class forcefield
-    {
-    public:
-        virtual ~forcefield() = default;
-        virtual md::scalar compute_energy(md::system const& system) = 0;
-        virtual void compute_force(md::system const& system, md::array_view<md::vector> forces) = 0;
-    };
-}
-
-//------------------------------------------------------------------------------
-// system
+// attribute system
 //------------------------------------------------------------------------------
 
 #include <memory>
+#include <typeindex>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 
 namespace md
@@ -933,22 +920,169 @@ namespace md
         return key ? key(nullptr) : T{};
     }
 
+    namespace detail
+    {
+        // dynarray_base is a type-erased base class of dynarray<T>.
+        class dynarray_base
+        {
+        public:
+            virtual ~dynarray_base() = default;
+
+            // resize resizes the internal storage to given size.
+            virtual void resize(md::index size) = 0;
+        };
+
+        // dynarray is a resizable array of Ts.
+        template<typename T>
+        class dynarray : public dynarray_base
+        {
+        public:
+            dynarray(md::index size, T def)
+                : default_{def}, values_(size, def)
+            {
+            }
+
+            // resize resizes the internal storage to given size. Newly created
+            // elements are filled with the default value.
+            void resize(md::index size) override
+            {
+                values_.resize(size, default_);
+            }
+
+            // view returns a view into the array.
+            md::array_view<T> view()
+            {
+                return values_;
+            }
+
+        private:
+            T default_;
+            std::vector<T> values_;
+        };
+
+        // attribute_table is a table of arrays (columns) of the same length.
+        // Each column is keyed by a tag type.
+        class attribute_table
+        {
+        public:
+            // size returns the number of elements in the contained arrays.
+            md::index size() const
+            {
+                return size_;
+            }
+
+            // resize resizes all the contained arrays to the given size.
+            void resize(md::index size)
+            {
+                for (auto& node : arrays_) {
+                    node.second->resize(size);
+                }
+                size_ = size;
+            }
+
+            // require creates a column for given key if it does not exist, or
+            // does nothing otherwise.
+            template<typename T, typename Tag>
+            void require(md::attribute_key<T, Tag> key)
+            {
+                std::type_index const tag_key = typeid(Tag*);
+
+                if (arrays_.find(tag_key) == arrays_.end()) {
+                    arrays_.emplace(
+                        tag_key,
+                        std::make_unique<detail::dynarray<T>>(size_, md::default_value(key))
+                    );
+                }
+            }
+
+            // view returns a mutable view into the array.
+            template<typename T, typename Tag>
+            md::array_view<T> view(md::attribute_key<T, Tag>)
+            {
+                std::type_index const tag_key = typeid(Tag*);
+                return static_cast<detail::dynarray<T>&>(*arrays_.at(tag_key)).view();
+            }
+
+            template<typename T, typename Tag>
+            md::array_view<T const> view(md::attribute_key<T, Tag>) const
+            {
+                std::type_index const tag_key = typeid(Tag*);
+                return static_cast<detail::dynarray<T>&>(*arrays_.at(tag_key)).view();
+            }
+
+        private:
+            md::index size_ = 0;
+            std::unordered_map<std::type_index, std::unique_ptr<detail::dynarray_base>> arrays_;
+        };
+    }
+}
+
+
+//------------------------------------------------------------------------------
+// forcefield
+//------------------------------------------------------------------------------
+
+namespace md
+{
+    class system;
+
+    class forcefield
+    {
+    public:
+        virtual ~forcefield() = default;
+        virtual md::scalar compute_energy(md::system const& system) = 0;
+        virtual void compute_force(md::system const& system, md::array_view<md::vector> forces) = 0;
+    };
+}
+
+
+//------------------------------------------------------------------------------
+// system
+//------------------------------------------------------------------------------
+
+#include <memory>
+
+
+namespace md
+{
     // system
     class system
     {
     public:
-        md::index particle_count() const
-        {
-            return count_;
-        }
-
+        // add_particle adds a particle to the system.
         void add_particle()
         {
-            count_++;
+            attributes_.resize(attributes_.size() + 1);
+        }
+
+        // particle_count returns the number of particles in the system.
+        md::index particle_count() const
+        {
+            return attributes_.size();
+        }
+
+        // require creates a particle attribute if it does not exist.
+        template<typename T, typename Tag>
+        void require(md::attribute_key<T, Tag> key)
+        {
+            attributes_.require(key);
+        }
+
+        // view returns a view into the array of particle attribute values.
+        template<typename T, typename Tag>
+        md::array_view<T> view(md::attribute_key<T, Tag> key)
+        {
+            return attributes_.view(key);
+        }
+
+        template<typename T, typename Tag>
+        md::array_view<T const> view(md::attribute_key<T, Tag> key) const
+        {
+            return attributes_.view(key);
         }
 
     private:
-        md::index count_ = 0;
+        detail::attribute_table attributes_;
     };
 }
 
