@@ -6,11 +6,11 @@
 #define MD_DETAIL_NEIGHBOR_SEARCHER_HPP
 
 #include <algorithm>
-#include <cstdint>
 #include <set>
 #include <utility>
 #include <vector>
 
+#include "linear_hash.hpp"
 #include "../typedef.hpp"
 #include "../vendor/array_view.hpp"
 #include "../vendor/point.hpp"
@@ -18,31 +18,6 @@
 
 namespace md
 {
-    // linear_hash is a linear hash function for integral 3-vectors.
-    struct linear_hash
-    {
-        using hash_t = std::uint32_t;
-
-        hash_t x_coeff = 3929498747;
-        hash_t y_coeff = 1008281837;
-        hash_t z_coeff = 1832832077;
-        hash_t modulus = 1021;
-
-        inline hash_t operator()(hash_t x, hash_t y, hash_t z) const
-        {
-            // Avoid 32-bit wraparound (mod 2^32) with 64-bit extension.
-            using hash2x_t = std::uint64_t;
-
-            hash2x_t sum = 0;
-            sum += hash2x_t(x_coeff) * x;
-            sum += hash2x_t(y_coeff) * y;
-            sum += hash2x_t(z_coeff) * z;
-
-            return hash_t(sum % modulus);
-        }
-    };
-
-
     // neighbor_searcher
     class neighbor_searcher
     {

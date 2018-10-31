@@ -1,6 +1,6 @@
 #include <type_traits>
 
-#include <md/detail/neighbor_searcher.hpp>
+#include <md/detail/linear_hash.hpp>
 
 #include "../catch.hpp"
 

@@ -50,7 +50,7 @@ main: $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 main.o: catch.hpp
-test_linear_hash.o:       catch.hpp ../include/md/detail/neighbor_searcher.hpp
+test_linear_hash.o:       catch.hpp ../include/md/detail/linear_hash.hpp
 test_neighbor_searcher.o: catch.hpp ../include/md/detail/neighbor_searcher.hpp
 test_neighbor_list.o:     catch.hpp ../include/md/detail/neighbor_list.hpp
 test_forcefield.o:        catch.hpp ../include/md/forcefield.hpp
