@@ -178,3 +178,40 @@ TEST_CASE("system::compute_force - returns the sum of component force vectors")
     CHECK(forces[0].y == 2);
     CHECK(forces[0].z == 2);
 }
+
+TEST_CASE("system - has 1-valued mass_attribute by default")
+{
+    md::system system;
+    system.add_particle();
+
+    md::array_view<md::scalar> masses = system.view(md::mass_attribute);
+
+    CHECK(masses.size() == 1);
+    CHECK(masses[0] == 1);
+}
+
+TEST_CASE("system - has 0-valued position_attribute by default")
+{
+    md::system system;
+    system.add_particle();
+
+    md::array_view<md::point> positions = system.view(md::position_attribute);
+
+    CHECK(positions.size() == 1);
+    CHECK(positions[0].x == 0);
+    CHECK(positions[0].y == 0);
+    CHECK(positions[0].z == 0);
+}
+
+TEST_CASE("system - has 0-valued velocity_attribute by default")
+{
+    md::system system;
+    system.add_particle();
+
+    md::array_view<md::vector> velocities = system.view(md::velocity_attribute);
+
+    CHECK(velocities.size() == 1);
+    CHECK(velocities[0].x == 0);
+    CHECK(velocities[0].y == 0);
+    CHECK(velocities[0].z == 0);
+}
