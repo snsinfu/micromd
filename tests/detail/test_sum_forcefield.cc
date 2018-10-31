@@ -1,12 +1,18 @@
 #include <memory>
+#include <vector>
 
+#include <md/typedef.hpp>
 #include <md/forcefield.hpp>
 #include <md/system.hpp>
+#include <md/vendor/array_view.hpp>
+#include <md/vendor/point.hpp>
 
-#include "catch.hpp"
+#include <md/detail/sum_forcefield.hpp>
+
+#include "../catch.hpp"
 
 
-TEST_CASE("detail::sum_forcefield::add - adds a forcefield to the sum")
+TEST_CASE("sum_forcefield::add - adds a forcefield to the sum")
 {
     class my_forcefield : public md::forcefield
     {
