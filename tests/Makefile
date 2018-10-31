@@ -56,5 +56,6 @@ detail/test_linear_hash.o:       catch.hpp ../include/md/detail/linear_hash.hpp
 detail/test_neighbor_searcher.o: catch.hpp ../include/md/detail/neighbor_searcher.hpp
 detail/test_neighbor_list.o:     catch.hpp ../include/md/detail/neighbor_list.hpp
 detail/test_sum_forcefield.o:    catch.hpp ../include/md/detail/sum_forcefield.hpp
+detail/test_attribute_table.o:   catch.hpp ../include/md/detail/attribute_table.hpp
 detail/test_dynarray.o:          catch.hpp ../include/md/detail/dynarray.hpp
 test_system.o:                   catch.hpp ../include/md/system.hpp
