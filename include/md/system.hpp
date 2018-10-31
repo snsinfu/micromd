@@ -22,18 +22,6 @@ namespace md
     class system
     {
     public:
-        // time returns the time of the simulated system.
-        md::scalar time() const
-        {
-            return time_;
-        }
-
-        // advance_time adds dt to the time of the simulated system.
-        void advance_time(md::scalar dt)
-        {
-            time_ += dt;
-        }
-
         // add_particle adds a particle to the system.
         void add_particle()
         {
@@ -93,7 +81,6 @@ namespace md
         }
 
     private:
-        md::scalar time_ = 0;
         detail::attribute_table attributes_;
         detail::sum_forcefield forcefield_;
     };
