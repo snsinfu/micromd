@@ -1,6 +1,7 @@
 #include <memory>
 
-#include "../include/md.hpp"
+#include <md/system.hpp>
+
 #include "catch.hpp"
 
 

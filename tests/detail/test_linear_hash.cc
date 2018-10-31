@@ -1,7 +1,8 @@
 #include <type_traits>
 
-#include "../include/md.hpp"
-#include "catch.hpp"
+#include <md/detail/neighbor_searcher.hpp>
+
+#include "../catch.hpp"
 
 
 TEST_CASE("linear_hash - hash type is unsigned")

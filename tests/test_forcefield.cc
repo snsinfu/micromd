@@ -1,6 +1,8 @@
 #include <memory>
 
-#include "../include/md.hpp"
+#include <md/forcefield.hpp>
+#include <md/system.hpp>
+
 #include "catch.hpp"
 
 

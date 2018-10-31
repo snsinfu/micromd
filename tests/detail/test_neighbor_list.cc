@@ -4,8 +4,9 @@
 #include <utility>
 #include <vector>
 
-#include "../include/md.hpp"
-#include "catch.hpp"
+#include <md/detail/neighbor_list.hpp>
+
+#include "../catch.hpp"
 
 
 TEST_CASE("detail::compute_variance - computes correct variance")

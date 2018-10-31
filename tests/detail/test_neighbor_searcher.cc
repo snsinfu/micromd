@@ -6,8 +6,9 @@
 #include <utility>
 #include <vector>
 
-#include "../include/md.hpp"
-#include "catch.hpp"
+#include <md/detail/neighbor_searcher.hpp>
+
+#include "../catch.hpp"
 
 
 TEST_CASE("neighbor_searcher - outputs nothing by default")
