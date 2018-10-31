@@ -6,7 +6,6 @@
 #define MD_DETAIL_ATTRIBUTE_TABLE_HPP
 
 #include <memory>
-#include <typeindex>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -32,6 +31,16 @@ namespace md
 
     namespace detail
     {
+        using type_hash_t = void const*;
+
+        // type_hash assigns a unique value for each given type.
+        template<typename Tag>
+        inline type_hash_t type_hash() noexcept
+        {
+            static char dummy;
+            return &dummy;
+        }
+
         // attribute_table is a table of arrays (columns) of the same length.
         // Each column is keyed by a tag type.
         class attribute_table
@@ -57,7 +66,7 @@ namespace md
             template<typename T, typename Tag>
             void require(md::attribute_key<T, Tag> key)
             {
-                std::type_index const tag_key = typeid(Tag*);
+                type_hash_t const tag_key = type_hash<Tag>();
 
                 if (arrays_.find(tag_key) == arrays_.end()) {
                     arrays_.emplace(
@@ -71,20 +80,20 @@ namespace md
             template<typename T, typename Tag>
             md::array_view<T> view(md::attribute_key<T, Tag>)
             {
-                std::type_index const tag_key = typeid(Tag*);
+                type_hash_t const tag_key = type_hash<Tag>();
                 return static_cast<detail::dynarray<T>&>(*arrays_.at(tag_key)).view();
             }
 
             template<typename T, typename Tag>
             md::array_view<T const> view(md::attribute_key<T, Tag>) const
             {
-                std::type_index const tag_key = typeid(Tag*);
+                type_hash_t const tag_key = type_hash<Tag>();
                 return static_cast<detail::dynarray<T>&>(*arrays_.at(tag_key)).view();
             }
 
         private:
             md::index size_ = 0;
-            std::unordered_map<std::type_index, std::unique_ptr<detail::dynarray_base>> arrays_;
+            std::unordered_map<type_hash_t, std::unique_ptr<detail::dynarray_base>> arrays_;
         };
     }
 }
