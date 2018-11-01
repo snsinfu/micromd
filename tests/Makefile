@@ -52,15 +52,13 @@ main: $(OBJECTS)
 .cc.o:
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-main.o: catch.hpp
+detail/test_linear_hash.o:       ../include/md/detail/linear_hash.hpp
+detail/test_neighbor_searcher.o: ../include/md/detail/neighbor_searcher.hpp
+detail/test_neighbor_list.o:     ../include/md/detail/neighbor_list.hpp
+detail/test_sum_forcefield.o:    ../include/md/detail/sum_forcefield.hpp
+detail/test_attribute_table.o:   ../include/md/detail/attribute_table.hpp
+detail/test_dynarray.o:          ../include/md/detail/dynarray.hpp
 
-detail/test_linear_hash.o:       catch.hpp ../include/md/detail/linear_hash.hpp
-detail/test_neighbor_searcher.o: catch.hpp ../include/md/detail/neighbor_searcher.hpp
-detail/test_neighbor_list.o:     catch.hpp ../include/md/detail/neighbor_list.hpp
-detail/test_sum_forcefield.o:    catch.hpp ../include/md/detail/sum_forcefield.hpp
-detail/test_attribute_table.o:   catch.hpp ../include/md/detail/attribute_table.hpp
-detail/test_dynarray.o:          catch.hpp ../include/md/detail/dynarray.hpp
+forcefield/test_composite_forcefield.o: ../include/md/forcefield/composite_forcefield.hpp
 
-forcefield/test_composite_forcefield.o: catch.hpp ../include/md/forcefield/composite_forcefield.hpp
-
-test_system.o: catch.hpp ../include/md/system.hpp
+test_system.o: ../include/md/system.hpp
