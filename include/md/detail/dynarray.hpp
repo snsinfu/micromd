@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "../typedef.hpp"
-#include "../vendor/array_view.hpp"
 
 
 namespace md

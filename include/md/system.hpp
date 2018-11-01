@@ -12,8 +12,6 @@
 #include "typedef.hpp"
 #include "detail/attribute_table.hpp"
 #include "detail/sum_forcefield.hpp"
-#include "vendor/array_view.hpp"
-#include "vendor/point.hpp"
 
 
 namespace md

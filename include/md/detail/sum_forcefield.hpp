@@ -10,8 +10,7 @@
 #include <vector>
 
 #include "../forcefield.hpp"
-#include "../vendor/array_view.hpp"
-#include "../vendor/point.hpp"
+#include "../typedef.hpp"
 
 
 namespace md

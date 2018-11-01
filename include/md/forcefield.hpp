@@ -6,8 +6,6 @@
 #define MD_FORCEFIELD_HPP
 
 #include "typedef.hpp"
-#include "vendor/array_view.hpp"
-#include "vendor/point.hpp"
 
 
 namespace md

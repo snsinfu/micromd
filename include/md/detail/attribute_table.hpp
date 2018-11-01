@@ -10,9 +10,8 @@
 #include <utility>
 #include <vector>
 
-#include "dynarray.hpp"
 #include "../typedef.hpp"
-#include "../vendor/array_view.hpp"
+#include "dynarray.hpp"
 
 
 namespace md

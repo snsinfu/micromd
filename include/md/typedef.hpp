@@ -7,6 +7,9 @@
 
 #include <cstddef>
 
+#include "vendor/array_view.hpp"
+#include "vendor/point.hpp"
+
 
 namespace md
 {

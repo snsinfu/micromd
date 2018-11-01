@@ -10,10 +10,8 @@
 #include <utility>
 #include <vector>
 
-#include "linear_hash.hpp"
 #include "../typedef.hpp"
-#include "../vendor/array_view.hpp"
-#include "../vendor/point.hpp"
+#include "linear_hash.hpp"
 
 
 namespace md

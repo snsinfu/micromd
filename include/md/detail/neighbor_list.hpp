@@ -10,10 +10,8 @@
 #include <utility>
 #include <vector>
 
-#include "neighbor_searcher.hpp"
 #include "../typedef.hpp"
-#include "../vendor/array_view.hpp"
-#include "../vendor/point.hpp"
+#include "neighbor_searcher.hpp"
 
 
 namespace md
