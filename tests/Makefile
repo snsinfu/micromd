@@ -29,6 +29,7 @@ OBJECTS = \
   detail/test_attribute_table.o \
   detail/test_dynarray.o \
   forcefield/test_composite_forcefield.o \
+  forcefield/test_neighbor_pair_forcefield.o \
   test_system.o
 
 ARTIFACTS = \
@@ -59,6 +60,7 @@ detail/test_sum_forcefield.o:    ../include/md/detail/sum_forcefield.hpp
 detail/test_attribute_table.o:   ../include/md/detail/attribute_table.hpp
 detail/test_dynarray.o:          ../include/md/detail/dynarray.hpp
 
-forcefield/test_composite_forcefield.o: ../include/md/forcefield/composite_forcefield.hpp
+forcefield/test_composite_forcefield.o:     ../include/md/forcefield/composite_forcefield.hpp
+forcefield/test_neighbor_pair_forcefield.o: ../include/md/forcefield/neighbor_pair_forcefield.hpp
 
 test_system.o: ../include/md/system.hpp
