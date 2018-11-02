@@ -3,7 +3,7 @@
 
 #include <md/system/attribute_table.hpp>
 
-#include "../catch.hpp"
+#include <catch.hpp>
 
 
 TEST_CASE("attribute_key - is a function pointer type")

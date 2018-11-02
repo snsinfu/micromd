@@ -1,6 +1,6 @@
 #include <md/system/detail/dynarray.hpp>
 
-#include "../../catch.hpp"
+#include <catch.hpp>
 
 
 TEST_CASE("dynarray - constructor creates an array")

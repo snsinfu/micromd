@@ -2,7 +2,7 @@
 
 #include <md/system.hpp>
 
-#include "catch.hpp"
+#include <catch.hpp>
 
 
 TEST_CASE("system::particle_count - returns zero on default state")

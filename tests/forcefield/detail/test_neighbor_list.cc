@@ -6,7 +6,7 @@
 
 #include <md/forcefield/detail/neighbor_list.hpp>
 
-#include "../../catch.hpp"
+#include <catch.hpp>
 
 
 TEST_CASE("detail::compute_variance - computes correct variance")

@@ -7,7 +7,7 @@
 
 #include <md/system/detail/sum_forcefield.hpp>
 
-#include "../../catch.hpp"
+#include <catch.hpp>
 
 
 TEST_CASE("sum_forcefield::add - adds a forcefield to the sum")

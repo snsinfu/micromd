@@ -7,7 +7,7 @@
 
 #include <md/forcefield/neighbor_pair_forcefield.hpp>
 
-#include "../catch.hpp"
+#include <catch.hpp>
 
 
 namespace

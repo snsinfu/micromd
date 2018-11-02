@@ -6,7 +6,7 @@
 
 #include <md/forcefield/composite_forcefield.hpp>
 
-#include "../catch.hpp"
+#include <catch.hpp>
 
 
 TEST_CASE("composite_forcefield - computes sum of composed forcefields")

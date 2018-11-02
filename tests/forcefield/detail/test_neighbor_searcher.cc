@@ -8,7 +8,7 @@
 
 #include <md/forcefield/detail/neighbor_searcher.hpp>
 
-#include "../../catch.hpp"
+#include <catch.hpp>
 
 
 TEST_CASE("neighbor_searcher - outputs nothing by default")

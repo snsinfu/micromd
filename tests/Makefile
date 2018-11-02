@@ -6,6 +6,7 @@ OPTFLAGS = \
   -Og
 
 INCLUDES = \
+  -isystem include \
   -I ../include
 
 CXXFLAGS = \
