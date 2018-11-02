@@ -7,7 +7,7 @@
 
 #include <vector>
 
-#include "../typedef.hpp"
+#include "../basic_types.hpp"
 
 
 namespace md

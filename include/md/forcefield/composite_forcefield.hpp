@@ -8,9 +8,9 @@
 #include <iterator>
 #include <numeric>
 
+#include "../basic_types.hpp"
 #include "../forcefield.hpp"
 #include "../system.hpp"
-#include "../typedef.hpp"
 
 
 namespace md

@@ -5,7 +5,7 @@
 #ifndef MD_FORCEFIELD_HPP
 #define MD_FORCEFIELD_HPP
 
-#include "typedef.hpp"
+#include "basic_types.hpp"
 
 
 namespace md

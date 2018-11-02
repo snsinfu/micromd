@@ -1,9 +1,9 @@
 #include <algorithm>
 #include <vector>
 
+#include <md/basic_types.hpp>
 #include <md/forcefield.hpp>
 #include <md/system.hpp>
-#include <md/typedef.hpp>
 
 #include <md/forcefield/neighbor_pair_forcefield.hpp>
 

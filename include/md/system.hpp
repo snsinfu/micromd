@@ -8,8 +8,8 @@
 #include <algorithm>
 #include <memory>
 
+#include "basic_types.hpp"
 #include "forcefield.hpp"
-#include "typedef.hpp"
 #include "detail/attribute_table.hpp"
 #include "detail/sum_forcefield.hpp"
 

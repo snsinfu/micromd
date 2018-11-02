@@ -2,8 +2,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef MD_VENDOR_POINT_HPP
-#define MD_VENDOR_POINT_HPP
+#ifndef MD_BASIC_TYPES_POINT_HPP
+#define MD_BASIC_TYPES_POINT_HPP
 
 #include <cmath>
 #include <cstddef>

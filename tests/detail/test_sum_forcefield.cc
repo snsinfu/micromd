@@ -1,11 +1,9 @@
 #include <memory>
 #include <vector>
 
-#include <md/typedef.hpp>
+#include <md/basic_types.hpp>
 #include <md/forcefield.hpp>
 #include <md/system.hpp>
-#include <md/vendor/array_view.hpp>
-#include <md/vendor/point.hpp>
 
 #include <md/detail/sum_forcefield.hpp>
 

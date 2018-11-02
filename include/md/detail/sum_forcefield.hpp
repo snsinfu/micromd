@@ -9,8 +9,8 @@
 #include <memory>
 #include <vector>
 
+#include "../basic_types.hpp"
 #include "../forcefield.hpp"
-#include "../typedef.hpp"
 
 
 namespace md

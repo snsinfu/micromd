@@ -5,9 +5,9 @@
 #ifndef MD_FORCEFIELD_NEIGHBOR_PAIR_FORCEFIELD_HPP
 #define MD_FORCEFIELD_NEIGHBOR_PAIR_FORCEFIELD_HPP
 
+#include "../basic_types.hpp"
 #include "../forcefield.hpp"
 #include "../system.hpp"
-#include "../typedef.hpp"
 #include "../detail/neighbor_list.hpp"
 
 
