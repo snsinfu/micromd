@@ -20,17 +20,19 @@ CXXFLAGS = \
   $(OPTFLAGS) \
   $(INCLUDES)
 
+MDDIR = ../include/md
+
 OBJECTS = \
   main.o \
-  detail/test_linear_hash.o \
-  detail/test_neighbor_searcher.o \
-  detail/test_neighbor_list.o \
-  detail/test_sum_forcefield.o \
-  detail/test_attribute_table.o \
-  detail/test_dynarray.o \
-  forcefield/test_composite_forcefield.o \
+  test_system.o \
+  system/test_attribute_table.o \
+  system/detail/test_sum_forcefield.o \
+  system/detail/test_dynarray.o \
   forcefield/test_neighbor_pair_forcefield.o \
-  test_system.o
+  forcefield/test_composite_forcefield.o \
+  forcefield/detail/test_linear_hash.o \
+  forcefield/detail/test_neighbor_searcher.o \
+  forcefield/detail/test_neighbor_list.o
 
 ARTIFACTS = \
   main \
@@ -53,14 +55,17 @@ main: $(OBJECTS)
 .cc.o:
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-detail/test_linear_hash.o:       ../include/md/detail/linear_hash.hpp
-detail/test_neighbor_searcher.o: ../include/md/detail/neighbor_searcher.hpp
-detail/test_neighbor_list.o:     ../include/md/detail/neighbor_list.hpp
-detail/test_sum_forcefield.o:    ../include/md/detail/sum_forcefield.hpp
-detail/test_attribute_table.o:   ../include/md/detail/attribute_table.hpp
-detail/test_dynarray.o:          ../include/md/detail/dynarray.hpp
+# FIXME: These prerequisites are partial and can cause UB due to ODR violation!
 
-forcefield/test_composite_forcefield.o:     ../include/md/forcefield/composite_forcefield.hpp
-forcefield/test_neighbor_pair_forcefield.o: ../include/md/forcefield/neighbor_pair_forcefield.hpp
+test_system.o: $(MDDIR)/system.hpp
 
-test_system.o: ../include/md/system.hpp
+system/test_attribute_table.o :      $(MDDIR)/system/attribute_table.hpp
+system/detail/test_sum_forcefield.o: $(MDDIR)/system/detail/sum_forcefield.hpp
+system/detail/test_dynarray.o:       $(MDDIR)/system/detail/dynarray.hpp
+
+forcefield/detail/test_linear_hash.o:       $(MDDIR)/forcefield/detail/linear_hash.hpp
+forcefield/detail/test_neighbor_searcher.o: $(MDDIR)/forcefield/detail/neighbor_searcher.hpp
+forcefield/detail/test_neighbor_list.o:     $(MDDIR)/forcefield/detail/neighbor_list.hpp
+
+forcefield/test_neighbor_pair_forcefield.o: $(MDDIR)/forcefield/neighbor_pair_forcefield.hpp
+forcefield/test_composite_forcefield.o:     $(MDDIR)/forcefield/composite_forcefield.hpp

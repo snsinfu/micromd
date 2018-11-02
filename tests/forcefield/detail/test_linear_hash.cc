@@ -1,8 +1,8 @@
 #include <type_traits>
 
-#include <md/detail/linear_hash.hpp>
+#include <md/forcefield/detail/linear_hash.hpp>
 
-#include "../catch.hpp"
+#include "../../catch.hpp"
 
 
 TEST_CASE("linear_hash - hash type is unsigned")

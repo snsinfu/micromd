@@ -4,9 +4,9 @@
 #include <utility>
 #include <vector>
 
-#include <md/detail/neighbor_list.hpp>
+#include <md/forcefield/detail/neighbor_list.hpp>
 
-#include "../catch.hpp"
+#include "../../catch.hpp"
 
 
 TEST_CASE("detail::compute_variance - computes correct variance")

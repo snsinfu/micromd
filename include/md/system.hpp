@@ -10,8 +10,8 @@
 
 #include "basic_types.hpp"
 #include "forcefield.hpp"
-#include "detail/attribute_table.hpp"
-#include "detail/sum_forcefield.hpp"
+#include "system/attribute_table.hpp"
+#include "system/detail/sum_forcefield.hpp"
 
 
 namespace md

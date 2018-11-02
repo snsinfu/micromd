@@ -2,15 +2,15 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef MD_DETAIL_SUM_FORCEFIELD_HPP
-#define MD_DETAIL_SUM_FORCEFIELD_HPP
+#ifndef MD_SYSTEM_DETAIL_SUM_FORCEFIELD_HPP
+#define MD_SYSTEM_DETAIL_SUM_FORCEFIELD_HPP
 
 #include <cassert>
 #include <memory>
 #include <vector>
 
-#include "../basic_types.hpp"
-#include "../forcefield.hpp"
+#include "../../basic_types.hpp"
+#include "../../forcefield.hpp"
 
 
 namespace md
