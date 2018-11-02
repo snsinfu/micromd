@@ -40,7 +40,7 @@ ARTIFACTS = \
   $(OBJECTS)
 
 
-.PHONY: unittest gcov clean
+.PHONY: unittest clean
 .SUFFIXES: .cc
 
 unittest: main
