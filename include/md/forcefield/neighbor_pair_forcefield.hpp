@@ -8,6 +8,7 @@
 #include "../basic_types.hpp"
 #include "../forcefield.hpp"
 #include "../system.hpp"
+
 #include "detail/neighbor_list.hpp"
 
 

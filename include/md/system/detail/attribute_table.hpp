@@ -12,6 +12,7 @@
 
 #include "../../basic_types.hpp"
 #include "../attribute.hpp"
+
 #include "array_erasure.hpp"
 
 

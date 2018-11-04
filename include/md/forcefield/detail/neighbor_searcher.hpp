@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "../../basic_types.hpp"
+
 #include "linear_hash.hpp"
 
 
