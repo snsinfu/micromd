@@ -92,7 +92,7 @@ TEST_CASE("neighbor_pair_forcefield - computes correct forcefield")
     }
 }
 
-TEST_CASE("force_neighbor_pairs")
+TEST_CASE("force_neighbor_pairs - defines neighbor_pair_forcefield using potential factory")
 {
     // Particles on a 5x5x5 grid
     md::system system;
@@ -117,6 +117,49 @@ TEST_CASE("force_neighbor_pairs")
             return bell_potential{};
         });
         bell_potential potential;
+
+        md::scalar expected = 0;
+        md::array_view<md::point const> positions = system.view_positions();
+
+        for (md::index i = 0; i < positions.size(); i++) {
+            for (md::index j = 0; j < i; j++) {
+                expected += potential.evaluate_energy(positions[i] - positions[j]);
+            }
+        }
+
+        CHECK(system.compute_potential_energy() == expected);
+    }
+
+    SECTION("force is correct")
+    {
+        // FIXME
+    }
+}
+
+TEST_CASE("force_neighbor_pairs - defines neighbor_pair_forcefield using potential object")
+{
+    // Particles on a 5x5x5 grid
+    md::system system;
+
+    for (int x = -2; x <= 2; x++) {
+        for (int y = -2; y <= 2; y++) {
+            for (int z = -2; z <= 2; z++) {
+                md::basic_particle_data data;
+
+                data.position = {
+                    x * 0.5,
+                    y * 0.5,
+                    z * 0.5
+                };
+                system.add_particle(data);
+            }
+        }
+    }
+
+    SECTION("energy is correct")
+    {
+        bell_potential potential;
+        md::force_neighbor_pairs(system, 1, potential);
 
         md::scalar expected = 0;
         md::array_view<md::point const> positions = system.view_positions();

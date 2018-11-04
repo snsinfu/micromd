@@ -5,6 +5,9 @@
 #ifndef MD_FORCEFIELD_NEIGHBOR_PAIR_FORCEFIELD_HPP
 #define MD_FORCEFIELD_NEIGHBOR_PAIR_FORCEFIELD_HPP
 
+#include <type_traits>
+#include <utility>
+
 #include "../basic_types.hpp"
 #include "../forcefield.hpp"
 #include "../system.hpp"
@@ -100,11 +103,43 @@ namespace md
         };
     }
 
-    template<typename PF>
-    void force_neighbor_pairs(md::system& system, md::scalar dcut, PF potfun)
+    namespace detail
     {
+        template<typename P>
+        struct pair_potential_factory
+        {
+            P potential;
+
+            P operator()(md::index, md::index) const
+            {
+                return potential;
+            }
+        };
+
+        template<
+            typename PF,
+            typename = decltype(std::declval<PF>()(md::index{}, md::index{}))
+        >
+        PF make_pair_potfun(PF potfun)
+        {
+            return potfun;
+        }
+
+        template<typename P, typename... Dummy>
+        pair_potential_factory<P> make_pair_potfun(P pot, Dummy...)
+        {
+            return pair_potential_factory<P>{pot};
+        }
+    }
+
+    template<typename P>
+    void force_neighbor_pairs(md::system& system, md::scalar dcut, P pot)
+    {
+        auto potfun = detail::make_pair_potfun(pot);
+        using potfun_t = decltype(potfun);
+
         system.add_forcefield(
-            std::make_shared<detail::basic_neighbor_pair_forcefield<PF>>(dcut, potfun)
+            std::make_shared<detail::basic_neighbor_pair_forcefield<potfun_t>>(dcut, potfun)
         );
     }
 }
