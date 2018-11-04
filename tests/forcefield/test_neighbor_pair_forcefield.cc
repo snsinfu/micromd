@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cassert>
 #include <vector>
 
 #include <md/basic_types.hpp>
@@ -33,6 +34,21 @@ namespace
             }
         }
     };
+
+    md::scalar max_difference(
+        md::array_view<md::vector const> v1,
+        md::array_view<md::vector const> v2
+    )
+    {
+        assert(v1.size() == v2.size());
+
+        md::scalar diff = 0;
+
+        for (md::index i = 0; i < v1.size(); i++) {
+            diff = std::max(diff, md::norm(v1[i] - v2[i]));
+        }
+        return diff;
+    }
 }
 
 
@@ -88,7 +104,26 @@ TEST_CASE("neighbor_pair_forcefield - computes correct forcefield")
 
     SECTION("force is correct")
     {
-        // FIXME
+        bell_potential potential;
+        test_forcefield forcefield;
+
+        std::vector<md::vector> actual(system.particle_count());
+        std::vector<md::vector> expected(system.particle_count());
+
+        md::array_view<md::point const> positions = system.view_positions();
+
+        for (md::index i = 0; i < positions.size(); i++) {
+            for (md::index j = 0; j < i; j++) {
+                md::vector const r = positions[i] - positions[j];
+                md::vector const force = potential.evaluate_force(r);
+                expected[i] += force;
+                expected[j] -= force;
+            }
+        }
+
+        forcefield.compute_force(system, actual);
+
+        CHECK(max_difference(actual, expected) < 1e-6);
     }
 }
 
@@ -132,7 +167,28 @@ TEST_CASE("force_neighbor_pairs - defines neighbor_pair_forcefield using potenti
 
     SECTION("force is correct")
     {
-        // FIXME
+        md::force_neighbor_pairs(system, 1, [](md::index, md::index) {
+            return bell_potential{};
+        });
+        bell_potential potential;
+
+        std::vector<md::vector> actual(system.particle_count());
+        std::vector<md::vector> expected(system.particle_count());
+
+        md::array_view<md::point const> positions = system.view_positions();
+
+        for (md::index i = 0; i < positions.size(); i++) {
+            for (md::index j = 0; j < i; j++) {
+                md::vector const r = positions[i] - positions[j];
+                md::vector const force = potential.evaluate_force(r);
+                expected[i] += force;
+                expected[j] -= force;
+            }
+        }
+
+        system.compute_force(actual);
+
+        CHECK(max_difference(actual, expected) < 1e-6);
     }
 }
 
@@ -175,6 +231,25 @@ TEST_CASE("force_neighbor_pairs - defines neighbor_pair_forcefield using potenti
 
     SECTION("force is correct")
     {
-        // FIXME
+        bell_potential potential;
+        md::force_neighbor_pairs(system, 1, potential);
+
+        std::vector<md::vector> actual(system.particle_count());
+        std::vector<md::vector> expected(system.particle_count());
+
+        md::array_view<md::point const> positions = system.view_positions();
+
+        for (md::index i = 0; i < positions.size(); i++) {
+            for (md::index j = 0; j < i; j++) {
+                md::vector const r = positions[i] - positions[j];
+                md::vector const force = potential.evaluate_force(r);
+                expected[i] += force;
+                expected[j] -= force;
+            }
+        }
+
+        system.compute_force(actual);
+
+        CHECK(max_difference(actual, expected) < 1e-6);
     }
 }
