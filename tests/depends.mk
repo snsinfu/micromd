@@ -53,8 +53,8 @@ forcefield/detail/test_neighbor_list.o: \
 main.o: main.cc
 simulation/test_brownian_dynamics.o: simulation/test_brownian_dynamics.cc \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
-  ../include/md/basic_types/point.hpp ../include/md/system.hpp \
-  ../include/md/forcefield.hpp ../include/md/system/attribute.hpp \
+  ../include/md/basic_types/point.hpp ../include/md/forcefield.hpp \
+  ../include/md/system.hpp ../include/md/system/attribute.hpp \
   ../include/md/system/detail/attribute_table.hpp \
   ../include/md/system/detail/../../basic_types.hpp \
   ../include/md/system/detail/../attribute.hpp \
