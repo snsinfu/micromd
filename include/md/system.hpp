@@ -10,7 +10,8 @@
 
 #include "basic_types.hpp"
 #include "forcefield.hpp"
-#include "system/attribute_table.hpp"
+#include "system/attribute.hpp"
+#include "system/detail/attribute_table.hpp"
 #include "system/detail/sum_forcefield.hpp"
 
 
