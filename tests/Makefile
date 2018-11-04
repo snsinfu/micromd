@@ -27,7 +27,7 @@ OBJECTS = $(addsuffix .o, $(basename $(SOURCES)))
 ARTIFACTS = $(OBJECTS) *.dSYM main
 
 
-.PHONY: unittest clean
+.PHONY: unittest clean depends
 .SUFFIXES: .cc
 
 unittest: main
@@ -36,13 +36,13 @@ unittest: main
 clean:
 	rm -rf $(ARTIFACTS)
 
+depends:
+	for s in $(SOURCES); do $(CXX) $(CXXFLAGS) -MM -MF- -MT $${s%.cc}.o $${s}; done > depends.mk
+
 main: $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJECTS)
 
 .cc.o:
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-depends.mk: $(SOURCES)
-	for src in $(SOURCES); do $(CXX) $(CXXFLAGS) -MM -MF- -MT $${src%.cc}.o $${src}; done > $@
 
 -include depends.mk
