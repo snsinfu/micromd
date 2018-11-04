@@ -20,21 +20,21 @@ namespace md
 {
     // mass_attribute is an attribute key for particle mass. The default value
     // is 1.
-    inline md::scalar mass_attribute(struct tag_mass_attribute*)
+    inline constexpr md::scalar mass_attribute(struct tag_mass_attribute*)
     {
         return 1;
     }
 
     // position_attribute is an attribute key for particle position. The default
     // value is the origin.
-    inline md::point position_attribute(struct tag_position_attribute*)
+    inline constexpr md::point position_attribute(struct tag_position_attribute*)
     {
         return {};
     }
 
     // velocity_attribute is an attribute key for particle velocity. The default
     // value is the zero vector.
-    inline md::vector velocity_attribute(struct tag_velocity_attribute*)
+    inline constexpr md::vector velocity_attribute(struct tag_velocity_attribute*)
     {
         return {};
     }
@@ -42,9 +42,9 @@ namespace md
     //
     struct basic_particle_data
     {
-        md::scalar mass = 1;
-        md::point position;
-        md::vector velocity;
+        md::scalar mass = md::default_value(md::mass_attribute);
+        md::point position = md::default_value(md::position_attribute);
+        md::vector velocity = md::default_value(md::velocity_attribute);
     };
 
     // system

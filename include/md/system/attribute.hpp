@@ -20,7 +20,7 @@ namespace md
 
     // default_value returns the default value associated with given key.
     template<typename T, typename Tag>
-    T default_value(md::attribute_key<T, Tag> key)
+    constexpr T default_value(md::attribute_key<T, Tag> key)
     {
         return key ? key(nullptr) : T{};
     }
