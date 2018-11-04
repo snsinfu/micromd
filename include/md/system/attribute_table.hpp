@@ -11,7 +11,7 @@
 #include <vector>
 
 #include "../basic_types.hpp"
-#include "detail/dynarray.hpp"
+#include "detail/array_erasure.hpp"
 
 
 namespace md
@@ -70,7 +70,7 @@ namespace md
                 if (arrays_.find(tag_key) == arrays_.end()) {
                     arrays_.emplace(
                         tag_key,
-                        std::make_unique<detail::dynarray<T>>(size_, md::default_value(key))
+                        detail::array_erasure::make<T>(size_, md::default_value(key))
                     );
                 }
             }
@@ -79,20 +79,18 @@ namespace md
             template<typename T, typename Tag>
             md::array_view<T> view(md::attribute_key<T, Tag>)
             {
-                type_hash_t const tag_key = type_hash<Tag>();
-                return static_cast<detail::dynarray<T>&>(*arrays_.at(tag_key)).view();
+                return arrays_.at(type_hash<Tag>())->template recover<T>();
             }
 
             template<typename T, typename Tag>
             md::array_view<T const> view(md::attribute_key<T, Tag>) const
             {
-                type_hash_t const tag_key = type_hash<Tag>();
-                return static_cast<detail::dynarray<T>&>(*arrays_.at(tag_key)).view();
+                return arrays_.at(type_hash<Tag>())->template recover<T>();
             }
 
         private:
             md::index size_ = 0;
-            std::unordered_map<type_hash_t, std::unique_ptr<detail::dynarray_base>> arrays_;
+            std::unordered_map<type_hash_t, std::unique_ptr<detail::array_erasure>> arrays_;
         };
     }
 }
