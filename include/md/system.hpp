@@ -39,6 +39,14 @@ namespace md
         return {};
     }
 
+    //
+    struct basic_particle_data
+    {
+        md::scalar mass = 1;
+        md::point position;
+        md::vector velocity;
+    };
+
     // system
     class system
     {
@@ -51,9 +59,15 @@ namespace md
         }
 
         // add_particle adds a particle to the system.
-        void add_particle()
+        void add_particle(md::basic_particle_data data = {})
         {
-            attributes_.resize(attributes_.size() + 1);
+            md::index const idx = attributes_.size();
+
+            attributes_.resize(idx + 1);
+
+            view(md::mass_attribute)[idx] = data.mass;
+            view(md::position_attribute)[idx] = data.position;
+            view(md::velocity_attribute)[idx] = data.velocity;
         }
 
         // particle_count returns the number of particles in the system.

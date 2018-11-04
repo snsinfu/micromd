@@ -51,6 +51,27 @@ TEST_CASE("system::add_particle - extends existing attribute array")
     CHECK(system.view(test_attribute_b).size() == 3);
 }
 
+TEST_CASE("system::add_particle - can set basic attributes")
+{
+    md::system system;
+
+    md::basic_particle_data data;
+    data.mass = 1.23;
+    data.position = {4, 5, 6};
+    data.velocity = {7, 8, 9};
+    system.add_particle(data);
+
+    CHECK(system.view(md::mass_attribute)[0] == data.mass);
+
+    CHECK(system.view(md::position_attribute)[0].x == data.position.x);
+    CHECK(system.view(md::position_attribute)[0].y == data.position.y);
+    CHECK(system.view(md::position_attribute)[0].z == data.position.z);
+
+    CHECK(system.view(md::velocity_attribute)[0].x == data.velocity.x);
+    CHECK(system.view(md::velocity_attribute)[0].y == data.velocity.y);
+    CHECK(system.view(md::velocity_attribute)[0].z == data.velocity.z);
+}
+
 TEST_CASE("system::require - creates an attribute if it does not exist")
 {
     // Add 3 particles
