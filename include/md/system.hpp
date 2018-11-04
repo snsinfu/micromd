@@ -25,6 +25,13 @@ namespace md
         return 1;
     }
 
+    // mobility_attribute is an attribute key for particle mobility. This is
+    // used in brownian dynamics simulations. The default value is 1.
+    inline constexpr md::scalar mobility_attribute(struct tag_mobility_attribute*)
+    {
+        return 1;
+    }
+
     // position_attribute is an attribute key for particle position. The default
     // value is the origin.
     inline constexpr md::point position_attribute(struct tag_position_attribute*)
@@ -43,6 +50,7 @@ namespace md
     struct basic_particle_data
     {
         md::scalar mass = md::default_value(md::mass_attribute);
+        md::scalar mobility = md::default_value(md::mobility_attribute);
         md::point position = md::default_value(md::position_attribute);
         md::vector velocity = md::default_value(md::velocity_attribute);
     };
@@ -54,6 +62,7 @@ namespace md
         system()
         {
             require(md::mass_attribute);
+            require(md::mobility_attribute);
             require(md::position_attribute);
             require(md::velocity_attribute);
         }
@@ -66,6 +75,7 @@ namespace md
             attributes_.resize(idx + 1);
 
             view(md::mass_attribute)[idx] = data.mass;
+            view(md::mobility_attribute)[idx] = data.mobility;
             view(md::position_attribute)[idx] = data.position;
             view(md::velocity_attribute)[idx] = data.velocity;
         }
@@ -105,6 +115,17 @@ namespace md
         md::array_view<md::scalar const> view_masses() const noexcept
         {
             return attributes_.view(md::mass_attribute);
+        }
+
+        // view_mobilities returns a view of built-in mobility attributes.
+        md::array_view<md::scalar> view_mobilities() noexcept
+        {
+            return attributes_.view(md::mobility_attribute);
+        }
+
+        md::array_view<md::scalar const> view_mobilities() const noexcept
+        {
+            return attributes_.view(md::mobility_attribute);
         }
 
         // view_positions returns a view of built-in position attributes.

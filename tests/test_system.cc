@@ -57,11 +57,14 @@ TEST_CASE("system::add_particle - can set basic attributes")
 
     md::basic_particle_data data;
     data.mass = 1.23;
+    data.mobility = 3.21;
     data.position = {4, 5, 6};
     data.velocity = {7, 8, 9};
     system.add_particle(data);
 
     CHECK(system.view(md::mass_attribute)[0] == data.mass);
+
+    CHECK(system.view(md::mobility_attribute)[0] == data.mobility);
 
     CHECK(system.view(md::position_attribute)[0].x == data.position.x);
     CHECK(system.view(md::position_attribute)[0].y == data.position.y);
@@ -95,6 +98,35 @@ TEST_CASE("system::view_masses - returns mass attribute")
 
         md::array_view<md::scalar const> expected = const_system.view(md::mass_attribute);
         md::array_view<md::scalar const> actual = const_system.view_masses();
+
+        CHECK(actual.data() == expected.data());
+        CHECK(actual.size() == expected.size());
+    }
+}
+
+TEST_CASE("system::view_mobilities - returns mobility attribute")
+{
+    md::system system;
+
+    system.add_particle();
+    system.add_particle();
+    system.add_particle();
+
+    SECTION("mutable view")
+    {
+        md::array_view<md::scalar> expected = system.view(md::mobility_attribute);
+        md::array_view<md::scalar> actual = system.view_mobilities();
+
+        CHECK(actual.data() == expected.data());
+        CHECK(actual.size() == expected.size());
+    }
+
+    SECTION("const view")
+    {
+        md::system const& const_system = system;
+
+        md::array_view<md::scalar const> expected = const_system.view(md::mobility_attribute);
+        md::array_view<md::scalar const> actual = const_system.view_mobilities();
 
         CHECK(actual.data() == expected.data());
         CHECK(actual.size() == expected.size());
