@@ -72,6 +72,64 @@ TEST_CASE("system::add_particle - can set basic attributes")
     CHECK(system.view(md::velocity_attribute)[0].z == data.velocity.z);
 }
 
+TEST_CASE("system::view_masses - returns mass attribute")
+{
+    md::system system;
+
+    system.add_particle();
+    system.add_particle();
+    system.add_particle();
+
+    SECTION("mutable view")
+    {
+        md::array_view<md::scalar> expected = system.view(md::mass_attribute);
+        md::array_view<md::scalar> actual = system.view_masses();
+
+        CHECK(actual.data() == expected.data());
+        CHECK(actual.size() == expected.size());
+    }
+
+    SECTION("const view")
+    {
+        md::system const& const_system = system;
+
+        md::array_view<md::scalar const> expected = const_system.view(md::mass_attribute);
+        md::array_view<md::scalar const> actual = const_system.view_masses();
+
+        CHECK(actual.data() == expected.data());
+        CHECK(actual.size() == expected.size());
+    }
+}
+
+TEST_CASE("system::view_velocities - returns velocity attribute")
+{
+    md::system system;
+
+    system.add_particle();
+    system.add_particle();
+    system.add_particle();
+
+    SECTION("mutable view")
+    {
+        md::array_view<md::vector> expected = system.view(md::velocity_attribute);
+        md::array_view<md::vector> actual = system.view_velocities();
+
+        CHECK(actual.data() == expected.data());
+        CHECK(actual.size() == expected.size());
+    }
+
+    SECTION("const view")
+    {
+        md::system const& const_system = system;
+
+        md::array_view<md::vector const> expected = const_system.view(md::velocity_attribute);
+        md::array_view<md::vector const> actual = const_system.view_velocities();
+
+        CHECK(actual.data() == expected.data());
+        CHECK(actual.size() == expected.size());
+    }
+}
+
 TEST_CASE("system::require - creates an attribute if it does not exist")
 {
     // Add 3 particles
@@ -120,6 +178,7 @@ TEST_CASE("system::add_forcefield - accepts a shared_ptr of a forcefield")
     };
 
     md::system system;
+
     system.add_forcefield(std::make_shared<my_forcefield>());
 }
 

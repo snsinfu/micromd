@@ -96,6 +96,39 @@ namespace md
             return attributes_.view(key);
         }
 
+        // view_masses returns a view of built-in mass attributes.
+        md::array_view<md::scalar> view_masses() noexcept
+        {
+            return attributes_.view(md::mass_attribute);
+        }
+
+        md::array_view<md::scalar const> view_masses() const noexcept
+        {
+            return attributes_.view(md::mass_attribute);
+        }
+
+        // view_positions returns a view of built-in position attributes.
+        md::array_view<md::point> view_positions() noexcept
+        {
+            return attributes_.view(md::position_attribute);
+        }
+
+        md::array_view<md::point const> view_positions() const noexcept
+        {
+            return attributes_.view(md::position_attribute);
+        }
+
+        // view_velocities returns a view of built-in velocity attributes.
+        md::array_view<md::vector> view_velocities() noexcept
+        {
+            return attributes_.view(md::velocity_attribute);
+        }
+
+        md::array_view<md::vector const> view_velocities() const noexcept
+        {
+            return attributes_.view(md::velocity_attribute);
+        }
+
         // add_forcefield adds a forcefield to the system.
         void add_forcefield(std::shared_ptr<md::forcefield> ff)
         {
