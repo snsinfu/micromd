@@ -51,6 +51,19 @@ forcefield/detail/test_neighbor_list.o: \
   ../include/md/forcefield/detail/neighbor_searcher.hpp \
   ../include/md/forcefield/detail/linear_hash.hpp
 main.o: main.cc
+simulation/test_brownian_dynamics.o: simulation/test_brownian_dynamics.cc \
+  ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
+  ../include/md/basic_types/point.hpp ../include/md/system.hpp \
+  ../include/md/forcefield.hpp ../include/md/system/attribute.hpp \
+  ../include/md/system/detail/attribute_table.hpp \
+  ../include/md/system/detail/../../basic_types.hpp \
+  ../include/md/system/detail/../attribute.hpp \
+  ../include/md/system/detail/array_erasure.hpp \
+  ../include/md/system/detail/sum_forcefield.hpp \
+  ../include/md/system/detail/../../forcefield.hpp \
+  ../include/md/simulation/brownian_dynamics.hpp \
+  ../include/md/simulation/../basic_types.hpp \
+  ../include/md/simulation/../system.hpp
 system/test_attribute.o: system/test_attribute.cc \
   ../include/md/system/attribute.hpp
 system/detail/test_attribute_table.o: \
