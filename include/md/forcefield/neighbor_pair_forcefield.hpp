@@ -71,6 +71,42 @@ namespace md
     private:
         md::neighbor_list neighbor_list_;
     };
+
+    namespace detail
+    {
+        template<typename PF>
+        class basic_neighbor_pair_forcefield
+            : public md::neighbor_pair_forcefield<basic_neighbor_pair_forcefield<PF>>
+        {
+        public:
+            basic_neighbor_pair_forcefield(md::scalar dcut, PF potfun)
+                : dcut_{dcut}, potfun_{potfun}
+            {
+            }
+
+            inline md::scalar neighbor_distance(md::system const&) const
+            {
+                return dcut_;
+            }
+
+            inline auto neighbor_pair_potential(md::system const&, md::index i, md::index j) const
+            {
+                return potfun_(i, j);
+            }
+
+        private:
+            md::scalar dcut_;
+            PF potfun_;
+        };
+    }
+
+    template<typename PF>
+    void force_neighbor_pairs(md::system& system, md::scalar dcut, PF potfun)
+    {
+        system.add_forcefield(
+            std::make_shared<detail::basic_neighbor_pair_forcefield<PF>>(dcut, potfun)
+        );
+    }
 }
 
 #endif

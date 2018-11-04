@@ -12,7 +12,8 @@
 
 namespace
 {
-    struct test_potential
+    // u(r) = 1 - r^2  (r < 1)
+    struct bell_potential
     {
         md::scalar evaluate_energy(md::vector r) const
         {
@@ -35,9 +36,9 @@ namespace
 }
 
 
-TEST_CASE("neighbor_pair_forcefield - computes only neighbor interactions")
+TEST_CASE("neighbor_pair_forcefield - computes correct forcefield")
 {
-    class my_forcefield : public md::neighbor_pair_forcefield<my_forcefield>
+    class test_forcefield : public md::neighbor_pair_forcefield<test_forcefield>
     {
     public:
         md::scalar neighbor_distance(md::system const&)
@@ -45,48 +46,92 @@ TEST_CASE("neighbor_pair_forcefield - computes only neighbor interactions")
             return 1;
         }
 
-        test_potential neighbor_pair_potential(md::system const&, md::index, md::index)
+        bell_potential neighbor_pair_potential(md::system const&, md::index, md::index)
         {
-            return test_potential{};
+            return bell_potential{};
         }
     };
 
-    // Points on a line. Only adjacent points are relevant.
+    // Particles on a 5x5x5 grid
     md::system system;
 
-    system.add_particle();
-    system.add_particle();
-    system.add_particle();
-    system.add_particle();
-
-    md::array_view<md::point> positions = system.view(md::position_attribute);
-
-    positions[0] = {0.0, 0, 0};
-    positions[1] = {0.6, 0, 0};
-    positions[2] = {1.2, 0, 0};
-    positions[3] = {1.8, 0, 0};
-
-    SECTION("energy is zero")
-    {
-        my_forcefield forcefield;
-        test_potential potential;
-
-        md::scalar const expected_interaction = potential.evaluate_energy({0.6, 0, 0});
-
-        // There are 3 interactions
-        CHECK(forcefield.compute_energy(system) == Approx(3 * expected_interaction));
+    for (int x = -2; x <= 2; x++) {
+        for (int y = -2; y <= 2; y++) {
+            for (int z = -2; z <= 2; z++) {
+                md::basic_particle_data data;
+                data.position = {
+                    x * 0.5,
+                    y * 0.5,
+                    z * 0.5
+                };
+                system.add_particle(data);
+            }
+        }
     }
 
-    SECTION("force is zero")
+    SECTION("energy is correct")
     {
-        my_forcefield forcefield;
+        bell_potential potential;
+        test_forcefield forcefield;
 
-        std::vector<md::vector> forces(system.particle_count());
-        forcefield.compute_force(system, forces);
+        md::scalar expected = 0;
+        md::array_view<md::point const> positions = system.view_positions();
 
-        CHECK(forces[0].x == Approx(-1.2));
-        CHECK(forces[1].x == Approx(0).margin(1e-6));
-        CHECK(forces[2].x == Approx(0).margin(1e-6));
-        CHECK(forces[3].x == Approx(1.2));
+        for (md::index i = 0; i < positions.size(); i++) {
+            for (md::index j = 0; j < i; j++) {
+                expected += potential.evaluate_energy(positions[i] - positions[j]);
+            }
+        }
+
+        CHECK(forcefield.compute_energy(system) == expected);
+    }
+
+    SECTION("force is correct")
+    {
+        // FIXME
+    }
+}
+
+TEST_CASE("force_neighbor_pairs")
+{
+    // Particles on a 5x5x5 grid
+    md::system system;
+
+    for (int x = -2; x <= 2; x++) {
+        for (int y = -2; y <= 2; y++) {
+            for (int z = -2; z <= 2; z++) {
+                md::basic_particle_data data;
+                data.position = {
+                    x * 0.5,
+                    y * 0.5,
+                    z * 0.5
+                };
+                system.add_particle(data);
+            }
+        }
+    }
+
+    SECTION("energy is correct")
+    {
+        md::force_neighbor_pairs(system, 1, [](md::index, md::index) {
+            return bell_potential{};
+        });
+        bell_potential potential;
+
+        md::scalar expected = 0;
+        md::array_view<md::point const> positions = system.view_positions();
+
+        for (md::index i = 0; i < positions.size(); i++) {
+            for (md::index j = 0; j < i; j++) {
+                expected += potential.evaluate_energy(positions[i] - positions[j]);
+            }
+        }
+
+        CHECK(system.compute_potential_energy() == expected);
+    }
+
+    SECTION("force is correct")
+    {
+        // FIXME
     }
 }
