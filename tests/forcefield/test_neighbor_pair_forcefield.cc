@@ -51,7 +51,6 @@ namespace
     }
 }
 
-
 TEST_CASE("neighbor_pair_forcefield - computes correct forcefield")
 {
     class test_forcefield : public md::neighbor_pair_forcefield<test_forcefield>
@@ -75,56 +74,46 @@ TEST_CASE("neighbor_pair_forcefield - computes correct forcefield")
         for (int y = -2; y <= 2; y++) {
             for (int z = -2; z <= 2; z++) {
                 md::basic_particle_data data;
+
                 data.position = {
                     x * 0.5,
                     y * 0.5,
                     z * 0.5
                 };
+
                 system.add_particle(data);
             }
         }
     }
 
-    SECTION("energy is correct")
-    {
-        bell_potential potential;
-        test_forcefield forcefield;
+    test_forcefield forcefield;
+    bell_potential potential;
 
-        md::scalar expected = 0;
-        md::array_view<md::point const> positions = system.view_positions();
+    std::vector<md::vector> actual_forces(system.particle_count());
+    std::vector<md::vector> expected_forces(system.particle_count());
 
-        for (md::index i = 0; i < positions.size(); i++) {
-            for (md::index j = 0; j < i; j++) {
-                expected += potential.evaluate_energy(positions[i] - positions[j]);
-            }
+    forcefield.compute_force(system, actual_forces);
+
+    md::scalar actual_energy = forcefield.compute_energy(system);
+    md::scalar expected_energy = 0;
+
+    md::array_view<md::point const> positions = system.view_positions();
+
+    for (md::index i = 0; i < positions.size(); i++) {
+        for (md::index j = 0; j < i; j++) {
+            md::vector const r = positions[i] - positions[j];
+            md::vector const force = potential.evaluate_force(r);
+            md::scalar const energy = potential.evaluate_energy(r);
+
+            expected_forces[i] += force;
+            expected_forces[j] -= force;
+
+            expected_energy += energy;
         }
-
-        CHECK(forcefield.compute_energy(system) == expected);
     }
 
-    SECTION("force is correct")
-    {
-        bell_potential potential;
-        test_forcefield forcefield;
-
-        std::vector<md::vector> actual(system.particle_count());
-        std::vector<md::vector> expected(system.particle_count());
-
-        md::array_view<md::point const> positions = system.view_positions();
-
-        for (md::index i = 0; i < positions.size(); i++) {
-            for (md::index j = 0; j < i; j++) {
-                md::vector const r = positions[i] - positions[j];
-                md::vector const force = potential.evaluate_force(r);
-                expected[i] += force;
-                expected[j] -= force;
-            }
-        }
-
-        forcefield.compute_force(system, actual);
-
-        CHECK(max_difference(actual, expected) < 1e-6);
-    }
+    CHECK(actual_energy == Approx(expected_energy));
+    CHECK(max_difference(actual_forces, expected_forces) < 1e-6);
 }
 
 TEST_CASE("force_neighbor_pairs - defines neighbor_pair_forcefield using potential factory")
@@ -136,60 +125,48 @@ TEST_CASE("force_neighbor_pairs - defines neighbor_pair_forcefield using potenti
         for (int y = -2; y <= 2; y++) {
             for (int z = -2; z <= 2; z++) {
                 md::basic_particle_data data;
+
                 data.position = {
                     x * 0.5,
                     y * 0.5,
                     z * 0.5
                 };
+
                 system.add_particle(data);
             }
         }
     }
 
-    SECTION("energy is correct")
-    {
-        md::force_neighbor_pairs(system, 1, [](md::index, md::index) {
-            return bell_potential{};
-        });
-        bell_potential potential;
+    bell_potential potential;
+    md::force_neighbor_pairs(system, 1, [](md::index, md::index) {
+        return bell_potential{};
+    });
 
-        md::scalar expected = 0;
-        md::array_view<md::point const> positions = system.view_positions();
+    std::vector<md::vector> actual_forces(system.particle_count());
+    std::vector<md::vector> expected_forces(system.particle_count());
 
-        for (md::index i = 0; i < positions.size(); i++) {
-            for (md::index j = 0; j < i; j++) {
-                expected += potential.evaluate_energy(positions[i] - positions[j]);
-            }
+    system.compute_force(actual_forces);
+
+    md::scalar actual_energy = system.compute_potential_energy();
+    md::scalar expected_energy = 0;
+
+    md::array_view<md::point const> positions = system.view_positions();
+
+    for (md::index i = 0; i < positions.size(); i++) {
+        for (md::index j = 0; j < i; j++) {
+            md::vector const r = positions[i] - positions[j];
+            md::vector const force = potential.evaluate_force(r);
+            md::scalar const energy = potential.evaluate_energy(r);
+
+            expected_forces[i] += force;
+            expected_forces[j] -= force;
+
+            expected_energy += energy;
         }
-
-        CHECK(system.compute_potential_energy() == expected);
     }
 
-    SECTION("force is correct")
-    {
-        md::force_neighbor_pairs(system, 1, [](md::index, md::index) {
-            return bell_potential{};
-        });
-        bell_potential potential;
-
-        std::vector<md::vector> actual(system.particle_count());
-        std::vector<md::vector> expected(system.particle_count());
-
-        md::array_view<md::point const> positions = system.view_positions();
-
-        for (md::index i = 0; i < positions.size(); i++) {
-            for (md::index j = 0; j < i; j++) {
-                md::vector const r = positions[i] - positions[j];
-                md::vector const force = potential.evaluate_force(r);
-                expected[i] += force;
-                expected[j] -= force;
-            }
-        }
-
-        system.compute_force(actual);
-
-        CHECK(max_difference(actual, expected) < 1e-6);
-    }
+    CHECK(actual_energy == Approx(expected_energy));
+    CHECK(max_difference(actual_forces, expected_forces) < 1e-6);
 }
 
 TEST_CASE("force_neighbor_pairs - defines neighbor_pair_forcefield using potential object")
@@ -207,49 +184,38 @@ TEST_CASE("force_neighbor_pairs - defines neighbor_pair_forcefield using potenti
                     y * 0.5,
                     z * 0.5
                 };
+
                 system.add_particle(data);
             }
         }
     }
 
-    SECTION("energy is correct")
-    {
-        bell_potential potential;
-        md::force_neighbor_pairs(system, 1, potential);
+    bell_potential potential;
+    md::force_neighbor_pairs(system, 1, potential);
 
-        md::scalar expected = 0;
-        md::array_view<md::point const> positions = system.view_positions();
+    std::vector<md::vector> actual_forces(system.particle_count());
+    std::vector<md::vector> expected_forces(system.particle_count());
 
-        for (md::index i = 0; i < positions.size(); i++) {
-            for (md::index j = 0; j < i; j++) {
-                expected += potential.evaluate_energy(positions[i] - positions[j]);
-            }
+    system.compute_force(actual_forces);
+
+    md::scalar actual_energy = system.compute_potential_energy();
+    md::scalar expected_energy = 0;
+
+    md::array_view<md::point const> positions = system.view_positions();
+
+    for (md::index i = 0; i < positions.size(); i++) {
+        for (md::index j = 0; j < i; j++) {
+            md::vector const r = positions[i] - positions[j];
+            md::vector const force = potential.evaluate_force(r);
+            md::scalar const energy = potential.evaluate_energy(r);
+
+            expected_forces[i] += force;
+            expected_forces[j] -= force;
+
+            expected_energy += energy;
         }
-
-        CHECK(system.compute_potential_energy() == expected);
     }
 
-    SECTION("force is correct")
-    {
-        bell_potential potential;
-        md::force_neighbor_pairs(system, 1, potential);
-
-        std::vector<md::vector> actual(system.particle_count());
-        std::vector<md::vector> expected(system.particle_count());
-
-        md::array_view<md::point const> positions = system.view_positions();
-
-        for (md::index i = 0; i < positions.size(); i++) {
-            for (md::index j = 0; j < i; j++) {
-                md::vector const r = positions[i] - positions[j];
-                md::vector const force = potential.evaluate_force(r);
-                expected[i] += force;
-                expected[j] -= force;
-            }
-        }
-
-        system.compute_force(actual);
-
-        CHECK(max_difference(actual, expected) < 1e-6);
-    }
+    CHECK(actual_energy == Approx(expected_energy));
+    CHECK(max_difference(actual_forces, expected_forces) < 1e-6);
 }
