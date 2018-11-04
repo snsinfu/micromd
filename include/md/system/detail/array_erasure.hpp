@@ -25,7 +25,7 @@ namespace md
             virtual ~array_erasure() = default;
 
             // size returns the length of the array.
-            virtual std::size_t size() = 0;
+            virtual std::size_t size() const = 0;
 
             // resize extends or shrinks the array to given length.
             virtual void resize(std::size_t size) = 0;
@@ -69,7 +69,7 @@ namespace md
             }
 
             // size returns the length of the array.
-            std::size_t size() override
+            std::size_t size() const override
             {
                 return values_.size();
             }
