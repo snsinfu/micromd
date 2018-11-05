@@ -50,12 +50,35 @@ forcefield/detail/test_neighbor_list.o: \
   ../include/md/forcefield/detail/../../basic_types/point.hpp \
   ../include/md/forcefield/detail/neighbor_searcher.hpp \
   ../include/md/forcefield/detail/linear_hash.hpp
+forcefield/test_sphere_surface_forcefield.o: \
+  forcefield/test_sphere_surface_forcefield.cc \
+  ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
+  ../include/md/basic_types/point.hpp ../include/md/forcefield.hpp \
+  ../include/md/system.hpp ../include/md/system/attribute.hpp \
+  ../include/md/system/detail/attribute_table.hpp \
+  ../include/md/system/detail/../../basic_types.hpp \
+  ../include/md/system/detail/../attribute.hpp \
+  ../include/md/system/detail/array_erasure.hpp \
+  ../include/md/system/detail/sum_forcefield.hpp \
+  ../include/md/system/detail/../../forcefield.hpp \
+  ../include/md/forcefield/sphere_surface_forcefield.hpp \
+  ../include/md/forcefield/../basic_types.hpp \
+  ../include/md/forcefield/../forcefield.hpp \
+  ../include/md/forcefield/../system.hpp \
+  ../include/md/forcefield/../potential/constant_potential.hpp \
+  ../include/md/forcefield/../potential/../basic_types.hpp \
+  ../include/md/potential/harmonic_potential.hpp
 main.o: main.cc
 potential/test_power_law_potential.o: \
   potential/test_power_law_potential.cc ../include/md/basic_types.hpp \
   ../include/md/basic_types/array_view.hpp \
   ../include/md/basic_types/point.hpp \
   ../include/md/potential/power_law_potential.hpp \
+  ../include/md/potential/../basic_types.hpp
+potential/test_constant_potential.o: potential/test_constant_potential.cc \
+  ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
+  ../include/md/basic_types/point.hpp \
+  ../include/md/potential/constant_potential.hpp \
   ../include/md/potential/../basic_types.hpp
 potential/test_harmonic_potential.o: potential/test_harmonic_potential.cc \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
