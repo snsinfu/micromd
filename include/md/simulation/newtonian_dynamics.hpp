@@ -51,6 +51,10 @@ namespace md
             for (md::index i = 0; i < system.particle_count(); i++) {
                 velocities[i] += timestep / (2 * masses[i]) * forces[i];
             }
+
+            if (config.callback) {
+                config.callback(step);
+            }
         }
     }
 }

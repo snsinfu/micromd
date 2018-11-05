@@ -58,23 +58,18 @@ TEST_CASE("simulate_newtonian_dynamics - does nothing if steps is zero")
     CHECK(system.view_positions()[0].z == 0);
 }
 
-TEST_CASE("simulate_brownian_dynamics - can simulate newtonian dynamics")
+TEST_CASE("simulate_newtonian_dynamics - calls callback function on each step")
 {
     md::system system;
     system.add_particle();
-    system.add_forcefield(std::make_shared<::gravitational_forcefield>());
+
+    int counter = 0;
 
     md::newtonian_dynamics_config config;
-    config.timestep = 0.01;
-    config.steps = 100;
+    config.steps = 10;
+    config.callback = [&](md::step) { counter++; };
 
     md::simulate_newtonian_dynamics(system, config);
 
-    CHECK(system.view_positions()[0].x == 0);
-    CHECK(system.view_positions()[0].y == 0);
-    CHECK(system.view_positions()[0].z == Approx(-0.5).epsilon(0.1));
-
-    CHECK(system.view_velocities()[0].x == 0);
-    CHECK(system.view_velocities()[0].y == 0);
-    CHECK(system.view_velocities()[0].z == Approx(-1.0).epsilon(0.1));
+    CHECK(counter == 10);
 }
