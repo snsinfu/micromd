@@ -53,6 +53,30 @@ namespace md
         md::scalar mobility = md::default_value(md::mobility_attribute);
         md::point position = md::default_value(md::position_attribute);
         md::vector velocity = md::default_value(md::velocity_attribute);
+
+        basic_particle_data& set_mass(md::scalar new_mass)
+        {
+            mass = new_mass;
+            return *this;
+        }
+
+        basic_particle_data& set_mobility(md::scalar new_mobility)
+        {
+            mobility = new_mobility;
+            return *this;
+        }
+
+        basic_particle_data& set_position(md::point new_position)
+        {
+            position = new_position;
+            return *this;
+        }
+
+        basic_particle_data& set_velocity(md::vector new_velocity)
+        {
+            velocity = new_velocity;
+            return *this;
+        }
     };
 
     // system

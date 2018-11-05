@@ -327,3 +327,25 @@ TEST_CASE("system - has 0-valued velocity_attribute by default")
     CHECK(velocities[0].y == 0);
     CHECK(velocities[0].z == 0);
 }
+
+TEST_CASE("basic_particle_data - has basic attributes")
+{
+}
+
+TEST_CASE("basic_particle_data - supports named parameters idiom")
+{
+    md::basic_particle_data data = md::basic_particle_data{}
+        .set_mass(1.23)
+        .set_mobility(4.56)
+        .set_position({7, 8, 9})
+        .set_velocity({8, 7, 6});
+
+    CHECK(data.mass == 1.23);
+    CHECK(data.mobility == 4.56);
+    CHECK(data.position.x == 7);
+    CHECK(data.position.y == 8);
+    CHECK(data.position.z == 9);
+    CHECK(data.velocity.x == 8);
+    CHECK(data.velocity.y == 7);
+    CHECK(data.velocity.z == 6);
+}
