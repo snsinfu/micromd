@@ -6,6 +6,7 @@
 #define MD_BASIC_TYPES_HPP
 
 #include <cstddef>
+#include <cstdint>
 
 #include "basic_types/array_view.hpp"
 #include "basic_types/point.hpp"
@@ -18,6 +19,9 @@ namespace md
 
     // scalar is the floating-point type of choice.
     using scalar = double;
+
+    // step is the integral type used to count simulation steps.
+    using step = std::int64_t;
 }
 
 #endif
