@@ -62,7 +62,7 @@ namespace md
                 return {};
             }
 
-            return N * overlap_energy * k2 * detail::power(g, N - 1) * r;
+            return 2 * N * overlap_energy * k2 * detail::power(g, N - 1) * r;
         }
     };
 }
