@@ -5,6 +5,7 @@
 #ifndef MD_SIMULATION_BROWNIAN_DYMNAMICS_HPP
 #define MD_SIMULATION_BROWNIAN_DYMNAMICS_HPP
 
+#include <cmath>
 #include <cstdint>
 #include <functional>
 #include <random>
@@ -21,10 +22,61 @@ namespace md
     {
         md::scalar temperature = 1;
         md::scalar timestep = 1;
+        md::scalar spacestep = 0;
         md::step steps = 1;
         std::uint64_t seed = 0;
         std::function<void(md::step)> callback;
     };
+
+    namespace detail
+    {
+        inline md::scalar solve_brownian_timestep(
+            md::scalar spacestep,
+            md::scalar mobility,
+            md::scalar force2,
+            md::scalar temperature
+        )
+        {
+            md::scalar const a = mobility * mobility * force2;
+            md::scalar const b = 2.55 * mobility * temperature;
+            md::scalar const c = spacestep * spacestep;
+
+            md::scalar const ac_threshold = 1e-6 * b * b;
+            if (a * c < ac_threshold) {
+                return c / b;
+            }
+
+            return (-b + std::sqrt(b * b + 4 * a * c)) / (2 * a);
+        }
+
+        inline md::scalar determine_brownian_timestep(
+            md::scalar spacestep,
+            md::scalar max_timestep,
+            md::array_view<md::scalar const> mobilities,
+            md::array_view<md::vector const> forces,
+            md::scalar temperature
+        )
+        {
+            md::scalar timestep = max_timestep;
+
+            for (md::index i = 0; i < mobilities.size(); i++) {
+                md::scalar dt = max_timestep;
+
+                md::scalar const mobility = mobilities[i];
+                md::scalar const force2 = forces[i].squared_norm();
+
+                if (mobility != 0 || force2 != 0) {
+                    dt = solve_brownian_timestep(spacestep, mobility, force2, temperature);
+                }
+
+                if (dt < timestep) {
+                    timestep = dt;
+                }
+            }
+
+            return timestep;
+        }
+    }
 
     // simulate_brownian_dynamics simulates Brownian dynamics of the system.
     inline void simulate_brownian_dynamics(md::system& system, md::brownian_dynamics_config config)
@@ -46,8 +98,20 @@ namespace md
         for (md::step step = 0; step < config.steps; step++) {
             system.compute_force(forces);
 
+            md::scalar timestep = config.timestep;
+
+            if (config.spacestep > 0) {
+                timestep = detail::determine_brownian_timestep(
+                    config.spacestep,
+                    config.timestep,
+                    system.view_mobilities(),
+                    forces,
+                    config.temperature
+                );
+            }
+
             for (md::index i = 0; i < system.particle_count(); i++) {
-                md::scalar const mu_dt = config.timestep * mobilities[i];
+                md::scalar const mu_dt = timestep * mobilities[i];
                 md::scalar const sigma = std::sqrt(2 * config.temperature * mu_dt);
                 md::vector const weiner = {
                     sigma * normal(random),

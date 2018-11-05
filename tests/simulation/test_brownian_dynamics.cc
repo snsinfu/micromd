@@ -1,3 +1,5 @@
+#include <iostream>
+#include <functional>
 #include <memory>
 
 #include <md/basic_types.hpp>
@@ -67,4 +69,46 @@ TEST_CASE("simulate_brownian_dynamics - can simulate brownian motion")
     CHECK(system.view_positions()[0].x != 0);
     CHECK(system.view_positions()[0].y != 0);
     CHECK(system.view_positions()[0].z != 0);
+}
+
+TEST_CASE("simulate_brownian_dynamics - supports adaptive time-stepping")
+{
+    struct motion_recorder
+    {
+        md::system* system;
+        md::scalar sum_motion = 0;
+        md::step steps = 0;
+        md::point prev_position;
+
+        void operator()(md::step)
+        {
+            md::point const position = system->view_positions()[0];
+            sum_motion += (position - prev_position).norm();
+            prev_position = position;
+            steps++;
+        }
+
+        md::scalar mean() const
+        {
+            return sum_motion / md::scalar(steps);
+        }
+    };
+
+    md::system system;
+    system.add_particle();
+    system.add_particle();
+    system.add_particle();
+
+    motion_recorder recorder;
+    recorder.system = &system;
+
+    md::brownian_dynamics_config config;
+    config.temperature = 1;
+    config.spacestep = 0.01;
+    config.steps = 1000;
+    config.callback = std::ref(recorder);
+
+    md::simulate_brownian_dynamics(system, config);
+
+    CHECK(recorder.mean() == Approx(config.spacestep).epsilon(0.1));
 }
