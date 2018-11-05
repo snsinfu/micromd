@@ -20,11 +20,24 @@ namespace md
     // brownian_dynamics_config holds Brownian dynamics parameters.
     struct brownian_dynamics_config
     {
+        // Temperature of the environment in the unit of (thermal) energy. It
+        // can be zero.
         md::scalar temperature = 1;
+
+        // Time discretization step.
         md::scalar timestep = 1;
+
+        // Set this to nonzero to adaptively determine timestep so that the mean
+        // displacement is this spacestep value.
         md::scalar spacestep = 0;
+
+        // Number of steps to simulate.
         md::step steps = 1;
+
+        // Seed for pseudo-random number generator.
         std::uint64_t seed = 0;
+
+        // Optional function called after each step.
         std::function<void(md::step)> callback;
     };
 
@@ -50,13 +63,17 @@ namespace md
         }
 
         inline md::scalar determine_brownian_timestep(
-            md::scalar spacestep,
             md::scalar max_timestep,
+            md::scalar spacestep,
             md::array_view<md::scalar const> mobilities,
             md::array_view<md::vector const> forces,
             md::scalar temperature
         )
         {
+            if (spacestep == 0) {
+                return max_timestep;
+            }
+
             md::scalar timestep = max_timestep;
 
             for (md::index i = 0; i < mobilities.size(); i++) {
@@ -66,7 +83,7 @@ namespace md
                 md::scalar const force2 = forces[i].squared_norm();
 
                 if (mobility != 0 || force2 != 0) {
-                    dt = solve_brownian_timestep(spacestep, mobility, force2, temperature);
+                    dt = detail::solve_brownian_timestep(spacestep, mobility, force2, temperature);
                 }
 
                 if (dt < timestep) {
@@ -78,56 +95,76 @@ namespace md
         }
     }
 
-    // simulate_brownian_dynamics simulates Brownian dynamics of the system.
-    inline void simulate_brownian_dynamics(md::system& system, md::brownian_dynamics_config config)
+    class brownian_dynamics_simulator
     {
-        std::seed_seq seed {
-            unsigned(config.seed >> 32),
-            unsigned(config.seed)
-        };
-        std::mt19937_64 random(seed);
-        std::normal_distribution<md::scalar> normal;
+    public:
+        explicit brownian_dynamics_simulator(md::brownian_dynamics_config config)
+            : config_{config}
+        {
+        }
 
-        // BAOAB limit scheme.
+        void run_simulation(md::system& system)
+        {
+            forces_ = std::vector<md::vector>(system.particle_count());
+            weiners_ = std::vector<md::vector>(system.particle_count());
 
-        md::array_view<md::point> positions = system.view_positions();
-        md::array_view<md::scalar> mobilities = system.view_mobilities();
-        std::vector<md::vector> forces(system.particle_count());
-        std::vector<md::vector> weiners(system.particle_count());
-
-        for (md::step step = 0; step < config.steps; step++) {
-            system.compute_force(forces);
-
-            md::scalar timestep = config.timestep;
-
-            if (config.spacestep > 0) {
-                timestep = detail::determine_brownian_timestep(
-                    config.spacestep,
-                    config.timestep,
-                    system.view_mobilities(),
-                    forces,
-                    config.temperature
-                );
+            for (md::step step = 0; step < config_.steps; step++) {
+                simulate_step(system);
+                callback_step(step);
             }
+        }
+
+    private:
+        void simulate_step(md::system& system)
+        {
+            md::array_view<md::scalar const> mobilities = system.view_mobilities();
+            md::array_view<md::point> positions = system.view_positions();
+
+            system.compute_force(forces_);
+
+            md::scalar const timestep = detail::determine_brownian_timestep(
+                config_.timestep,
+                config_.spacestep,
+                mobilities,
+                forces_,
+                config_.temperature
+            );
+
+            std::normal_distribution<md::scalar> normal;
 
             for (md::index i = 0; i < system.particle_count(); i++) {
                 md::scalar const mu_dt = timestep * mobilities[i];
-                md::scalar const sigma = std::sqrt(2 * config.temperature * mu_dt);
+                md::scalar const sigma = std::sqrt(2 * config_.temperature * mu_dt);
                 md::vector const weiner = {
-                    sigma * normal(random),
-                    sigma * normal(random),
-                    sigma * normal(random)
+                    sigma * normal(random_),
+                    sigma * normal(random_),
+                    sigma * normal(random_)
                 };
 
-                positions[i] += mu_dt * forces[i];
-                positions[i] += 0.5 * (weiner + weiners[i]);
-                weiners[i] = weiner;
-            }
-
-            if (config.callback) {
-                config.callback(step);
+                positions[i] += mu_dt * forces_[i];
+                positions[i] += 0.5 * (weiner + weiners_[i]);
+                weiners_[i] = weiner;
             }
         }
+
+        void callback_step(md::step step) const
+        {
+            if (config_.callback) {
+                config_.callback(step);
+            }
+        }
+
+    private:
+        md::brownian_dynamics_config config_;
+        std::mt19937_64 random_;
+        std::vector<md::vector> forces_;
+        std::vector<md::vector> weiners_;
+    };
+
+    // simulate_brownian_dynamics simulates Brownian dynamics of the system.
+    inline void simulate_brownian_dynamics(md::system& system, md::brownian_dynamics_config config)
+    {
+        md::brownian_dynamics_simulator{config}.run_simulation(system);
     }
 }
 
