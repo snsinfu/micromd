@@ -79,6 +79,19 @@ namespace md
         }
     };
 
+    //
+    struct particle_ref
+    {
+        md::index index;
+
+        md::scalar& mass;
+        md::scalar& mobility;
+        md::point& position;
+        md::vector& velocity;
+
+        particle_ref(md::system& system, md::index idx);
+    };
+
     // system
     class system
     {
@@ -92,7 +105,7 @@ namespace md
         }
 
         // add_particle adds a particle to the system.
-        void add_particle(md::basic_particle_data data = {})
+        md::particle_ref add_particle(md::basic_particle_data data = {})
         {
             md::index const idx = attributes_.size();
 
@@ -102,6 +115,8 @@ namespace md
             view(md::mobility_attribute)[idx] = data.mobility;
             view(md::position_attribute)[idx] = data.position;
             view(md::velocity_attribute)[idx] = data.velocity;
+
+            return md::particle_ref(*this, idx);
         }
 
         // particle_count returns the number of particles in the system.
@@ -204,6 +219,15 @@ namespace md
         detail::attribute_table attributes_;
         detail::sum_forcefield forcefield_;
     };
+
+    inline particle_ref::particle_ref(md::system& system, md::index idx)
+        : index{idx}
+        , mass{system.view_masses()[idx]}
+        , mobility{system.view_mobilities()[idx]}
+        , position{system.view_positions()[idx]}
+        , velocity{system.view_velocities()[idx]}
+    {
+    }
 }
 
 #endif

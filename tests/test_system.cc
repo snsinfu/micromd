@@ -75,6 +75,29 @@ TEST_CASE("system::add_particle - can set basic attributes")
     CHECK(system.view(md::velocity_attribute)[0].z == data.velocity.z);
 }
 
+TEST_CASE("system::add_particle - returns a particle reference")
+{
+    md::system system;
+
+    md::particle_ref part = system.add_particle();
+    part.mass = 1.23;
+    part.mobility = 4.56;
+    part.position = {7, 8, 9};
+    part.velocity = {8, 7, 6};
+
+    CHECK(system.view(md::mass_attribute)[0] == 1.23);
+
+    CHECK(system.view(md::mobility_attribute)[0] == 4.56);
+
+    CHECK(system.view(md::position_attribute)[0].x == 7);
+    CHECK(system.view(md::position_attribute)[0].y == 8);
+    CHECK(system.view(md::position_attribute)[0].z == 9);
+
+    CHECK(system.view(md::velocity_attribute)[0].x == 8);
+    CHECK(system.view(md::velocity_attribute)[0].y == 7);
+    CHECK(system.view(md::velocity_attribute)[0].z == 6);
+}
+
 TEST_CASE("system::view_masses - returns mass attribute")
 {
     md::system system;
