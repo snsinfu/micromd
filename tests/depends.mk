@@ -91,6 +91,20 @@ potential/test_lennard_jones_potential.o: \
   ../include/md/basic_types/point.hpp \
   ../include/md/potential/lennard_jones_potential.hpp \
   ../include/md/potential/../basic_types.hpp
+simulation/test_newtonian_dynamics.o: \
+  simulation/test_newtonian_dynamics.cc ../include/md/basic_types.hpp \
+  ../include/md/basic_types/array_view.hpp \
+  ../include/md/basic_types/point.hpp ../include/md/forcefield.hpp \
+  ../include/md/system.hpp ../include/md/system/attribute.hpp \
+  ../include/md/system/detail/attribute_table.hpp \
+  ../include/md/system/detail/../../basic_types.hpp \
+  ../include/md/system/detail/../attribute.hpp \
+  ../include/md/system/detail/array_erasure.hpp \
+  ../include/md/system/detail/sum_forcefield.hpp \
+  ../include/md/system/detail/../../forcefield.hpp \
+  ../include/md/simulation/newtonian_dynamics.hpp \
+  ../include/md/simulation/../basic_types.hpp \
+  ../include/md/simulation/../system.hpp
 simulation/test_brownian_dynamics.o: simulation/test_brownian_dynamics.cc \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
   ../include/md/basic_types/point.hpp ../include/md/forcefield.hpp \
