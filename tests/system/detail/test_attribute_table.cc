@@ -1,6 +1,3 @@
-#include <memory>
-#include <vector>
-
 #include <md/basic_types.hpp>
 #include <md/system/attribute.hpp>
 #include <md/system/detail/attribute_table.hpp>

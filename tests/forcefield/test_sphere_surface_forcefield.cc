@@ -3,9 +3,9 @@
 #include <md/basic_types.hpp>
 #include <md/forcefield.hpp>
 #include <md/system.hpp>
+#include <md/potential/harmonic_potential.hpp>
 
 #include <md/forcefield/sphere_surface_forcefield.hpp>
-#include <md/potential/harmonic_potential.hpp>
 
 #include <catch.hpp>
 

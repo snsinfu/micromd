@@ -1,4 +1,5 @@
 #include <md/basic_types.hpp>
+
 #include <md/potential/power_law_potential.hpp>
 
 #include <catch.hpp>

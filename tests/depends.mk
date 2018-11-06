@@ -82,13 +82,13 @@ forcefield/test_sphere_surface_forcefield.o: \
   ../include/md/system/detail/iterator_range.hpp \
   ../include/md/system/detail/sum_forcefield.hpp \
   ../include/md/system/detail/../../forcefield.hpp \
+  ../include/md/potential/harmonic_potential.hpp \
+  ../include/md/potential/../basic_types.hpp \
   ../include/md/forcefield/sphere_surface_forcefield.hpp \
   ../include/md/forcefield/../basic_types.hpp \
   ../include/md/forcefield/../forcefield.hpp \
   ../include/md/forcefield/../system.hpp \
-  ../include/md/forcefield/../potential/constant_potential.hpp \
-  ../include/md/forcefield/../potential/../basic_types.hpp \
-  ../include/md/potential/harmonic_potential.hpp
+  ../include/md/forcefield/../potential/constant_potential.hpp
 main.o: main.cc
 potential/test_power_law_potential.o: \
   potential/test_power_law_potential.cc ../include/md/basic_types.hpp \

@@ -1,6 +1,3 @@
-#include <memory>
-#include <vector>
-
 #include <md/system/attribute.hpp>
 
 #include <catch.hpp>
