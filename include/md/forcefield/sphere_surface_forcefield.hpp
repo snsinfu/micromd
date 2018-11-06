@@ -27,24 +27,28 @@ namespace md
     class sphere_surface_forcefield : public virtual md::forcefield
     {
     public:
+        void set_sphere(md::sphere sphere)
+        {
+            sphere_ = sphere;
+        }
+
         md::scalar compute_energy(md::system const& system) override
         {
-            md::sphere const sphere = derived().sphere_surface(system);
-            md::scalar const radius2 = sphere.radius * sphere.radius;
+            md::point const center = sphere_.center;
+            md::scalar const radius2 = sphere_.radius * sphere_.radius;
+
             md::array_view<md::point const> positions = system.view_positions();
 
             md::scalar sum = 0;
 
             for (md::index i = 0; i < system.particle_count(); i++) {
-                md::vector const r = positions[i] - sphere.center;
+                md::vector const r = positions[i] - center;
                 md::scalar const r2 = r.squared_norm();
 
                 if (r2 < radius2) {
-                    auto const pot = derived().sphere_inward_potential(system, i);
-                    sum += pot.evaluate_energy(r);
+                    sum += derived().sphere_inward_potential(system, i).evaluate_energy(r);
                 } else {
-                    auto const pot = derived().sphere_outward_potential(system, i);
-                    sum += pot.evaluate_energy(r);
+                    sum += derived().sphere_outward_potential(system, i).evaluate_energy(r);
                 }
             }
 
@@ -53,27 +57,26 @@ namespace md
 
         void compute_force(md::system const& system, md::array_view<md::vector> forces) override
         {
-            md::sphere const sphere = derived().sphere_surface(system);
-            md::scalar const radius2 = sphere.radius * sphere.radius;
+            md::point const center = sphere_.center;
+            md::scalar const radius = sphere_.radius;
+            md::scalar const radius2 = radius * radius;
 
             md::array_view<md::point const> positions = system.view_positions();
 
             for (md::index i = 0; i < system.particle_count(); i++) {
-                md::vector const r = positions[i] - sphere.center;
+                md::vector const r = positions[i] - center;
                 md::scalar const r2 = r.squared_norm();
                 md::scalar const r1 = std::sqrt(r2);
 
                 md::vector force;
 
                 if (r2 < radius2) {
-                    auto const pot = derived().sphere_inward_potential(system, i);
-                    force = pot.evaluate_force(r);
+                    force = derived().sphere_inward_potential(system, i).evaluate_force(r);
                 } else {
-                    auto const pot = derived().sphere_outward_potential(system, i);
-                    force = pot.evaluate_force(r);
+                    force = derived().sphere_outward_potential(system, i).evaluate_force(r);
                 }
 
-                md::scalar const scale = sphere.radius / r1;
+                md::scalar const scale = radius / r1;
                 md::vector const aniso = scale * (force.project(r) - force);
 
                 forces[i] = force + aniso;
@@ -97,6 +100,8 @@ namespace md
         {
             return static_cast<Derived&>(*this);
         }
+
+        md::sphere sphere_;
     };
 }
 
