@@ -1,3 +1,21 @@
+forcefield/test_sequential_pair_forcefield.o: \
+  forcefield/test_sequential_pair_forcefield.cc \
+  ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
+  ../include/md/basic_types/point.hpp ../include/md/forcefield.hpp \
+  ../include/md/system.hpp ../include/md/system/attribute.hpp \
+  ../include/md/system/detail/attribute_table.hpp \
+  ../include/md/system/detail/../../basic_types.hpp \
+  ../include/md/system/detail/../attribute.hpp \
+  ../include/md/system/detail/array_erasure.hpp \
+  ../include/md/system/detail/iterator_range.hpp \
+  ../include/md/system/detail/sum_forcefield.hpp \
+  ../include/md/system/detail/../../forcefield.hpp \
+  ../include/md/potential/harmonic_potential.hpp \
+  ../include/md/potential/../basic_types.hpp \
+  ../include/md/forcefield/sequential_pair_forcefield.hpp \
+  ../include/md/forcefield/../basic_types.hpp \
+  ../include/md/forcefield/../forcefield.hpp \
+  ../include/md/forcefield/../system.hpp
 forcefield/test_neighbor_pair_forcefield.o: \
   forcefield/test_neighbor_pair_forcefield.cc \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
