@@ -35,7 +35,8 @@ namespace md
         md::scalar compute_energy(md::system const& system) override
         {
             md::point const center = sphere_.center;
-            md::scalar const radius2 = sphere_.radius * sphere_.radius;
+            md::scalar const radius = sphere_.radius;
+            md::scalar const radius2 = radius * radius;
 
             md::array_view<md::point const> positions = system.view_positions();
 
@@ -44,14 +45,23 @@ namespace md
             for (md::index i = 0; i < system.particle_count(); i++) {
                 md::vector const r = positions[i] - center;
                 md::scalar const r2 = r.squared_norm();
+                md::scalar const r1 = std::sqrt(r2);
+
+                if (r2 == 0) {
+                    continue;
+                }
+
+                md::scalar const scale = radius / r1;
+                md::vector const s = r - scale * r;
 
                 if (r2 < radius2) {
-                    sum += derived().sphere_inward_potential(system, i).evaluate_energy(r);
+                    auto const pot = derived().sphere_inward_potential(system, i);
+                    sum += pot.evaluate_energy(s);
                 } else {
-                    sum += derived().sphere_outward_potential(system, i).evaluate_energy(r);
+                    auto const pot = derived().sphere_outward_potential(system, i);
+                    sum += pot.evaluate_energy(s);
                 }
             }
-
             return sum;
         }
 
@@ -68,15 +78,23 @@ namespace md
                 md::scalar const r2 = r.squared_norm();
                 md::scalar const r1 = std::sqrt(r2);
 
-                md::vector force;
-
-                if (r2 < radius2) {
-                    force = derived().sphere_inward_potential(system, i).evaluate_force(r);
-                } else {
-                    force = derived().sphere_outward_potential(system, i).evaluate_force(r);
+                if (r2 == 0) {
+                    continue;
                 }
 
                 md::scalar const scale = radius / r1;
+                md::vector const s = r - scale * r;
+
+                md::vector force;
+
+                if (r2 < radius2) {
+                    auto const pot = derived().sphere_inward_potential(system, i);
+                    force = pot.evaluate_force(s);
+                } else {
+                    auto const pot = derived().sphere_outward_potential(system, i);
+                    force = pot.evaluate_force(s);
+                }
+
                 md::vector const aniso = scale * (force.project(r) - force);
 
                 forces[i] = force + aniso;
