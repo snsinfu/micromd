@@ -6,6 +6,8 @@
 #define MD_SYSTEM_HPP
 
 #include <algorithm>
+#include <cstddef>
+#include <iterator>
 #include <memory>
 
 #include "basic_types.hpp"
@@ -13,6 +15,7 @@
 
 #include "system/attribute.hpp"
 #include "system/detail/attribute_table.hpp"
+#include "system/detail/iterator_range.hpp"
 #include "system/detail/sum_forcefield.hpp"
 
 
@@ -53,30 +56,6 @@ namespace md
         md::scalar mobility = md::default_value(md::mobility_attribute);
         md::point position = md::default_value(md::position_attribute);
         md::vector velocity = md::default_value(md::velocity_attribute);
-
-        basic_particle_data& set_mass(md::scalar new_mass)
-        {
-            mass = new_mass;
-            return *this;
-        }
-
-        basic_particle_data& set_mobility(md::scalar new_mobility)
-        {
-            mobility = new_mobility;
-            return *this;
-        }
-
-        basic_particle_data& set_position(md::point new_position)
-        {
-            position = new_position;
-            return *this;
-        }
-
-        basic_particle_data& set_velocity(md::vector new_velocity)
-        {
-            velocity = new_velocity;
-            return *this;
-        }
     };
 
     //
@@ -91,6 +70,57 @@ namespace md
 
         particle_ref(md::system& system, md::index idx);
     };
+
+    namespace detail
+    {
+        struct particle_iterator
+        {
+            using value_type = md::particle_ref;
+            using reference = md::particle_ref;
+            using pointer = void;
+            using difference_type = std::ptrdiff_t;
+            using iterator_category = std::forward_iterator_tag;
+
+            particle_iterator() = default;
+
+            particle_iterator(md::system& system, md::index idx)
+                : system_{&system}, index_{idx}
+            {
+            }
+
+            bool operator==(particle_iterator const& other) const
+            {
+                return index_ == other.index_;
+            }
+
+            bool operator!=(particle_iterator const& other) const
+            {
+                return !(*this == other);
+            }
+
+            md::particle_ref operator*() const
+            {
+                return md::particle_ref(*system_, index_);
+            }
+
+            particle_iterator operator++(int)
+            {
+                auto copy = *this;
+                ++*this;
+                return copy;
+            }
+
+            particle_iterator& operator++()
+            {
+                index_++;
+                return *this;
+            }
+
+        private:
+            md::system* system_ = nullptr;
+            md::index index_ = 0;
+        };
+    }
 
     // system
     class system
@@ -117,6 +147,15 @@ namespace md
             view(md::velocity_attribute)[idx] = data.velocity;
 
             return md::particle_ref(*this, idx);
+        }
+
+        //
+        detail::iterator_range<detail::particle_iterator> particles()
+        {
+            return detail::iterator_range<detail::particle_iterator>{
+                detail::particle_iterator{*this, 0},
+                detail::particle_iterator{*this, particle_count()},
+            };
         }
 
         // particle_count returns the number of particles in the system.

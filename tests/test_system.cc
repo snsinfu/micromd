@@ -98,6 +98,19 @@ TEST_CASE("system::add_particle - returns a particle reference")
     CHECK(system.view(md::velocity_attribute)[0].z == 6);
 }
 
+TEST_CASE("system::particles - returns a range of particle references")
+{
+    md::system system;
+
+    system.add_particle().mass = 42;
+    system.add_particle().mass = 42;
+    system.add_particle().mass = 42;
+
+    for (md::particle_ref part : system.particles()) {
+        CHECK(part.mass == 42);
+    }
+}
+
 TEST_CASE("system::view_masses - returns mass attribute")
 {
     md::system system;
@@ -349,26 +362,4 @@ TEST_CASE("system - has 0-valued velocity_attribute by default")
     CHECK(velocities[0].x == 0);
     CHECK(velocities[0].y == 0);
     CHECK(velocities[0].z == 0);
-}
-
-TEST_CASE("basic_particle_data - has basic attributes")
-{
-}
-
-TEST_CASE("basic_particle_data - supports named parameters idiom")
-{
-    md::basic_particle_data data = md::basic_particle_data{}
-        .set_mass(1.23)
-        .set_mobility(4.56)
-        .set_position({7, 8, 9})
-        .set_velocity({8, 7, 6});
-
-    CHECK(data.mass == 1.23);
-    CHECK(data.mobility == 4.56);
-    CHECK(data.position.x == 7);
-    CHECK(data.position.y == 8);
-    CHECK(data.position.z == 9);
-    CHECK(data.velocity.x == 8);
-    CHECK(data.velocity.y == 7);
-    CHECK(data.velocity.z == 6);
 }
