@@ -23,7 +23,7 @@ namespace md
     public:
         md::scalar compute_energy(md::system const& system) override
         {
-            md::array_view<md::point const> positions = system.view(md::position_attribute);
+            md::array_view<md::point const> positions = system.view_positions();
             md::scalar sum = 0;
 
             for (auto const pair : get_neighbor_list(system)) {
@@ -41,7 +41,7 @@ namespace md
 
         void compute_force(md::system const& system, md::array_view<md::vector> forces) override
         {
-            md::array_view<md::point const> positions = system.view(md::position_attribute);
+            md::array_view<md::point const> positions = system.view_positions();
 
             for (auto const pair : get_neighbor_list(system)) {
                 md::index const i = pair.first;

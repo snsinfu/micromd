@@ -62,17 +62,17 @@ TEST_CASE("system::add_particle - can set basic attributes")
     data.velocity = {7, 8, 9};
     system.add_particle(data);
 
-    CHECK(system.view(md::mass_attribute)[0] == data.mass);
+    CHECK(system.view_masses()[0] == data.mass);
 
-    CHECK(system.view(md::mobility_attribute)[0] == data.mobility);
+    CHECK(system.view_mobilities()[0] == data.mobility);
 
-    CHECK(system.view(md::position_attribute)[0].x == data.position.x);
-    CHECK(system.view(md::position_attribute)[0].y == data.position.y);
-    CHECK(system.view(md::position_attribute)[0].z == data.position.z);
+    CHECK(system.view_positions()[0].x == data.position.x);
+    CHECK(system.view_positions()[0].y == data.position.y);
+    CHECK(system.view_positions()[0].z == data.position.z);
 
-    CHECK(system.view(md::velocity_attribute)[0].x == data.velocity.x);
-    CHECK(system.view(md::velocity_attribute)[0].y == data.velocity.y);
-    CHECK(system.view(md::velocity_attribute)[0].z == data.velocity.z);
+    CHECK(system.view_velocities()[0].x == data.velocity.x);
+    CHECK(system.view_velocities()[0].y == data.velocity.y);
+    CHECK(system.view_velocities()[0].z == data.velocity.z);
 }
 
 TEST_CASE("system::add_particle - returns a particle reference")
@@ -85,17 +85,17 @@ TEST_CASE("system::add_particle - returns a particle reference")
     part.position = {7, 8, 9};
     part.velocity = {8, 7, 6};
 
-    CHECK(system.view(md::mass_attribute)[0] == 1.23);
+    CHECK(system.view_masses()[0] == 1.23);
 
-    CHECK(system.view(md::mobility_attribute)[0] == 4.56);
+    CHECK(system.view_mobilities()[0] == 4.56);
 
-    CHECK(system.view(md::position_attribute)[0].x == 7);
-    CHECK(system.view(md::position_attribute)[0].y == 8);
-    CHECK(system.view(md::position_attribute)[0].z == 9);
+    CHECK(system.view_positions()[0].x == 7);
+    CHECK(system.view_positions()[0].y == 8);
+    CHECK(system.view_positions()[0].z == 9);
 
-    CHECK(system.view(md::velocity_attribute)[0].x == 8);
-    CHECK(system.view(md::velocity_attribute)[0].y == 7);
-    CHECK(system.view(md::velocity_attribute)[0].z == 6);
+    CHECK(system.view_velocities()[0].x == 8);
+    CHECK(system.view_velocities()[0].y == 7);
+    CHECK(system.view_velocities()[0].z == 6);
 }
 
 TEST_CASE("system::particles - returns a range of particle references")

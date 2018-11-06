@@ -141,10 +141,10 @@ namespace md
 
             attributes_.resize(idx + 1);
 
-            view(md::mass_attribute)[idx] = data.mass;
-            view(md::mobility_attribute)[idx] = data.mobility;
-            view(md::position_attribute)[idx] = data.position;
-            view(md::velocity_attribute)[idx] = data.velocity;
+            view_masses()[idx] = data.mass;
+            view_mobilities()[idx] = data.mobility;
+            view_positions()[idx] = data.position;
+            view_velocities()[idx] = data.velocity;
 
             return md::particle_ref(*this, idx);
         }
