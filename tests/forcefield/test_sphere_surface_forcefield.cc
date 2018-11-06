@@ -71,3 +71,64 @@ TEST_CASE("sphere_surface_forcefield - computes inward forcefield")
     CHECK(forces[6].x == Approx(xh - x6));
     CHECK(forces[7].x == 0);
 }
+
+TEST_CASE("sphere_surface_forcefield - computes outward forcefield")
+{
+    class outward_forcefield : public md::sphere_surface_forcefield<outward_forcefield>
+    {
+    public:
+        md::harmonic_potential sphere_outward_potential(md::system const&, md::index)
+        {
+            return md::harmonic_potential{};
+        }
+    };
+
+    md::system system;
+
+    md::scalar const x0 = system.add_particle().position.x = -1.2;
+    md::scalar const x1 = system.add_particle().position.x = -0.6;
+    md::scalar const x2 = system.add_particle().position.x = -0.4;
+    md::scalar const x3 = system.add_particle().position.x = 0.4;
+    md::scalar const x4 = system.add_particle().position.x = 0.8;
+    md::scalar const x5 = system.add_particle().position.x = 1.2;
+    md::scalar const x6 = system.add_particle().position.x = 1.5;
+    md::scalar const x7 = system.add_particle().position.x = 2.0;
+
+    (void) x2;
+    (void) x3;
+    (void) x4;
+    (void) x5;
+    (void) x6;
+
+    // Particles 0, 1 and 7 are inside this sphere.
+    md::sphere sphere;
+    sphere.center.x = 0.6;
+    sphere.radius = 1.1;
+
+    md::scalar const xl = sphere.center.x - sphere.radius;
+    md::scalar const xh = sphere.center.x + sphere.radius;
+
+    outward_forcefield outward;
+    outward.set_sphere(sphere);
+
+    // Energy
+    md::scalar const e0 = 0.5 * (x0 - xl) * (x0 - xl);
+    md::scalar const e1 = 0.5 * (x1 - xl) * (x1 - xl);
+    md::scalar const e7 = 0.5 * (x7 - xh) * (x7 - xh);
+    md::scalar const expected_energy = e0 + e1 + e7;
+
+    CHECK(outward.compute_energy(system) == Approx(expected_energy));
+
+    // Force
+    std::vector<md::vector> forces(system.particle_count());
+    outward.compute_force(system, forces);
+
+    CHECK(forces[0].x == Approx(xl - x0));
+    CHECK(forces[1].x == Approx(xl - x1));
+    CHECK(forces[2].x == 0);
+    CHECK(forces[3].x == 0);
+    CHECK(forces[4].x == 0);
+    CHECK(forces[5].x == 0);
+    CHECK(forces[6].x == 0);
+    CHECK(forces[7].x == Approx(xh - x7));
+}
