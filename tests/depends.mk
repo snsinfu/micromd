@@ -90,11 +90,10 @@ forcefield/test_sphere_surface_forcefield.o: \
   ../include/md/forcefield/../system.hpp \
   ../include/md/forcefield/../potential/constant_potential.hpp
 main.o: main.cc
-potential/test_power_law_potential.o: \
-  potential/test_power_law_potential.cc ../include/md/basic_types.hpp \
-  ../include/md/basic_types/array_view.hpp \
+potential/test_softcore_potential.o: potential/test_softcore_potential.cc \
+  ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
   ../include/md/basic_types/point.hpp \
-  ../include/md/potential/power_law_potential.hpp \
+  ../include/md/potential/softcore_potential.hpp \
   ../include/md/potential/../basic_types.hpp
 potential/test_constant_potential.o: potential/test_constant_potential.cc \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \

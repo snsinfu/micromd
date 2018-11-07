@@ -1,21 +1,21 @@
 #include <md/basic_types.hpp>
 
-#include <md/potential/power_law_potential.hpp>
+#include <md/potential/softcore_potential.hpp>
 
 #include <catch.hpp>
 
 
-TEST_CASE("power_law_potential - uses defined default parameters")
+TEST_CASE("softcore_potential - uses defined default parameters")
 {
-    md::power_law_potential<3> pot;
+    md::softcore_potential<3> pot;
 
     CHECK(pot.overlap_energy == 1);
     CHECK(pot.cutoff_distance == 1);
 }
 
-TEST_CASE("power_law_potential - takes maximnum energy at zero")
+TEST_CASE("softcore_potential - takes maximnum energy at zero")
 {
-    md::power_law_potential<3> pot;
+    md::softcore_potential<3> pot;
 
     pot.overlap_energy = 1.23;
     pot.cutoff_distance = 1;
@@ -27,9 +27,9 @@ TEST_CASE("power_law_potential - takes maximnum energy at zero")
     CHECK(pot.evaluate_force(zero).z == Approx(0));
 }
 
-TEST_CASE("power_law_potential - uses specified cutoff distance")
+TEST_CASE("softcore_potential - uses specified cutoff distance")
 {
-    md::power_law_potential<3> pot;
+    md::softcore_potential<3> pot;
 
     pot.overlap_energy = 1.23;
     pot.cutoff_distance = 4.56;
@@ -52,13 +52,13 @@ TEST_CASE("power_law_potential - uses specified cutoff distance")
     CHECK(pot.evaluate_force(10 * r).z == 0);
 }
 
-TEST_CASE("power_law_potential - supports arbitrary positive exponent")
+TEST_CASE("softcore_potential - supports arbitrary positive exponent")
 {
-    md::power_law_potential<1> pl1;
-    md::power_law_potential<2> pl2;
-    md::power_law_potential<3> pl3;
-    md::power_law_potential<4> pl4;
-    md::power_law_potential<5> pl5;
+    md::softcore_potential<1> pl1;
+    md::softcore_potential<2> pl2;
+    md::softcore_potential<3> pl3;
+    md::softcore_potential<4> pl4;
+    md::softcore_potential<5> pl5;
 
     md::vector const r = {0.5, 0, 0};
 

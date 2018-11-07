@@ -2,8 +2,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef MD_POTENTIAL_POWER_LAW_POTENTIAL_HPP
-#define MD_POTENTIAL_POWER_LAW_POTENTIAL_HPP
+#ifndef MD_POTENTIAL_SOFTCORE_POTENTIAL_HPP
+#define MD_POTENTIAL_SOFTCORE_POTENTIAL_HPP
 
 #include "../basic_types.hpp"
 
@@ -12,11 +12,6 @@ namespace md
 {
     namespace detail
     {
-        inline md::scalar ramp(md::scalar x)
-        {
-            return x > 0 ? x : 0;
-        }
-
         inline md::scalar power(md::scalar x, int n)
         {
             if (n == 0) {
@@ -32,9 +27,9 @@ namespace md
     }
 
     template<int N>
-    struct power_law_potential
+    struct softcore_potential
     {
-        static_assert(N >= 1, "power_law_potential exponent must be positive");
+        static_assert(N >= 1, "softcore_potential exponent must be positive");
 
         md::scalar overlap_energy = 1;
         md::scalar cutoff_distance = 1;
