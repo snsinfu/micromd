@@ -21,7 +21,7 @@ namespace md
     // Due to diamond inheritance the components must derive md::forcefield with
     // `virtual` keyword.
     template<typename... Components>
-    class composite_forcefield : public virtual md::forcefield, Components...
+    class composite_forcefield : public virtual md::forcefield, public Components...
     {
     public:
         // compute_energy computes the sum of the energy values computed by
