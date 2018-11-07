@@ -44,7 +44,7 @@ namespace md
         std::uint64_t seed = 0;
 
         // Optional function called after each step.
-        std::function<void(md::step)> callback;
+        std::function<void(md::step)> callback = {};
     };
 
     // simulate_brownian_dynamics simulates Brownian dynamics of the system.
@@ -65,11 +65,11 @@ namespace md
 
         detail::brownian_simulator simulator(system, *timestepper, config.temperature, config.seed);
 
-        for (md::step step = 0; step < config.steps; step++) {
+        for (md::step step_ctr = 0; step_ctr < config.steps; step_ctr++) {
             simulator.simulate_step();
 
             if (config.callback) {
-                config.callback(step);
+                config.callback(step_ctr);
             }
         }
     }

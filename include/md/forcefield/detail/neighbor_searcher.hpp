@@ -43,7 +43,7 @@ namespace md
                 }
             }
 
-            for (md::index center = 0; center < hash.modulus; center++) {
+            for (hash_t center = 0; center < hash.modulus; center++) {
                 std::vector<md::index>& neighbors = buckets_[center].neighbors;
 
                 for (hash_t const delta : hash_deltas) {

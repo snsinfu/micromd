@@ -38,7 +38,7 @@ namespace md
 
         // Velocity Verlet scheme.
 
-        for (md::step step = 0; step < config.steps; step++) {
+        for (md::step step_ctr = 0; step_ctr < config.steps; step_ctr++) {
             md::scalar const timestep = config.timestep;
 
             for (md::index i = 0; i < system.particle_count(); i++) {
@@ -53,7 +53,7 @@ namespace md
             }
 
             if (config.callback) {
-                config.callback(step);
+                config.callback(step_ctr);
             }
         }
     }
