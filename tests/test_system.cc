@@ -231,6 +231,41 @@ TEST_CASE("system::require - creates an attribute if it does not exist")
     CHECK(values[2] == 42);
 }
 
+TEST_CASE("system::add_forcefield - accepts a forcefield and returns a shared_ptr")
+{
+    class my_forcefield : public md::forcefield
+    {
+    public:
+        md::scalar energy;
+
+        explicit my_forcefield(md::scalar energy)
+            : energy{energy}
+        {
+        }
+
+        md::scalar compute_energy(md::system const&) override
+        {
+            return energy;
+        }
+
+        void compute_force(md::system const&, md::array_view<md::vector>) override
+        {
+        }
+    };
+
+    md::system system;
+
+    // system wraps a copy of the passed-in ff as a shared_ptr
+    std::shared_ptr<my_forcefield> ff = system.add_forcefield(my_forcefield{1.23});
+
+    CHECK(ff->energy == 1.23);
+
+    // The forcefield object is shared
+    ff->energy = 3.21;
+
+    CHECK(system.compute_potential_energy() == 3.21);
+}
+
 TEST_CASE("system::add_forcefield - accepts a shared_ptr of a forcefield")
 {
     class my_forcefield : public md::forcefield

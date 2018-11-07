@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <iterator>
 #include <memory>
+#include <type_traits>
 
 #include "basic_types.hpp"
 #include "forcefield.hpp"
@@ -232,6 +233,17 @@ namespace md
         void add_forcefield(std::shared_ptr<md::forcefield> ff)
         {
             forcefield_.add(ff);
+        }
+
+        template<
+            typename FF,
+            typename = typename std::enable_if<std::is_base_of<md::forcefield, FF>::value>::type
+        >
+        std::shared_ptr<FF> add_forcefield(FF const& ff)
+        {
+            std::shared_ptr<FF> ffptr = std::make_shared<FF>(ff);
+            add_forcefield(ffptr);
+            return ffptr;
         }
 
         // compute_potential_energy returns the total potential energy of the
