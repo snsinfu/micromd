@@ -12,9 +12,10 @@
 #include "potential/constant_potential.hpp"
 #include "potential/harmonic_potential.hpp"
 #include "potential/lennard_jones_potential.hpp"
-#include "potential/power_law_potential.hpp"
+#include "potential/softcore_potential.hpp"
 
 #include "forcefield/composite_forcefield.hpp"
+#include "forcefield/ellipsoid_surface_forcefield.hpp"
 #include "forcefield/neighbor_pair_forcefield.hpp"
 #include "forcefield/sphere_surface_forcefield.hpp"
 
