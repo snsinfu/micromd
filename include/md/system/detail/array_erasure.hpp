@@ -41,12 +41,11 @@ namespace md
                 return std::unique_ptr<instance<T>>{new instance<T>(size, def)};
             }
 
-            // recover returns a reference to the erased instance<T>. Assertion
-            // fails if T is not the erased element type.
+            // recover returns a reference to the erased instance<T>. Behavior
+            // is undefined if the actual type is not T.
             template<typename T>
             instance<T>& recover()
             {
-                assert(dynamic_cast<instance<T>*>(this) != nullptr);
                 return static_cast<instance<T>&>(*this);
             }
         };
