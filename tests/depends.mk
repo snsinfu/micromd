@@ -139,7 +139,11 @@ simulation/test_brownian_dynamics.o: simulation/test_brownian_dynamics.cc \
   ../include/md/system/detail/../../forcefield.hpp \
   ../include/md/simulation/brownian_dynamics.hpp \
   ../include/md/simulation/../basic_types.hpp \
-  ../include/md/simulation/../system.hpp
+  ../include/md/simulation/../system.hpp \
+  ../include/md/simulation/detail/brownian_simulator.hpp \
+  ../include/md/simulation/detail/../../basic_types.hpp \
+  ../include/md/simulation/detail/../../system.hpp \
+  ../include/md/simulation/detail/brownian_timestepper.hpp
 system/test_attribute.o: system/test_attribute.cc \
   ../include/md/system/attribute.hpp
 system/detail/test_attribute_table.o: \
