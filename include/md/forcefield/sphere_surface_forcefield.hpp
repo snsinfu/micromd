@@ -5,8 +5,13 @@
 #ifndef MD_FORCEFIELD_SPHERE_SURFACE_FORCEFIELD_HPP
 #define MD_FORCEFIELD_SPHERE_SURFACE_FORCEFIELD_HPP
 
-#include <type_traits>
-#include <utility>
+// This module provides a forcefield based on field potential exerted from the
+// surface of a sphere.
+//
+// struct sphere
+// class  sphere_surface_forcefield
+
+#include <cmath>
 
 #include "../basic_types.hpp"
 #include "../forcefield.hpp"
@@ -17,21 +22,30 @@
 
 namespace md
 {
+    // sphere is a sphere in the three-dimensional space.
     struct sphere
     {
+        // Center. Defaults to the origin.
         md::point center;
+
+        // Radius. Defaults to 1.
         md::scalar radius = 1;
     };
 
+    // ellipsoid_surface_forcefield computes field interaction of particles and
+    // a spherical surface.
     template<typename Derived>
     class sphere_surface_forcefield : public virtual md::forcefield
     {
     public:
+        // set_ellipsoid changes the ellipsoid to given one. Default is the unit
+        // sphere placed at the origin.
         void set_sphere(md::sphere sphere)
         {
             sphere_ = sphere;
         }
 
+        // compute_energy implements md::forcefield.
         md::scalar compute_energy(md::system const& system) override
         {
             md::point const center = sphere_.center;
@@ -65,6 +79,7 @@ namespace md
             return sum;
         }
 
+        // compute_force implements md::forcefield.
         void compute_force(md::system const& system, md::array_view<md::vector> forces) override
         {
             md::point const center = sphere_.center;
@@ -101,19 +116,20 @@ namespace md
             }
         }
 
-        // Default implementations
-
+        // sphere_inward_potential by default returns a zero potential.
         md::constant_potential sphere_inward_potential(md::system const&, md::index) const
         {
             return md::constant_potential{0};
         }
 
+        // sphere_outward_potential by default returns a zero potential.
         md::constant_potential sphere_outward_potential(md::system const&, md::index) const
         {
             return md::constant_potential{0};
         }
 
     private:
+        // derived returns a reference to this as the CRTP derived class.
         Derived& derived()
         {
             return static_cast<Derived&>(*this);
