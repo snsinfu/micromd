@@ -17,7 +17,6 @@
 
 #include "../potential/constant_potential.hpp"
 
-#include <iostream>
 
 namespace md
 {
