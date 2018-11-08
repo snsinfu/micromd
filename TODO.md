@@ -1,5 +1,3 @@
-- Test `ellipsoid_surface_forcefield::compute_force()`. Energy conservation?
-
 - Add ziggurat normal sampler. Normal number generation took ~20% runtime in a
   Brownian dynamics simulation benchmark. It is worth optimizing.
 

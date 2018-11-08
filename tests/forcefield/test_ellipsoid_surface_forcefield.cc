@@ -117,7 +117,19 @@ TEST_CASE("ellipsoid_surface_forcefield - computes inward forcefield")
 
     CHECK(inward.compute_energy(system) == Approx(expected_energy).epsilon(0.1));
 
-    // FIXME: Test force!
+    // Force
+    std::vector<md::vector> forces(system.particle_count());
+
+    md::scalar const f1 = xl - x1;
+    md::scalar const f3 = xh - x3;
+
+    inward.compute_force(system, forces);
+
+    CHECK(forces[0].x == 0);
+    CHECK(forces[1].x == Approx(f1).epsilon(0.1));
+    CHECK(forces[2].x == 0);
+    CHECK(forces[3].x == Approx(f3).epsilon(0.1));
+    CHECK(forces[4].x == 0);
 }
 
 TEST_CASE("ellipsoid_surface_forcefield - computes outward forcefield")
@@ -161,5 +173,17 @@ TEST_CASE("ellipsoid_surface_forcefield - computes outward forcefield")
 
     CHECK(outward.compute_energy(system) == Approx(expected_energy).epsilon(0.1));
 
-    // FIXME: Test force!
+    // Force
+    std::vector<md::vector> forces(system.particle_count());
+
+    md::scalar const f0 = xl - x0;
+    md::scalar const f4 = xh - x4;
+
+    outward.compute_force(system, forces);
+
+    CHECK(forces[0].x == Approx(f0).epsilon(0.1));
+    CHECK(forces[1].x == 0);
+    CHECK(forces[2].x == 0);
+    CHECK(forces[3].x == 0);
+    CHECK(forces[4].x == Approx(f4).epsilon(0.1));
 }
