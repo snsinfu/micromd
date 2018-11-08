@@ -3,6 +3,8 @@ forcefield/test_sequential_pair_forcefield.o: \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
   ../include/md/basic_types/point.hpp ../include/md/forcefield.hpp \
   ../include/md/system.hpp ../include/md/system/attribute.hpp \
+  ../include/md/system/particle.hpp \
+  ../include/md/system/../basic_types.hpp \
   ../include/md/system/detail/attribute_table.hpp \
   ../include/md/system/detail/../../basic_types.hpp \
   ../include/md/system/detail/../attribute.hpp \
@@ -21,6 +23,8 @@ forcefield/test_ellipsoid_surface_forcefield.o: \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
   ../include/md/basic_types/point.hpp ../include/md/forcefield.hpp \
   ../include/md/system.hpp ../include/md/system/attribute.hpp \
+  ../include/md/system/particle.hpp \
+  ../include/md/system/../basic_types.hpp \
   ../include/md/system/detail/attribute_table.hpp \
   ../include/md/system/detail/../../basic_types.hpp \
   ../include/md/system/detail/../attribute.hpp \
@@ -40,6 +44,8 @@ forcefield/test_neighbor_pair_forcefield.o: \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
   ../include/md/basic_types/point.hpp ../include/md/forcefield.hpp \
   ../include/md/system.hpp ../include/md/system/attribute.hpp \
+  ../include/md/system/particle.hpp \
+  ../include/md/system/../basic_types.hpp \
   ../include/md/system/detail/attribute_table.hpp \
   ../include/md/system/detail/../../basic_types.hpp \
   ../include/md/system/detail/../attribute.hpp \
@@ -60,6 +66,8 @@ forcefield/test_composite_forcefield.o: \
   ../include/md/basic_types/array_view.hpp \
   ../include/md/basic_types/point.hpp ../include/md/forcefield.hpp \
   ../include/md/system.hpp ../include/md/system/attribute.hpp \
+  ../include/md/system/particle.hpp \
+  ../include/md/system/../basic_types.hpp \
   ../include/md/system/detail/attribute_table.hpp \
   ../include/md/system/detail/../../basic_types.hpp \
   ../include/md/system/detail/../attribute.hpp \
@@ -94,6 +102,8 @@ forcefield/test_sphere_surface_forcefield.o: \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
   ../include/md/basic_types/point.hpp ../include/md/forcefield.hpp \
   ../include/md/system.hpp ../include/md/system/attribute.hpp \
+  ../include/md/system/particle.hpp \
+  ../include/md/system/../basic_types.hpp \
   ../include/md/system/detail/attribute_table.hpp \
   ../include/md/system/detail/../../basic_types.hpp \
   ../include/md/system/detail/../attribute.hpp \
@@ -113,6 +123,8 @@ integration_tests/test_ellipsoid_surface_energy_conservation.o: \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
   ../include/md/basic_types/point.hpp ../include/md/system.hpp \
   ../include/md/forcefield.hpp ../include/md/system/attribute.hpp \
+  ../include/md/system/particle.hpp \
+  ../include/md/system/../basic_types.hpp \
   ../include/md/system/detail/attribute_table.hpp \
   ../include/md/system/detail/../../basic_types.hpp \
   ../include/md/system/detail/../attribute.hpp \
@@ -157,6 +169,8 @@ simulation/test_newtonian_dynamics.o: \
   ../include/md/basic_types/array_view.hpp \
   ../include/md/basic_types/point.hpp ../include/md/forcefield.hpp \
   ../include/md/system.hpp ../include/md/system/attribute.hpp \
+  ../include/md/system/particle.hpp \
+  ../include/md/system/../basic_types.hpp \
   ../include/md/system/detail/attribute_table.hpp \
   ../include/md/system/detail/../../basic_types.hpp \
   ../include/md/system/detail/../attribute.hpp \
@@ -171,6 +185,8 @@ simulation/test_brownian_dynamics.o: simulation/test_brownian_dynamics.cc \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
   ../include/md/basic_types/point.hpp ../include/md/forcefield.hpp \
   ../include/md/system.hpp ../include/md/system/attribute.hpp \
+  ../include/md/system/particle.hpp \
+  ../include/md/system/../basic_types.hpp \
   ../include/md/system/detail/attribute_table.hpp \
   ../include/md/system/detail/../../basic_types.hpp \
   ../include/md/system/detail/../attribute.hpp \
@@ -185,6 +201,18 @@ simulation/test_brownian_dynamics.o: simulation/test_brownian_dynamics.cc \
   ../include/md/simulation/detail/../../basic_types.hpp \
   ../include/md/simulation/detail/../../system.hpp \
   ../include/md/simulation/detail/brownian_timestepper.hpp
+system/test_particle.o: system/test_particle.cc ../include/md/system.hpp \
+  ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
+  ../include/md/basic_types/point.hpp ../include/md/forcefield.hpp \
+  ../include/md/system/attribute.hpp ../include/md/system/particle.hpp \
+  ../include/md/system/../basic_types.hpp \
+  ../include/md/system/detail/attribute_table.hpp \
+  ../include/md/system/detail/../../basic_types.hpp \
+  ../include/md/system/detail/../attribute.hpp \
+  ../include/md/system/detail/array_erasure.hpp \
+  ../include/md/system/detail/iterator_range.hpp \
+  ../include/md/system/detail/sum_forcefield.hpp \
+  ../include/md/system/detail/../../forcefield.hpp
 system/test_attribute.o: system/test_attribute.cc \
   ../include/md/system/attribute.hpp
 system/detail/test_attribute_table.o: \
@@ -201,6 +229,8 @@ system/detail/test_sum_forcefield.o: system/detail/test_sum_forcefield.cc \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
   ../include/md/basic_types/point.hpp ../include/md/forcefield.hpp \
   ../include/md/system.hpp ../include/md/system/attribute.hpp \
+  ../include/md/system/particle.hpp \
+  ../include/md/system/../basic_types.hpp \
   ../include/md/system/detail/attribute_table.hpp \
   ../include/md/system/detail/../../basic_types.hpp \
   ../include/md/system/detail/../attribute.hpp \
@@ -211,7 +241,8 @@ system/detail/test_sum_forcefield.o: system/detail/test_sum_forcefield.cc \
 test_system.o: test_system.cc ../include/md/system.hpp \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
   ../include/md/basic_types/point.hpp ../include/md/forcefield.hpp \
-  ../include/md/system/attribute.hpp \
+  ../include/md/system/attribute.hpp ../include/md/system/particle.hpp \
+  ../include/md/system/../basic_types.hpp \
   ../include/md/system/detail/attribute_table.hpp \
   ../include/md/system/detail/../../basic_types.hpp \
   ../include/md/system/detail/../attribute.hpp \

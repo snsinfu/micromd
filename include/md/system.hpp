@@ -15,6 +15,7 @@
 #include "forcefield.hpp"
 
 #include "system/attribute.hpp"
+#include "system/particle.hpp"
 #include "system/detail/attribute_table.hpp"
 #include "system/detail/iterator_range.hpp"
 #include "system/detail/sum_forcefield.hpp"
@@ -59,70 +60,6 @@ namespace md
         md::vector velocity = md::default_value(md::velocity_attribute);
     };
 
-    //
-    struct particle_ref
-    {
-        md::index index;
-
-        md::scalar& mass;
-        md::scalar& mobility;
-        md::point& position;
-        md::vector& velocity;
-
-        particle_ref(md::system& system, md::index idx);
-    };
-
-    namespace detail
-    {
-        struct particle_iterator
-        {
-            using value_type = md::particle_ref;
-            using reference = md::particle_ref;
-            using pointer = void;
-            using difference_type = std::ptrdiff_t;
-            using iterator_category = std::forward_iterator_tag;
-
-            particle_iterator() = default;
-
-            particle_iterator(md::system& system, md::index idx)
-                : system_{&system}, index_{idx}
-            {
-            }
-
-            bool operator==(particle_iterator const& other) const
-            {
-                return index_ == other.index_;
-            }
-
-            bool operator!=(particle_iterator const& other) const
-            {
-                return !(*this == other);
-            }
-
-            md::particle_ref operator*() const
-            {
-                return md::particle_ref(*system_, index_);
-            }
-
-            particle_iterator operator++(int)
-            {
-                auto copy = *this;
-                ++*this;
-                return copy;
-            }
-
-            particle_iterator& operator++()
-            {
-                index_++;
-                return *this;
-            }
-
-        private:
-            md::system* system_ = nullptr;
-            md::index index_ = 0;
-        };
-    }
-
     // system
     class system
     {
@@ -151,11 +88,11 @@ namespace md
         }
 
         //
-        detail::iterator_range<detail::particle_iterator> particles()
+        detail::iterator_range<md::particle_iterator> particles()
         {
-            return detail::iterator_range<detail::particle_iterator>{
-                detail::particle_iterator{*this, 0},
-                detail::particle_iterator{*this, particle_count()},
+            return detail::iterator_range<md::particle_iterator>{
+                md::particle_iterator{*this, 0},
+                md::particle_iterator{*this, particle_count()},
             };
         }
 
@@ -292,7 +229,7 @@ namespace md
         detail::sum_forcefield forcefield_;
     };
 
-    inline particle_ref::particle_ref(md::system& system, md::index idx)
+    inline md::particle_ref::particle_ref(md::system& system, md::index idx)
         : index{idx}
         , mass{system.view_masses()[idx]}
         , mobility{system.view_mobilities()[idx]}
