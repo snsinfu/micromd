@@ -7,7 +7,7 @@
 #include <catch.hpp>
 
 
-namespace
+TEST_CASE("Energy conservation of particles in a ellipsoid")
 {
     class ellipsoid_packing_forcefield
         : public md::ellipsoid_surface_forcefield<ellipsoid_packing_forcefield>
@@ -20,10 +20,7 @@ namespace
             return harmonic;
         }
     };
-}
 
-TEST_CASE("Energy conservation of particles in a ellipsoid")
-{
     md::system system;
 
     md::ellipsoid ellipsoid;
