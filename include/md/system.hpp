@@ -246,11 +246,32 @@ namespace md
             return ffptr;
         }
 
+        // compute_kinetic_energy returns the total kinetic energy of the system.
+        md::scalar compute_kinetic_energy() const
+        {
+            md::array_view<md::scalar const> masses = view_masses();
+            md::array_view<md::vector const> velocities = view_velocities();
+
+            md::scalar sum = 0;
+
+            for (md::index i = 0; i < particle_count(); i++) {
+                sum += masses[i] * velocities[i].squared_norm();
+            }
+            return sum / 2;
+        }
+
         // compute_potential_energy returns the total potential energy of the
-        // system.
+        // system. This function may mutate forcefield states.
         md::scalar compute_potential_energy()
         {
             return forcefield_.compute_energy(*this);
+        }
+
+        // compute_energy returns the total mechanical energy of the system.
+        // Mechanical energy is a sum of kinetic energy of potential energy.
+        md::scalar compute_energy()
+        {
+            return compute_kinetic_energy() + compute_potential_energy();
         }
 
         // compute_force assigns total force acting on each particle to given

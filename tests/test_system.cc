@@ -362,6 +362,67 @@ TEST_CASE("system::compute_force - returns the sum of component force vectors")
     CHECK(forces[0].z == 2);
 }
 
+TEST_CASE("system::compute_kinetic_energy - returns the sum of particle kinetic energy")
+{
+    md::system system;
+
+    md::basic_particle_data part1;
+    part1.mass = 1.2;
+    part1.velocity = {3.4, 5.6, 7.8};
+
+    md::basic_particle_data part2;
+    part2.mass = 9.0;
+    part2.velocity = {1.2, 3.4, 5.6};
+
+    system.add_particle(part1);
+    system.add_particle(part2);
+
+    md::scalar const kin1 = part1.mass * part1.velocity.squared_norm() / 2;
+    md::scalar const kin2 = part2.mass * part2.velocity.squared_norm() / 2;
+    md::scalar const expected_energy = kin1 + kin2;
+
+    CHECK(system.compute_kinetic_energy() == Approx(expected_energy));
+}
+
+TEST_CASE("system::compute_energy - returns kinetic + potential energy")
+{
+    class forcefield : public md::forcefield
+    {
+    public:
+        md::scalar compute_energy(md::system const&) override
+        {
+            return 2.35;
+        }
+
+        void compute_force(md::system const&, md::array_view<md::vector>) override
+        {
+        }
+    };
+
+    md::system system;
+
+    md::basic_particle_data part1;
+    part1.mass = 1.2;
+    part1.velocity = {3.4, 5.6, 7.8};
+
+    md::basic_particle_data part2;
+    part2.mass = 9.0;
+    part2.velocity = {1.2, 3.4, 5.6};
+
+    system.add_particle(part1);
+    system.add_particle(part2);
+
+    system.add_forcefield(std::make_shared<forcefield>());
+
+    md::scalar const kin1 = part1.mass * part1.velocity.squared_norm() / 2;
+    md::scalar const kin2 = part2.mass * part2.velocity.squared_norm() / 2;
+    md::scalar const pot = 2.35;
+    md::scalar const expected_energy = kin1 + kin2 + pot;
+
+    CHECK(system.compute_energy() == Approx(expected_energy));
+}
+
+
 TEST_CASE("system - has 1-valued mass_attribute by default")
 {
     md::system system;
