@@ -7,7 +7,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <iostream>
 #include <iterator>
 #include <utility>
 #include <vector>
@@ -79,6 +78,7 @@ namespace md
 
             md::linear_hash hash;
             hash.modulus = md::linear_hash::hash_t(md::scalar(points.size()) * bucket_per_point);
+            hash.modulus = md::linear_hash::hash_t(points.size() / 6);
             hash.modulus |= 1;
 
             return hash;
