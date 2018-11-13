@@ -5,6 +5,9 @@
 #ifndef MD_SYSTEM_DETAIL_ATTRIBUTE_TABLE_HPP
 #define MD_SYSTEM_DETAIL_ATTRIBUTE_TABLE_HPP
 
+// This module defines attribute_table class: A data structure like a columnar
+// database (or a dataframe), keyed by attribute_keys.
+
 #include <memory>
 #include <unordered_map>
 #include <utility>

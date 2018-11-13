@@ -5,6 +5,9 @@
 #ifndef MD_FORCEFIELD_DETAIL_NEIGHBOR_SEARCHER_HPP
 #define MD_FORCEFIELD_DETAIL_NEIGHBOR_SEARCHER_HPP
 
+// This module implements a time-efficient neighbor search algorithm in an open
+// three-dimensional space.
+
 #include <algorithm>
 #include <set>
 #include <utility>

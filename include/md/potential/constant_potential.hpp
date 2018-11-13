@@ -5,6 +5,8 @@
 #ifndef MD_POTENTIAL_CONSTANT_POTENTIAL_HPP
 #define MD_POTENTIAL_CONSTANT_POTENTIAL_HPP
 
+// This module provides constant_potential. Used as defaults and in tests.
+
 #include "../basic_types.hpp"
 
 

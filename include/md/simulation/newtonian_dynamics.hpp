@@ -5,6 +5,8 @@
 #ifndef MD_SIMULATION_NEWTONIAN_DYMNAMICS_HPP
 #define MD_SIMULATION_NEWTONIAN_DYMNAMICS_HPP
 
+// This module provides a function for simulating Newtonian dynamics.
+
 #include <cmath>
 #include <functional>
 #include <vector>

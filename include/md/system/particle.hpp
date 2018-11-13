@@ -5,10 +5,7 @@
 #ifndef MD_SYSTEM_PARTICLE_HPP
 #define MD_SYSTEM_PARTICLE_HPP
 
-// This module provides classes used to access particles in a system.
-//
-// struct particle_ref
-// class  particle_iterator
+// This module defines convenience classes used to access particles in a system.
 
 #include <cstddef>
 #include <iterator>

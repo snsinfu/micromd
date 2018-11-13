@@ -6,9 +6,6 @@
 #define MD_SIMULATION_BROWNIAN_DYMNAMICS_HPP
 
 // This module provides a function for simulating Brownian dynamics.
-//
-// brownian_dynamics_config
-// simulate_brownian_dynamics()
 
 #include <cstdint>
 #include <functional>

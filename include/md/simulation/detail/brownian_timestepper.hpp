@@ -5,11 +5,8 @@
 #ifndef MD_SIMULATION_DETAIL_BROWNIAN_TIMESTEPPER_HPP
 #define MD_SIMULATION_DETAIL_BROWNIAN_TIMESTEPPER_HPP
 
-// This module provides timestepping algorithms for Brownian dynamics simulation.
-//
-// detail::brownian_timestepper
-// detail::monotonic_brownian_timestepper
-// detail::adaptive_brownian_timestepper
+// This module provides timestepping algorithms used to implement for Brownian
+// dynamics simulation.
 
 #include <algorithm>
 #include <cmath>

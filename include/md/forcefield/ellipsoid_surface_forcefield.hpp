@@ -5,11 +5,8 @@
 #ifndef MD_FORCEFIELD_ELLIPSOID_SURFACE_FORCEFIELD_HPP
 #define MD_FORCEFIELD_ELLIPSOID_SURFACE_FORCEFIELD_HPP
 
-// This module provides a forcefield template to force particles near surface of
-// an ellipsoid.
-//
-// struct ellipsoid
-// class  ellipsoid_surface_forcefield
+// This module provides a template forcefield implementation that computes
+// field force acting on particles near an ellipsoidal surface.
 
 #include "../basic_types.hpp"
 #include "../forcefield.hpp"

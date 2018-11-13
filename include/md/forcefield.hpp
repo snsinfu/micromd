@@ -5,6 +5,8 @@
 #ifndef MD_FORCEFIELD_HPP
 #define MD_FORCEFIELD_HPP
 
+// This module defines the interface of forcefield implementations.
+
 #include "basic_types.hpp"
 
 

@@ -5,6 +5,8 @@
 #ifndef MD_BASIC_TYPES_HPP
 #define MD_BASIC_TYPES_HPP
 
+// This module defines basic typedefs used across micromd library.
+
 #include <cstddef>
 #include <cstdint>
 

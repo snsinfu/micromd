@@ -5,6 +5,9 @@
 #ifndef MD_FORCEFIELD_DETAIL_LINEAR_HASH_HPP
 #define MD_FORCEFIELD_DETAIL_LINEAR_HASH_HPP
 
+// This module provides a functor class to linearly hash integral triples. Used
+// to implement neighbor_searcher.
+
 #include <cstdint>
 
 

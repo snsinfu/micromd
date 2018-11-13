@@ -5,6 +5,9 @@
 #ifndef MD_FORCEFIELD_COMPOSITE_FORCEFIELD_HPP
 #define MD_FORCEFIELD_COMPOSITE_FORCEFIELD_HPP
 
+// This module provides a template forcefield implementation that statically
+// combines multiple forcefields into a single sum forcefield.
+
 #include <iterator>
 #include <numeric>
 

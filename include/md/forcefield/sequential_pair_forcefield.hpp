@@ -5,6 +5,9 @@
 #ifndef MD_FORCEFIELD_SEQUENTIAL_PAIR_FORCEFIELD_HPP
 #define MD_FORCEFIELD_SEQUENTIAL_PAIR_FORCEFIELD_HPP
 
+// This module provides a template forcefield implementation that computes
+// interactions between sequentially numbered particles.
+
 #include <utility>
 #include <vector>
 

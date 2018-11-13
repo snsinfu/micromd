@@ -5,6 +5,8 @@
 #ifndef MD_POTENTIAL_LENNARD_JONES_POTENTIAL_HPP
 #define MD_POTENTIAL_LENNARD_JONES_POTENTIAL_HPP
 
+// This module provides the Lennard-Jones potential.
+
 #include "../basic_types.hpp"
 
 

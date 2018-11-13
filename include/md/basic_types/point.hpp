@@ -5,6 +5,9 @@
 #ifndef MD_BASIC_TYPES_POINT_HPP
 #define MD_BASIC_TYPES_POINT_HPP
 
+// This module provides basic three-dimensional geometry classes and functions.
+// Source: https://github.com/snsinfu/cxx-point
+
 #include <cmath>
 #include <cstddef>
 #include <istream>

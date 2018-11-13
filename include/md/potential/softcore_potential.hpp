@@ -5,6 +5,8 @@
 #ifndef MD_POTENTIAL_SOFTCORE_POTENTIAL_HPP
 #define MD_POTENTIAL_SOFTCORE_POTENTIAL_HPP
 
+// This module provides a softcore short-range potential.
+
 #include "../basic_types.hpp"
 
 

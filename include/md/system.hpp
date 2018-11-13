@@ -5,6 +5,9 @@
 #ifndef MD_SYSTEM_HPP
 #define MD_SYSTEM_HPP
 
+// This module defines the system class: A context class holding all particle
+// parameters and state variables.
+
 #include <algorithm>
 #include <cstddef>
 #include <iterator>

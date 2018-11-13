@@ -6,8 +6,6 @@
 #define MD_SIMULATION_DETAIL_BROWNIAN_SIMULATOR_HPP
 
 // This module provides a helper class to simulate Brownian dynamics.
-//
-// detail::brownian_simulator
 
 #include <cmath>
 #include <cstdint>

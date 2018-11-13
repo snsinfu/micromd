@@ -5,11 +5,8 @@
 #ifndef MD_FORCEFIELD_SPHERE_SURFACE_FORCEFIELD_HPP
 #define MD_FORCEFIELD_SPHERE_SURFACE_FORCEFIELD_HPP
 
-// This module provides a forcefield based on field potential exerted from the
-// surface of a sphere.
-//
-// struct sphere
-// class  sphere_surface_forcefield
+// This module provides a template forcefield implementation that computes
+// field force acting on particles near a spherical surface.
 
 #include <cmath>
 

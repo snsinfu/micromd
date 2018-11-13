@@ -5,6 +5,10 @@
 #ifndef MD_BASIC_TYPES_ARRAY_VIEW_HPP
 #define MD_BASIC_TYPES_ARRAY_VIEW_HPP
 
+// This module provides array_view, a lightweight class template for adapting
+// raw arrays as ranges.
+// Source: https://github.com/snsinfu/cxx-array_view
+
 #include <cstddef>
 #include <iterator>
 #include <stdexcept>

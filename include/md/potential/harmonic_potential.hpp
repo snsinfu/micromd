@@ -5,6 +5,8 @@
 #ifndef MD_POTENTIAL_HARMONIC_POTENTIAL_HPP
 #define MD_POTENTIAL_HARMONIC_POTENTIAL_HPP
 
+// This module provides the harmonic potential.
+
 #include "../basic_types.hpp"
 
 

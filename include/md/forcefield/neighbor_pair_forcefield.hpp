@@ -5,6 +5,9 @@
 #ifndef MD_FORCEFIELD_NEIGHBOR_PAIR_FORCEFIELD_HPP
 #define MD_FORCEFIELD_NEIGHBOR_PAIR_FORCEFIELD_HPP
 
+// This module provides a template forcefield implementation that computes
+// short-range interactions between particles in a cutoff distance.
+
 #include <type_traits>
 #include <utility>
 

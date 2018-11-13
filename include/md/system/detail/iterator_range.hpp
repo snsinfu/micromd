@@ -5,6 +5,8 @@
 #ifndef MD_SYSTEM_DETAIL_ITERATOR_RANGE_HPP
 #define MD_SYSTEM_DETAIL_ITERATOR_RANGE_HPP
 
+// This module provides a basic class for adapting iterator pair as a range.
+
 namespace md
 {
     namespace detail

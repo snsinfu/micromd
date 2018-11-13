@@ -5,6 +5,9 @@
 #ifndef MD_FORCEFIELD_DETAIL_NEIGHBOR_LIST_HPP
 #define MD_FORCEFIELD_DETAIL_NEIGHBOR_LIST_HPP
 
+// This module provides neighbor_list: A data structure for tracking neighbor
+// pairs in a system. Used to implement neighbor_pair_forcefield.
+
 #include <algorithm>
 #include <cmath>
 #include <iterator>

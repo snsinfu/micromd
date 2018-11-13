@@ -5,6 +5,9 @@
 #ifndef MD_SYSTEM_DETAIL_SUM_FORCEFIELD_HPP
 #define MD_SYSTEM_DETAIL_SUM_FORCEFIELD_HPP
 
+// This class provides a forcefield implementation that combines one or more
+// forcefields into a simple summation of them.
+
 #include <cassert>
 #include <memory>
 #include <vector>
