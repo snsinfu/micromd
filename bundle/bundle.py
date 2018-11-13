@@ -91,11 +91,20 @@ class Header:
         header = [
             "",
             "//--------------------------------------------------------------------------",
-            "// " + self._path,
+            "// " + strip_include_prefix(self._path),
             "//--------------------------------------------------------------------------",
             "",
         ]
         return "\n".join(header + remove_local_includes(self._code_lines))
+
+
+def strip_include_prefix(path):
+    prefix = "include/"
+    pos = path.find(prefix)
+    if pos == -1:
+        return path
+    pos += len(prefix)
+    return path[pos:]
 
 
 def remove_local_includes(lines):
