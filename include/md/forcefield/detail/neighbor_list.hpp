@@ -62,23 +62,13 @@ namespace md
             md::scalar dcut
         )
         {
-            // Heuristic: Points are assumed to be uniformly distributed in a
-            // sphere. The radius is estimated from the geometric mean of std
-            // devs. Mean nearest-neighbor distance is estimated using a jammed
-            // packing model (phi = 0.6). Then the mean number of points in a
-            // bucket is estimated.
-
-            constexpr md::scalar phi = 0.6;
-
-            md::vector const var = compute_variance(points);
-            md::scalar const mean_var = 3 * std::cbrt(var.x * var.y * var.z);
-            md::scalar const pack_radius = 2 * std::sqrt(mean_var);
-            md::scalar const dmean = 2 * pack_radius * std::cbrt(phi / md::scalar(points.size()));
-            md::scalar const bucket_per_point = std::min(std::pow(dcut / dmean, 3), 1.0);
-
             md::linear_hash hash;
-            hash.modulus = md::linear_hash::hash_t(md::scalar(points.size()) * bucket_per_point);
-            hash.modulus = md::linear_hash::hash_t(points.size() / 6);
+
+            (void) dcut;
+
+            // Benchmark simulations run fastest with this simple heuristic
+            // among heuristics I have tried.
+            hash.modulus = md::linear_hash::hash_t(points.size() * 2 / 11);
             hash.modulus |= 1;
 
             return hash;
