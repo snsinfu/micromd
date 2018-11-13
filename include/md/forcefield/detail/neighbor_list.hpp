@@ -6,6 +6,8 @@
 #define MD_FORCEFIELD_DETAIL_NEIGHBOR_LIST_HPP
 
 #include <algorithm>
+#include <cmath>
+#include <iostream>
 #include <iterator>
 #include <utility>
 #include <vector>
@@ -56,26 +58,27 @@ namespace md
 
         // determine_hash returns a linear_hash object that is heuristically
         // parameterized to make neighbor_searcher perform good on given points.
-        inline md::linear_hash determine_hash(md::array_view<md::point const> points)
+        inline md::linear_hash determine_hash(
+            md::array_view<md::point const> points,
+            md::scalar dcut
+        )
         {
-            // Heuristic: Squash lowest-variance axis.
-            md::vector const var = detail::compute_variance(points);
-            md::scalar const min = std::min({var.x, var.y, var.z});
+            // Heuristic: Points are assumed to be uniformly distributed in a
+            // sphere. The radius is estimated from the geometric mean of std
+            // devs. Mean nearest-neighbor distance is estimated using a jammed
+            // packing model (phi = 0.6). Then the mean number of points in a
+            // bucket is estimated.
+
+            constexpr md::scalar phi = 0.6;
+
+            md::vector const var = compute_variance(points);
+            md::scalar const mean_var = 3 * std::cbrt(var.x * var.y * var.z);
+            md::scalar const pack_radius = 2 * std::sqrt(mean_var);
+            md::scalar const dmean = 2 * pack_radius * std::cbrt(phi / md::scalar(points.size()));
+            md::scalar const bucket_per_point = std::min(std::pow(dcut / dmean, 3), 1.0);
 
             md::linear_hash hash;
-
-            if (var.x == min) {
-                hash.x_coeff = 0;
-            } else if (var.y == min) {
-                hash.y_coeff = 0;
-            } else {
-                hash.z_coeff = 0;
-            }
-
-            // Heuristic: 10-30 give good bucket distribution for dense system.
-            constexpr md::index bucket_occupancy = 16;
-
-            hash.modulus = md::linear_hash::hash_t(points.size() / bucket_occupancy);
+            hash.modulus = md::linear_hash::hash_t(md::scalar(points.size()) * bucket_per_point);
             hash.modulus |= 1;
 
             return hash;
@@ -140,7 +143,7 @@ namespace md
             cached_points_.assign(points.begin(), points.end());
             pairs_.clear();
 
-            md::linear_hash hash = detail::determine_hash(points);
+            md::linear_hash hash = detail::determine_hash(points, dcut);
             md::neighbor_searcher searcher{verlet_radius_, hash};
             searcher.set_points(cached_points_);
             searcher.search(std::back_inserter(pairs_));

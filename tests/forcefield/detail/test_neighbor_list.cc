@@ -31,30 +31,6 @@ TEST_CASE("detail::compute_variance - computes correct variance")
     CHECK(var.z == Approx(30.8701));
 }
 
-TEST_CASE("detail::determine_hash - squashes lowest-variance axis")
-{
-    std::vector<md::point> const points = {
-        {-0.3,  0.4,  -9.4},
-        { 0.9, -0.6,   0.8},
-        {-1.7,  0.9,   5.3},
-        { 0.0,  3.5,  -2.7},
-        {-2.1,  2.0,  -3.1},
-        { 3.0, -2.5, -12.8},
-        {-1.8, -1.6,   5.1},
-        {-1.3, -1.4,   1.7},
-        {-0.2,  6.3,  -1.9},
-        {-0.6, -6.9,  -5.3}
-    };
-
-    md::linear_hash const hash = md::detail::determine_hash(points);
-
-    // x axis has the lowest variance
-    CHECK(hash.x_coeff == 0);
-    CHECK(hash.y_coeff != 0);
-    CHECK(hash.z_coeff != 0);
-    CHECK(hash.modulus != 0);
-}
-
 TEST_CASE("neighbor_list - is valid and empty by default")
 {
     md::neighbor_list list;
