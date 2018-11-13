@@ -20,41 +20,6 @@ namespace md
 {
     namespace detail
     {
-        // compute_variance returns the population variance of each coordinate
-        // of given points as a vector. Returns a zero vector for empty input.
-        inline md::vector compute_variance(md::array_view<md::point const> points)
-        {
-            if (points.empty()) {
-                return {};
-            }
-
-            md::scalar sum_x = 0;
-            md::scalar sum_y = 0;
-            md::scalar sum_z = 0;
-
-            md::scalar sum_x2 = 0;
-            md::scalar sum_y2 = 0;
-            md::scalar sum_z2 = 0;
-
-            for (md::point const& pt : points) {
-                sum_x += pt.x;
-                sum_y += pt.y;
-                sum_z += pt.z;
-
-                sum_x2 += pt.x * pt.x;
-                sum_y2 += pt.y * pt.y;
-                sum_z2 += pt.z * pt.z;
-            }
-
-            md::scalar const n = md::scalar(points.size());
-
-            return md::vector {
-                sum_x2 / n - (sum_x / n) * (sum_x / n),
-                sum_y2 / n - (sum_y / n) * (sum_y / n),
-                sum_z2 / n - (sum_z / n) * (sum_z / n)
-            };
-        }
-
         // determine_hash returns a linear_hash object that is heuristically
         // parameterized to make neighbor_searcher perform good on given points.
         inline md::linear_hash determine_hash(

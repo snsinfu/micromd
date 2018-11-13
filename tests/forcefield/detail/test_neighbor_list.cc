@@ -9,28 +9,6 @@
 #include <catch.hpp>
 
 
-TEST_CASE("detail::compute_variance - computes correct variance")
-{
-    std::vector<md::point> const points = {
-        {-0.3,  0.4,  -9.4},
-        { 0.9, -0.6,   0.8},
-        {-1.7,  0.9,   5.3},
-        { 0.0,  3.5,  -2.7},
-        {-2.1,  2.0,  -3.1},
-        { 3.0, -2.5, -12.8},
-        {-1.8, -1.6,   5.1},
-        {-1.3, -1.4,   1.7},
-        {-0.2,  6.3,  -1.9},
-        {-0.6, -6.9,  -5.3}
-    };
-
-    md::vector const var = md::detail::compute_variance(points);
-
-    CHECK(var.x == Approx(2.0849));
-    CHECK(var.y == Approx(11.5649));
-    CHECK(var.z == Approx(30.8701));
-}
-
 TEST_CASE("neighbor_list - is valid and empty by default")
 {
     md::neighbor_list list;
