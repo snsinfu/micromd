@@ -83,7 +83,7 @@ namespace md
         md::neighbor_list& get_neighbor_list(md::system const& system)
         {
             neighbor_list_.update(
-                system.view(md::position_attribute),
+                system.view_positions(),
                 derived().neighbor_distance(system)
             );
             return neighbor_list_;
