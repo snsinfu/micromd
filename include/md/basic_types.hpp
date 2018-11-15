@@ -12,6 +12,8 @@
 
 #include "basic_types/array_view.hpp"
 #include "basic_types/point.hpp"
+#include "basic_types/sfc.hpp"
+#include "basic_types/ziggurat.hpp"
 
 
 namespace md
@@ -24,6 +26,17 @@ namespace md
 
     // step is the integral type used to count simulation steps.
     using step = std::int64_t;
+
+    // random_engine is the default random engine used in micromd library.
+    using random_engine = md::sfc64;
+
+    // normal_distribution<T> is the distribution class used to generate normal
+    // random numbers.
+    template<typename T>
+    using normal_distribution = md::ziggurat_normal_distribution<T>;
+
+    // NOTE: Use of sfc64 and ziggurat algorithms significantly improves
+    // performance (~20% speedup for brownian dynamics simulations).
 }
 
 #endif
