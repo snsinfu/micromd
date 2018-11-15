@@ -27,6 +27,13 @@ namespace md
 
         // Radius. Defaults to 1.
         md::scalar radius = 1;
+
+        // implicit returns the implicit sphere function evaluated at pt:
+        // f(x,y,z) = x^2 + y^2 + z^2 - R^2.
+        md::scalar implicit(md::point pt) const
+        {
+            return (pt - center).squared_norm() - radius * radius;
+        }
     };
 
     // ellipsoid_surface_forcefield computes field interaction of particles and

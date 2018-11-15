@@ -10,6 +10,22 @@
 #include <catch.hpp>
 
 
+TEST_CASE("sphere::implicit - returns negative inside, positive outside")
+{
+    md::sphere sphere;
+
+    sphere.center = {1, 2, 3};
+    sphere.radius = 2;
+
+    md::point const pt_inside = {2, 3, 2};
+    md::point const pt_outside = {0, 0, 0};
+    md::point const pt_surface = {3, 2, 3};
+
+    CHECK(sphere.implicit(pt_inside) < 0);
+    CHECK(sphere.implicit(pt_outside) > 0);
+    CHECK(sphere.implicit(pt_surface) == Approx(0).margin(1e-6));
+}
+
 TEST_CASE("sphere_surface_forcefield - computes inward forcefield")
 {
     class inward_forcefield : public md::sphere_surface_forcefield<inward_forcefield>

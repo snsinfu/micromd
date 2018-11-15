@@ -10,6 +10,24 @@
 #include <catch.hpp>
 
 
+TEST_CASE("ellipsoid::implicit - returns negative inside, positive outside")
+{
+    md::ellipsoid ellip;
+
+    ellip.center = {1, 2, 3};
+    ellip.semiaxis_x = 4;
+    ellip.semiaxis_y = 5;
+    ellip.semiaxis_z = 6;
+
+    md::point const pt_inside = {3, 3, 3};
+    md::point const pt_outside = {-3, -3, -3};
+    md::point const pt_surface = {1, 7, 3};
+
+    CHECK(ellip.implicit(pt_inside) < 0);
+    CHECK(ellip.implicit(pt_outside) > 0);
+    CHECK(ellip.implicit(pt_surface) == Approx(0).margin(1e-6));
+}
+
 TEST_CASE("detail::evaluate_point - evaluates a point in an ellipsoid")
 {
     md::ellipsoid ellip;

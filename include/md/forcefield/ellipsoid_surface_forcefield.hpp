@@ -31,6 +31,20 @@ namespace md
 
         // Semiaxis length along the z axis. Defaults to 1.
         md::scalar semiaxis_z = 1;
+
+        // implicit returns the implicit ellipsoid function evaluated at pt:
+        // f(x,y,z) = (x/a)^2 + (y/b)^2 + (z/c)^2 - 1.
+        md::scalar implicit(md::point pt) const
+        {
+            md::vector const quadform = {
+                1 / (semiaxis_x * semiaxis_x),
+                1 / (semiaxis_y * semiaxis_y),
+                1 / (semiaxis_z * semiaxis_z)
+            };
+            md::vector const r = pt - center;
+
+            return quadform.hadamard(r).dot(r) - 1;
+        }
     };
 
     namespace detail
