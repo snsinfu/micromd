@@ -64,7 +64,7 @@ namespace md
                     temperature_
                 );
 
-                std::normal_distribution<md::scalar> normal;
+                md::normal_distribution<md::scalar> normal;
 
                 for (md::index i = 0; i < system_.particle_count(); i++) {
                     md::scalar const mu_dt = timestep * mobilities[i];
@@ -87,7 +87,7 @@ namespace md
             md::scalar temperature_;
             std::vector<md::vector> forces_;
             std::vector<md::vector> weiners_;
-            std::mt19937_64 random_;
+            md::random_engine random_;
         };
     }
 }
