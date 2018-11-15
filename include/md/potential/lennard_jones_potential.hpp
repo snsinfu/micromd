@@ -12,9 +12,19 @@
 
 namespace md
 {
+    // lennard_jones_potential implements the (12-6) Lennard-Jones potential
+    // function:
+    //
+    //     u(r) = e ( (s/r)^12 - 2 (s/r)^6 ) ,
+    //     F(r) = 12 e ( (s/r)^12 - (s/r)^6 ) r / r^2 .
+    //
+    // The potential energy takes its minimum value -e at r = s.
     struct lennard_jones_potential
     {
+        // The enenrgy parameter e.
         md::scalar epsilon = 1;
+
+        // The distance parameter s.
         md::scalar sigma = 1;
 
         md::scalar evaluate_energy(md::vector r) const

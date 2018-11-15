@@ -13,11 +13,16 @@
 
 namespace md
 {
-    // linear_hash is a linear hash function for integral 3-vectors.
+    // linear_hash is a linear hash function for integral triples. The following
+    // equality holds for any linear_hash h:
+    //
+    //     h(x+dx, y+dy, z+dz) = h(x,y,z) + h(dx,dy,dz) .
+    //
     struct linear_hash
     {
         using hash_t = std::uint32_t;
 
+        // Hash coefficients. Default values are arbitrarily chosen primes.
         hash_t x_coeff = 3929498747;
         hash_t y_coeff = 1008281837;
         hash_t z_coeff = 1832832077;
@@ -25,7 +30,7 @@ namespace md
 
         inline hash_t operator()(hash_t x, hash_t y, hash_t z) const
         {
-            // Avoid 32-bit wraparound (mod 2^32) with 64-bit extension.
+            // Avoid 32-bit wraparound, which breaks linearity.
             using hash2x_t = std::uint64_t;
 
             hash2x_t sum = 0;

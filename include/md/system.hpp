@@ -54,7 +54,8 @@ namespace md
         return {};
     }
 
-    //
+    // basic_particle_data holds basic particle attribute values. It is used to
+    // pass these data to system::add_particle function.
     struct basic_particle_data
     {
         md::scalar mass = md::default_value(md::mass_attribute);
@@ -63,7 +64,7 @@ namespace md
         md::vector velocity = md::default_value(md::velocity_attribute);
     };
 
-    // system
+    // system is a context class.
     class system
     {
     public:
@@ -90,7 +91,7 @@ namespace md
             return md::particle_ref(*this, idx);
         }
 
-        //
+        // particles returns a range for iterating over particles in the system.
         detail::iterator_range<md::particle_iterator> particles()
         {
             return detail::iterator_range<md::particle_iterator>{
@@ -170,11 +171,18 @@ namespace md
         }
 
         // add_forcefield adds a forcefield to the system.
+        //
+        // With this overload the added forcefield is shared between the caller.
+        // So the added forcefield can be modified from outside.
         void add_forcefield(std::shared_ptr<md::forcefield> ff)
         {
             forcefield_.add(ff);
         }
 
+        // add_forcefield adds a copy of passed forcefield to the system.
+        //
+        // This overload returns a new shared_ptr holding the copy of the passed
+        // forcefield. The forcefield can be modified via the returned pointer.
         template<
             typename FF,
             typename = typename std::enable_if<std::is_base_of<md::forcefield, FF>::value>::type
@@ -186,7 +194,8 @@ namespace md
             return ffptr;
         }
 
-        // compute_kinetic_energy returns the total kinetic energy of the system.
+        // compute_kinetic_energy returns the total kinetic energy of the
+        // system. It uses mass and velocity particle attributes.
         md::scalar compute_kinetic_energy() const
         {
             md::array_view<md::scalar const> masses = view_masses();
@@ -195,20 +204,22 @@ namespace md
             md::scalar sum = 0;
 
             for (md::index i = 0; i < particle_count(); i++) {
-                sum += masses[i] * velocities[i].squared_norm();
+                sum += 0.5 * masses[i] * velocities[i].squared_norm();
             }
-            return sum / 2;
+
+            return sum;
         }
 
         // compute_potential_energy returns the total potential energy of the
-        // system. This function may mutate forcefield states.
+        // system. This function is not marked const because forcefield may
+        // mutate its state when computing energy.
         md::scalar compute_potential_energy()
         {
             return forcefield_.compute_energy(*this);
         }
 
         // compute_energy returns the total mechanical energy of the system.
-        // Mechanical energy is a sum of kinetic energy of potential energy.
+        // Mechanical energy is the sum of kinetic energy and potential energy.
         md::scalar compute_energy()
         {
             return compute_kinetic_energy() + compute_potential_energy();
@@ -221,8 +232,8 @@ namespace md
         {
             assert(forces.size() == particle_count());
 
-            // Zero clear
-            std::fill(forces.begin(), forces.end(), md::vector{});
+            md::vector const zero {};
+            std::fill(forces.begin(), forces.end(), zero);
 
             forcefield_.compute_force(*this, forces);
         }

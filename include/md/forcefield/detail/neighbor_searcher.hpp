@@ -20,11 +20,15 @@
 
 namespace md
 {
-    // neighbor_searcher
+    // neighbor_searcher implements a spatial hashing algorithm for efficiently
+    // searching given points for neighboring pairs.
     class neighbor_searcher
     {
     public:
-        // Constructor takes the cut-off distance and a hash function.
+        // Constructor takes the cut-off distance and a hash function to use.
+        //
+        // The modulus of the hash determines the number of buckets where points
+        // are assigned. It should not be .
         neighbor_searcher(md::scalar dcut, md::linear_hash hash)
             : dcut_{dcut}, hash_{hash}, buckets_(hash.modulus)
         {
@@ -52,7 +56,7 @@ namespace md
                 for (hash_t const delta : hash_deltas) {
                     hash_t const neighbor = (center + delta) % hash.modulus;
 
-                    // Leverage symmetry.
+                    // Leverage symmetry to reduce search space.
                     if (neighbor >= center) {
                         neighbors.push_back(neighbor);
                     }
@@ -60,7 +64,7 @@ namespace md
             }
         }
 
-        // set_points fills hash table.
+        // set_points assigns given points to hash table for subsequent queries.
         void set_points(md::array_view<md::point const> points)
         {
             for (hash_bucket& bucket : buckets_) {
@@ -74,9 +78,11 @@ namespace md
             }
         }
 
-        // search
+        // search outputs pairs of indices of neighboring points to given output
+        // iterator. Each index pair (i,j) satisfies i < j. No duplicates are
+        // reported.
         template<typename OutputIterator>
-        void search(OutputIterator out)
+        void search(OutputIterator out) const
         {
             for (hash_bucket const& center : buckets_) {
                 for (md::index const neighbor : center.neighbors) {
@@ -86,6 +92,7 @@ namespace md
         }
 
     private:
+        // hash_bucket is a bucket in a spatial hash table.
         struct hash_bucket
         {
             struct member
@@ -97,19 +104,20 @@ namespace md
             std::vector<md::index> neighbors;
         };
 
+        // search_among searches a pair of buckets for all neighboring pairs.
         template<typename OutputIterator>
         inline void search_among(
             hash_bucket const& bucket_a,
             hash_bucket const& bucket_b,
             OutputIterator& out
-        )
+        ) const
         {
             md::scalar const dcut2 = dcut_ * dcut_;
 
             for (hash_bucket::member member_j : bucket_b.members) {
                 for (hash_bucket::member member_i : bucket_a.members) {
                     if (member_i.index == member_j.index) {
-                        // Avoid double counting in intra-bucket search.
+                        // Avoid double counting when bucket_a == bucket_b.
                         break;
                     }
 
@@ -130,8 +138,10 @@ namespace md
         {
             using hash_t = linear_hash::hash_t;
 
-            // Offset coordinates to avoid negative value.
-            constexpr md::scalar offset = 1L << 30;
+            // Negative coordinate value causes discontinuous jumps in hash
+            // value which breaks our search algorithm. Avoid that by
+            // offsetting.
+            constexpr md::scalar offset = 1L << 16;
 
             md::scalar const freq = 1 / dcut_;
             hash_t const x = hash_t(offset + freq * pt.x);

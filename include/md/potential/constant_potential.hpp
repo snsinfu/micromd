@@ -12,8 +12,14 @@
 
 namespace md
 {
+    // constant_potential is a fixed-value potential energy function:
+    //
+    //     u(r) = e ,
+    //     F(r) = 0 .
+    //
     struct constant_potential
     {
+        // The constant energy value.
         md::scalar energy = 0;
 
         md::scalar evaluate_energy(md::vector) const

@@ -35,7 +35,7 @@ namespace md
             (void) dcut;
 
             // Benchmark simulations run fastest with this simple heuristic
-            // among heuristics I have tried.
+            // among those I have tried.
             hash.modulus = md::linear_hash::hash_t(points.size() * 2 / 11);
             hash.modulus |= 1;
 
@@ -43,13 +43,14 @@ namespace md
         }
     }
 
-    // neighbor_list is a data structure for keeping track of neighbor pairs in
-    // a slowly moving particle system.
+    // neighbor_list is a data structure for efficiently keeping track of
+    // neighbor pairs in a slowly moving particle system.
     class neighbor_list
     {
-    public:
         using iterator = std::vector<std::pair<md::index, md::index>>::const_iterator;
 
+    public:
+        // update rebuilds the neighbor list if necessary.
         void update(md::array_view<md::point const> points, md::scalar dcut)
         {
             if (!check_consistency(points, dcut)) {
@@ -57,6 +58,7 @@ namespace md
             }
         }
 
+        // Range interface.
         iterator begin() const
         {
             return pairs_.begin();
@@ -68,6 +70,8 @@ namespace md
         }
 
     private:
+        // check_consistency checks if the cached neighbor list is still usable
+        // with given points and cutoff distance.
         bool check_consistency(md::array_view<md::point const> points, md::scalar dcut) const
         {
             if (points.size() != cached_points_.size()) {
@@ -92,9 +96,10 @@ namespace md
             return true;
         }
 
+        // rebuild completely rebuilds the neighbor list.
         void rebuild(md::array_view<md::point const> points, md::scalar dcut)
         {
-            // Rule-of-thumb parameters.
+            // Heuristic: 1.2 gives fairly good performance.
             constexpr md::scalar skin_factor = 1.2;
 
             verlet_radius_ = dcut * skin_factor;

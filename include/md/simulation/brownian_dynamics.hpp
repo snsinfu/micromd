@@ -40,11 +40,12 @@ namespace md
         // Seed for pseudo-random number generator.
         std::uint64_t seed = 0;
 
-        // Optional function called after each step.
+        // Optional callback function called after each step.
         std::function<void(md::step)> callback = {};
     };
 
-    // simulate_brownian_dynamics simulates Brownian dynamics of the system.
+    // simulate_brownian_dynamics simulates Brownian dynamics of the system. It
+    // uses mobility and position particle attributes.
     inline void simulate_brownian_dynamics(md::system& system, md::brownian_dynamics_config config)
     {
         std::unique_ptr<detail::brownian_timestepper> timestepper;

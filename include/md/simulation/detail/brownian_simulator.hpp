@@ -26,13 +26,6 @@ namespace md
         class brownian_simulator
         {
         public:
-            // Params:
-            //
-            //   system      = Simulated system
-            //   timestepper = Timestepper to use
-            //   temperature = Temperature in the unit of energy
-            //   seed        = Random seed
-            //
             brownian_simulator(
                 md::system& system,
                 detail::brownian_timestepper& timestepper,

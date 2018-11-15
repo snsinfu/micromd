@@ -26,13 +26,6 @@ namespace md
             virtual ~brownian_timestepper() = default;
 
             // determine_timestep computes the timestep for given context.
-            //
-            // Params:
-            //
-            //   mobilities  = Array of mobilities of particles
-            //   forces      = Array of forces acting on particles
-            //   temperature = Temperature in the unit of energy
-            //
             virtual md::scalar determine_timestep(
                 md::array_view<md::scalar const> mobilities,
                 md::array_view<md::vector const> forces,
@@ -71,16 +64,10 @@ namespace md
         // particle to travel given distance. This function is used to implement
         // adaptive_brownian_timestepper below.
         //
-        // Params:
-        //
-        //   distance    = Distance hte particle would travel
-        //   mobility    = Mobility of the particle
-        //   force2      = Squared force acting on the particle
-        //   temperature = Temperature in the unit of energy
-        //
-        // Returns:
-        //
-        //   The estimated amount of time.
+        // distance    : Distance the particle would travel
+        // mobility    : Mobility of the particle
+        // force2      : Squared force acting on the particle
+        // temperature : Temperature in the unit of energy
         //
         inline md::scalar solve_brownian_timestep(
             md::scalar distance,

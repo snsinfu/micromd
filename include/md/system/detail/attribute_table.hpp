@@ -38,13 +38,13 @@ namespace md
         class attribute_table
         {
         public:
-            // size returns the number of elements in the contained arrays.
+            // size returns the number of elements in the columns.
             md::index size() const
             {
                 return size_;
             }
 
-            // resize resizes all the contained arrays to the given size.
+            // resize resizes all the columns to the given size.
             void resize(md::index size)
             {
                 for (auto& node : arrays_) {
@@ -53,7 +53,7 @@ namespace md
                 size_ = size;
             }
 
-            // require creates a column for given key if it does not exist, or
+            // require creates a column for given key if it does not exist. It
             // does nothing otherwise.
             template<typename T, typename Tag>
             void require(md::attribute_key<T, Tag> key)
@@ -68,7 +68,7 @@ namespace md
                 }
             }
 
-            // view returns a mutable view into the array.
+            // view returns a mutable view into the column with given key.
             template<typename T, typename Tag>
             md::array_view<T> view(md::attribute_key<T, Tag>)
             {

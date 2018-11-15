@@ -6,12 +6,16 @@
 #define MD_SYSTEM_ATTRIBUTE_HPP
 
 // This module defines the basics of the attribute mechanism implemented in the
-// system class. An attribute is completely described by a function pointer:
+// system class.
+//
+// Here the C++ type system is abused: An attribute is completely described by
+// a function pointer:
 //
 //     T(* attribute)(Tag*).
 //
-// The return type T is used as the type of attribute values and the dummy
-// parameter type Tag is used as a unique key identifying the attribute.
+// The return type T is used as the type of attribute values. And the dummy
+// parameter type Tag, which is supposed to be a unique struct, is used to
+// identify the attribute.
 
 #include <memory>
 #include <unordered_map>

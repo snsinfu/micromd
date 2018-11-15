@@ -23,13 +23,9 @@ namespace md
         // Center of the ellipsoid. Defaults to the origin.
         md::point center;
 
-        // Semiaxis length along the x axis. Defaults to 1.
+        // Semiaxis lengths along the coordinate axes. Defaults to 1.
         md::scalar semiaxis_x = 1;
-
-        // Semiaxis length along the y axis. Defaults to 1.
         md::scalar semiaxis_y = 1;
-
-        // Semiaxis length along the z axis. Defaults to 1.
         md::scalar semiaxis_z = 1;
 
         // implicit returns the implicit ellipsoid function evaluated at pt:
@@ -49,23 +45,34 @@ namespace md
 
     namespace detail
     {
+        // ellipsoid_eval holds mathematical quantities required to compute the
+        // gradient of surface potential on a given point.
         struct ellipsoid_eval
         {
+            // True if the point is at the center. Other members are undefined
+            // if this flag is true.
             bool undefined;
+
+            // Vector pointing to the point from an estimated nearest point on
+            // the ellipsoid.
             md::vector delta;
+
+            // Some vector needed to transform a gradient.
             md::vector strain;
+
+            // The value of the implicit function defining the ellipsoid.
             md::scalar implicit;
         };
 
-        inline detail::ellipsoid_eval evaluate_point(md::ellipsoid e, md::point pt)
+        inline detail::ellipsoid_eval evaluate_point(md::ellipsoid ellip, md::point pt)
         {
             md::vector const quadform = {
-                1 / (e.semiaxis_x * e.semiaxis_x),
-                1 / (e.semiaxis_y * e.semiaxis_y),
-                1 / (e.semiaxis_z * e.semiaxis_z)
+                1 / (ellip.semiaxis_x * ellip.semiaxis_x),
+                1 / (ellip.semiaxis_y * ellip.semiaxis_y),
+                1 / (ellip.semiaxis_z * ellip.semiaxis_z)
             };
 
-            md::vector const radial = pt - e.center;
+            md::vector const radial = pt - ellip.center;
             md::vector const dual = quadform.hadamard(radial);
 
             if (dual.squared_norm() == 0) {
@@ -91,14 +98,31 @@ namespace md
     // ellipsoid_surface_forcefield computes short-range field interaction of
     // particles and an ellipsoidal surface. It uses an approximation and so
     // computed interactions are inaccurate near the center.
+    //
+    // This is a CRTP base class. Callbacks are:
+    //
+    //     auto ellipsoid_inward_potential(
+    //         md::system const& system,
+    //         md::index i
+    //     )
+    //     Returns the potential object for a particle inside ellipsoid. It
+    //     defaults to a zero potential if not defined.
+    //
+    //     auto ellipsoid_outward_potential(
+    //         md::system const& system,
+    //         md::index i
+    //     )
+    //     Returns the potential object for a particle outside ellipsoid. It
+    //     defaults to a zero potential if not defined.
+    //
     template<typename Derived>
     class ellipsoid_surface_forcefield : public virtual md::forcefield
     {
     public:
         // set_ellipsoid changes the ellipsoid to given one.
-        void set_ellipsoid(md::ellipsoid ellipsoid)
+        void set_ellipsoid(md::ellipsoid ellip)
         {
-            ellipsoid_ = ellipsoid;
+            ellipsoid_ = ellip;
         }
 
         // compute_energy implements md::forcefield.
@@ -175,8 +199,7 @@ namespace md
         }
 
     private:
-
-        // derived returns a reference to this as the CRTP derived class.
+        // derived returns a reference to this object as the CRTP derived class.
         Derived& derived()
         {
             return static_cast<Derived&>(*this);

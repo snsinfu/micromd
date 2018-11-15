@@ -17,7 +17,8 @@ namespace md
 {
     class system;
 
-    // particle_ref provides access to the attributes of a particle in a system.
+    // particle_ref provides mutable access to the attributes of a particle in a
+    // system.
     struct particle_ref
     {
         md::index index;

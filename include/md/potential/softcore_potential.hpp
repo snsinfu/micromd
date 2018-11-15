@@ -28,13 +28,30 @@ namespace md
         }
     }
 
+    // softcore_potential implements the following bell-shaped short-range
+    // potential energy function:
+    //
+    //     u(r) = e ( 1 - (r/s)^2 )^N               (r < s)
+    //     F(r) = 2Ne/s^2 ( 1 - (r/s)^2 )^(N-1) r   (r < s)
+    //
+    // The potential energy is constantly zero at and beyond r = s.
+    //
+    // This function approximates the gaussian function
+    //
+    //    u(r) = e exp(- r^2 / (2 sigma^2) )
+    //
+    // when s = sqrt(2N) sigma and N is large.
     template<int N>
     struct softcore_potential
     {
         static_assert(N >= 1, "softcore_potential exponent must be positive");
 
+        // The energy parameter e.
         md::scalar overlap_energy = 1;
+
+        // The distance parameter s.
         md::scalar cutoff_distance = 1;
+
 
         md::scalar evaluate_energy(md::vector r) const
         {

@@ -27,8 +27,7 @@ namespace md
     class composite_forcefield : public virtual md::forcefield, public Components...
     {
     public:
-        // compute_energy computes the sum of the energy values computed by
-        // child components.
+        // compute_energy implements md::forcefield.
         md::scalar compute_energy(md::system const& system) override
         {
             md::scalar energies[] = {
@@ -38,8 +37,7 @@ namespace md
             return std::accumulate(std::begin(energies), std::end(energies), md::scalar(0));
         }
 
-        // compute_force computes the sum of the force values computed by child
-        // Components.
+        // compute_force implements md::forcefield.
         void compute_force(md::system const& system, md::array_view<md::vector> forces) override
         {
             int dummy[] = {

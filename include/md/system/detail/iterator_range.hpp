@@ -11,6 +11,7 @@ namespace md
 {
     namespace detail
     {
+        // iterator_range is a basic range adaptor for existing iterator.
         template<typename Iterator>
         class iterator_range
         {

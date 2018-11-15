@@ -30,6 +30,8 @@ namespace md
         std::function<void(md::step)> callback;
     };
 
+    // simulate_newtonian_dynamics simulates Newtonian dynamics of the system.
+    // It uses mass, position and velocity particle attributes.
     inline void simulate_newtonian_dynamics(md::system& system, md::newtonian_dynamics_config config)
     {
         std::vector<md::vector> forces(system.particle_count());

@@ -34,6 +34,7 @@ namespace md
                 components_.push_back(ff);
             }
 
+            // compute_energy implements md::forcefield.
             md::scalar compute_energy(md::system const& system) override
             {
                 md::scalar sum = 0;
@@ -44,6 +45,7 @@ namespace md
                 return sum;
             }
 
+            // compute_force implements md::forcefield.
             void compute_force(md::system const& system, md::array_view<md::vector> forces) override
             {
                 for (std::shared_ptr<md::forcefield>& component : components_) {

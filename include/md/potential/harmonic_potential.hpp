@@ -12,8 +12,14 @@
 
 namespace md
 {
+    // harmonic_potential implements the centered harmonic potential function:
+    //
+    //     u(r) = K/2 r^2 ,
+    //     F(r) = -K r .
+    //
     struct harmonic_potential
     {
+        // The spring constant K.
         md::scalar spring_constant = 1;
 
         md::scalar evaluate_energy(md::vector r) const

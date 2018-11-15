@@ -36,8 +36,25 @@ namespace md
         }
     };
 
-    // ellipsoid_surface_forcefield computes field interaction of particles and
-    // a spherical surface.
+    // sphere_surface_forcefield computes field interaction of particles and a
+    // spherical surface.
+    //
+    // This is a CRTP base class. Callbacks are:
+    //
+    //     auto sphere_inward_potential(
+    //         md::system const& system,
+    //         md::index i
+    //     )
+    //     Returns the potential object for a particle inside sphere. It
+    //     defaults to a zero potential if not defined.
+    //
+    //     auto sphere_outward_potential(
+    //         md::system const& system,
+    //         md::index i
+    //     )
+    //     Returns the potential object for a particle outside sphere. It
+    //     defaults to a zero potential if not defined.
+    //
     template<typename Derived>
     class sphere_surface_forcefield : public virtual md::forcefield
     {
