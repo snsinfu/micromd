@@ -15,26 +15,27 @@ TEST_CASE("sum_forcefield::add - adds a forcefield to the sum")
     class my_forcefield : public md::forcefield
     {
     public:
-        md::scalar increase = 0;
-
-        explicit my_forcefield(md::scalar increase)
-            : increase{increase}
+        explicit my_forcefield(md::scalar inc)
+            : inc_{inc}
         {
         }
 
         md::scalar compute_energy(md::system const&) override
         {
-            return increase;
+            return inc_;
         }
 
         void compute_force(md::system const&, md::array_view<md::vector> forces) override
         {
             for (md::vector& force : forces) {
-                force.x += increase;
-                force.y += increase;
-                force.z += increase;
+                force.x += inc_;
+                force.y += inc_;
+                force.z += inc_;
             }
         }
+
+    private:
+        md::scalar inc_ = 0;
     };
 
     md::detail::sum_forcefield sum;

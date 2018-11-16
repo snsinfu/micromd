@@ -238,8 +238,8 @@ TEST_CASE("system::add_forcefield - accepts a forcefield and returns a shared_pt
     public:
         md::scalar energy;
 
-        explicit my_forcefield(md::scalar energy)
-            : energy{energy}
+        explicit my_forcefield(md::scalar init_energy)
+            : energy{init_energy}
         {
         }
 
