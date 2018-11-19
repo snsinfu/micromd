@@ -4,7 +4,8 @@ import re
 
 
 RE_LOCAL_INCLUDE = re.compile('#include "(.+?)"')
-TEMPLATE_BUNDLE_MARKER = "// BUNDLE //"
+RE_VERSION_COMMENT = re.compile('// Version:\s*(.*)')
+RE_BUNDLE_POINT = re.compile('// BUNDLE //')
 
 
 def main():
@@ -13,12 +14,13 @@ def main():
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--template", type=str, default=None, help="Output template")
+    parser.add_argument("--template", type=str, default=None, help="Output template file")
+    parser.add_argument("--version", type=str, default=None, help="Version string")
     parser.add_argument("root", type=str, help="Root header")
     return vars(parser.parse_args())
 
 
-def run(root, template):
+def run(root, template, version):
     root_header = Header(root)
     headers = load_headers(root_header.depend_paths)
 
@@ -28,7 +30,7 @@ def run(root, template):
     bundle = merge(headers.values())
 
     if template:
-        print(render_template(template, bundle))
+        print(render_template(template, bundle, version))
     else:
         print(bundle)
 
@@ -43,16 +45,23 @@ def load_headers(paths, headers=dict()):
     return headers
 
 
-def render_template(template, bundle):
+def render_template(template, bundle, version):
     with open(template) as file:
         lines = [line.rstrip() for line in file]
 
     output = []
     for line in lines:
-        if line == TEMPLATE_BUNDLE_MARKER:
+
+        if RE_BUNDLE_POINT.match(line):
             output.append(bundle)
-        else:
-            output.append(line)
+            continue
+
+        if RE_VERSION_COMMENT.match(line) and version:
+            ma = RE_VERSION_COMMENT.match(line)
+            output.append(line[:ma.start(1)] + version)
+            continue
+
+        output.append(line)
 
     return "\n".join(output)
 
@@ -111,10 +120,10 @@ def remove_local_includes(lines):
     output = []
     for line in lines:
         if RE_LOCAL_INCLUDE.match(line):
-            output = strip_empty(output)
+            output = strip_empty_texts(output)
         else:
             output.append(line)
-    return output
+    return strip_empty_texts(output)
 
 
 def extract_local_includes(lines):
@@ -133,10 +142,10 @@ def load_code_lines(path):
     beg = index_if(lines, lambda s: s.startswith("#define")) + 1
     end = rindex_if(lines, lambda s: s.startswith("#endif")) - 1
 
-    return strip_empty(lines[beg:end])
+    return strip_empty_texts(lines[beg:end])
 
 
-def strip_empty(texts):
+def strip_empty_texts(texts):
     beg = index_if(texts, len) or 0
     end = rindex_if(texts, len) or len(texts)
     return texts[beg:end]

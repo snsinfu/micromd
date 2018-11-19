@@ -1,4 +1,6 @@
 // Molecular dynamics microframework
+// Version: unreleased
+// Source:  https://github.com/snsinfu/micromd
 
 // Copyright snsinfu 2018.
 // Distributed under the Boost Software License, Version 1.0.
