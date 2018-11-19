@@ -2,11 +2,14 @@
 
 ## Unreleased
 
+.
+
+## v0.0.1
+
 ### Added
 
 - Basic functionalities
 - Forcefield templates:
-  - `all_pair_forcefield`
   - `neighbor_pair_forcefield`
   - `sequential_pair_forcefield`
   - `sphere_surface_forcefield`
