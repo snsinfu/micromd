@@ -9,7 +9,7 @@ INCLUDES = \
   -isystem include \
   -I ../include
 
-CXXFLAGS = \
+override CXXFLAGS += \
   -std=c++14 \
   -pedantic \
   -Wall \

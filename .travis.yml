@@ -1,4 +1,22 @@
 dist: xenial
 language: cpp
+
+addons:
+  apt:
+    packages:
+      - clang
+      - libc++-dev
+
 script:
-  - make -C tests
+  - make -C tests CXX=g++
+  - make -C tests CXX=clang++ CXXFLAGS=-stdlib=libc++
+  - make -C bundle VERSION=$TRAVIS_BRANCH
+
+deploy:
+  provider: releases
+  api_key: $GITHUB_TOKEN
+  file: bundle/md.hpp
+  skip_cleanup: true
+  on:
+    tags: true
+    condition: $TRAVIS_TAG =~ v[0-9]+.*
