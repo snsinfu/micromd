@@ -9,7 +9,6 @@
 
 #include <cmath>
 #include <cstdint>
-#include <random>
 #include <utility>
 #include <vector>
 
@@ -36,11 +35,7 @@ namespace md
                 , timestepper_{timestepper}
                 , temperature_{temperature}
             {
-                std::seed_seq seed_seq {
-                    std::uint32_t(seed >> 32),
-                    std::uint32_t(seed)
-                };
-                random_.seed(seed_seq);
+                random_.seed(seed);
 
                 forces_.resize(system.particle_count());
                 weiners_.resize(system.particle_count());
