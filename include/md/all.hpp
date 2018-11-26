@@ -17,6 +17,7 @@
 #include "forcefield/composite_forcefield.hpp"
 #include "forcefield/ellipsoid_surface_forcefield.hpp"
 #include "forcefield/neighbor_pair_forcefield.hpp"
+#include "forcefield/sequential_pair_forcefield.hpp"
 #include "forcefield/sphere_surface_forcefield.hpp"
 
 #include "simulation/brownian_dynamics.hpp"
