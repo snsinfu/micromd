@@ -30,6 +30,8 @@ namespace md
         // compute_energy implements md::forcefield.
         md::scalar compute_energy(md::system const& system) override
         {
+            (void) system;
+
             md::scalar energies[] = {
                 0,
                 Components::compute_energy(system)...
@@ -45,6 +47,8 @@ namespace md
                 (Components::compute_force(system, forces), 0)...
             };
             (void) dummy;
+            (void) system;
+            (void) forces;
         }
     };
 }
