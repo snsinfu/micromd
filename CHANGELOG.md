@@ -4,6 +4,8 @@
 
 ### Added
 
+- Forcefield templates:
+  - `all_pair_forcefield`
 - Misc:
   - `neighbor_searcher`
 
