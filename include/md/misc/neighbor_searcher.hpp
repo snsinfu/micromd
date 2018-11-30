@@ -2,8 +2,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef MD_FORCEFIELD_DETAIL_NEIGHBOR_SEARCHER_HPP
-#define MD_FORCEFIELD_DETAIL_NEIGHBOR_SEARCHER_HPP
+#ifndef MD_MISC_NEIGHBOR_SEARCHER_HPP
+#define MD_MISC_NEIGHBOR_SEARCHER_HPP
 
 // This module implements a time-efficient neighbor search algorithm in an open
 // three-dimensional space.
@@ -13,7 +13,7 @@
 #include <utility>
 #include <vector>
 
-#include "../../basic_types.hpp"
+#include "../basic_types.hpp"
 
 #include "linear_hash.hpp"
 
@@ -21,7 +21,7 @@
 namespace md
 {
     // neighbor_searcher implements a spatial hashing algorithm for efficiently
-    // searching given points for neighboring pairs.
+    // searching point cloud for neighboring pairs.
     class neighbor_searcher
     {
     public:
@@ -33,7 +33,7 @@ namespace md
             : dcut_{dcut}, hash_{hash}, buckets_(hash.modulus)
         {
             // Pre-compute neighborhood of each bucket for faster query.
-            using hash_t = linear_hash::hash_t;
+            using hash_t = md::linear_hash::hash_t;
 
             hash_t const coord_deltas[] = {
                 hash.modulus - 1,
@@ -154,9 +154,9 @@ namespace md
         }
 
         // locate_bin returns the hash index for a point.
-        inline linear_hash::hash_t locate_bucket(md::point pt) const
+        inline md::linear_hash::hash_t locate_bucket(md::point pt) const
         {
-            using hash_t = linear_hash::hash_t;
+            using hash_t = md::linear_hash::hash_t;
 
             // Negative coordinate value causes discontinuous jumps in hash
             // value which breaks our search algorithm. Avoid that by

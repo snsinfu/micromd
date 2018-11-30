@@ -6,7 +6,7 @@
 #include <utility>
 #include <vector>
 
-#include <md/forcefield/detail/neighbor_searcher.hpp>
+#include <md/misc/neighbor_searcher.hpp>
 
 #include <catch.hpp>
 

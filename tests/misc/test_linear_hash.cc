@@ -1,6 +1,6 @@
 #include <type_traits>
 
-#include <md/forcefield/detail/linear_hash.hpp>
+#include <md/misc/linear_hash.hpp>
 
 #include <catch.hpp>
 

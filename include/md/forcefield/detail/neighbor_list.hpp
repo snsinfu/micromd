@@ -15,8 +15,8 @@
 #include <vector>
 
 #include "../../basic_types.hpp"
-
-#include "neighbor_searcher.hpp"
+#include "../../misc/linear_hash.hpp"
+#include "../../misc/neighbor_searcher.hpp"
 
 
 namespace md
