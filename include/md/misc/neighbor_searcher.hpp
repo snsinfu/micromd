@@ -24,6 +24,8 @@ namespace md
     // searching point cloud for neighboring pairs.
     class neighbor_searcher
     {
+        using hash_type = md::linear_hash::uint;
+
     public:
         // Constructor takes the cut-off distance and a hash function to use.
         //
@@ -33,27 +35,25 @@ namespace md
             : dcut_{dcut}, hash_{hash}, buckets_(hash.modulus)
         {
             // Pre-compute neighborhood of each bucket for faster query.
-            using hash_t = md::linear_hash::hash_t;
-
-            hash_t const coord_deltas[] = {
+            hash_type const coord_deltas[] = {
                 hash.modulus - 1,
                 hash.modulus,
                 hash.modulus + 1
             };
 
-            for (hash_t const dx : coord_deltas) {
-                for (hash_t const dy : coord_deltas) {
-                    for (hash_t const dz : coord_deltas) {
+            for (hash_type const dx : coord_deltas) {
+                for (hash_type const dy : coord_deltas) {
+                    for (hash_type const dz : coord_deltas) {
                         hash_deltas_.insert(hash_(dx, dy, dz));
                     }
                 }
             }
 
-            for (hash_t center = 0; center < hash.modulus; center++) {
+            for (hash_type center = 0; center < hash.modulus; center++) {
                 std::vector<md::index>& neighbors = buckets_[center].neighbors;
 
-                for (hash_t const delta : hash_deltas_) {
-                    hash_t const neighbor = (center + delta) % hash.modulus;
+                for (hash_type const delta : hash_deltas_) {
+                    hash_type const neighbor = (center + delta) % hash.modulus;
 
                     // Leverage symmetry to reduce search space.
                     if (neighbor >= center) {
@@ -94,12 +94,10 @@ namespace md
         template<typename OutputIterator>
         void query(md::point point, OutputIterator out) const
         {
-            using hash_t = md::linear_hash::hash_t;
-
-            hash_t const center_index = locate_bucket(point);
+            hash_type const center_index = locate_bucket(point);
             md::scalar const dcut2 = dcut_ * dcut_;
 
-            for (hash_t const delta : hash_deltas_) {
+            for (hash_type const delta : hash_deltas_) {
                 hash_bucket const& bucket = buckets_[(center_index + delta) % hash_.modulus];
 
                 for (hash_bucket::member member : bucket.members) {
@@ -154,19 +152,17 @@ namespace md
         }
 
         // locate_bin returns the hash index for a point.
-        inline md::linear_hash::hash_t locate_bucket(md::point pt) const
+        inline hash_type locate_bucket(md::point pt) const
         {
-            using hash_t = md::linear_hash::hash_t;
-
             // Negative coordinate value causes discontinuous jumps in hash
             // value which breaks our search algorithm. Avoid that by
             // offsetting.
             constexpr md::scalar offset = 1L << 16;
 
             md::scalar const freq = 1 / dcut_;
-            hash_t const x = hash_t(offset + freq * pt.x);
-            hash_t const y = hash_t(offset + freq * pt.y);
-            hash_t const z = hash_t(offset + freq * pt.z);
+            hash_type const x = hash_type(offset + freq * pt.x);
+            hash_type const y = hash_type(offset + freq * pt.y);
+            hash_type const z = hash_type(offset + freq * pt.z);
 
             return hash_(x, y, z);
         }
@@ -174,7 +170,7 @@ namespace md
     private:
         md::scalar dcut_;
         md::linear_hash hash_;
-        std::set<md::linear_hash::hash_t> hash_deltas_;
+        std::set<hash_type> hash_deltas_;
         std::vector<hash_bucket> buckets_;
     };
 }

@@ -36,7 +36,7 @@ namespace md
 
             // Benchmark simulations run fastest with this simple heuristic
             // among those I have tried.
-            hash.modulus = md::linear_hash::hash_t(points.size() * 2 / 11);
+            hash.modulus = md::linear_hash::uint(points.size() * 2 / 11);
             hash.modulus |= 1;
 
             return hash;

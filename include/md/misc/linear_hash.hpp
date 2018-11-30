@@ -20,25 +20,25 @@ namespace md
     //
     struct linear_hash
     {
-        using hash_t = std::uint32_t;
+        using uint = std::uint32_t;
 
         // Hash coefficients. Default values are arbitrarily chosen primes.
-        hash_t x_coeff = 3929498747;
-        hash_t y_coeff = 1008281837;
-        hash_t z_coeff = 1832832077;
-        hash_t modulus = 1021;
+        uint x_coeff = 3929498747;
+        uint y_coeff = 1008281837;
+        uint z_coeff = 1832832077;
+        uint modulus = 1021;
 
-        inline hash_t operator()(hash_t x, hash_t y, hash_t z) const
+        inline uint operator()(uint x, uint y, uint z) const
         {
             // Avoid 32-bit wraparound, which breaks linearity.
-            using hash2x_t = std::uint64_t;
+            using uint2x = std::uint64_t;
 
-            hash2x_t sum = 0;
-            sum += hash2x_t(x_coeff) * x;
-            sum += hash2x_t(y_coeff) * y;
-            sum += hash2x_t(z_coeff) * z;
+            uint2x sum = 0;
+            sum += uint2x{x_coeff} * x;
+            sum += uint2x{y_coeff} * y;
+            sum += uint2x{z_coeff} * z;
 
-            return hash_t(sum % modulus);
+            return uint(sum % modulus);
         }
     };
 }

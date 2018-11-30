@@ -5,11 +5,6 @@
 #include <catch.hpp>
 
 
-TEST_CASE("linear_hash - hash type is unsigned")
-{
-    CHECK(std::is_unsigned<md::linear_hash::hash_t>::value);
-}
-
 TEST_CASE("linear_hash - is default constructible and modulus is nonzero")
 {
     md::linear_hash hash;
