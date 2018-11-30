@@ -276,3 +276,62 @@ TEST_CASE("neighbor_searcher - finds correct neighbors in a large cloud", "[.][s
 
     CHECK(actual == expected);
 }
+
+TEST_CASE("neighbor_searcher - finds neighbors of query point in a point cloud")
+{
+    md::scalar const cutoff_distance = 1.0;
+
+    std::vector<md::point> const points = {
+        { 0.6, -0.5,  0.4},
+        { 0.9, -1.0, -0.2},
+        {-0.5, -1.0,  0.0},
+        {-0.3, -0.5,  0.1},
+        {-0.7,  0.1,  0.0},
+        { 0.7,  0.0, -0.2},
+        { 0.5, -0.5, -0.5},
+        {-0.4,  0.8, -0.7},
+        {-0.5, -0.6,  0.4},
+        { 0.9,  0.5, -0.8},
+    };
+
+    md::linear_hash hash;
+    hash.x_coeff = 220598453;
+    hash.y_coeff = 126390227;
+    hash.z_coeff = 435046583;
+    hash.modulus = 11;
+
+    md::neighbor_searcher searcher(cutoff_distance, hash);
+    searcher.set_points(points);
+
+    SECTION("example 1")
+    {
+        md::point const query_point = {-0.3, 0.6, 0.1};
+        std::multiset<md::index> const expected = {4, 7};
+        std::multiset<md::index> actual;
+
+        searcher.query(query_point, std::inserter(actual, actual.end()));
+
+        CHECK(actual == expected);
+    }
+
+    SECTION("example 2")
+    {
+        md::point const query_point = {1.0, 0.0, 0.0};
+        std::multiset<md::index> const expected = {0, 5, 6, 9};
+        std::multiset<md::index> actual;
+
+        searcher.query(query_point, std::inserter(actual, actual.end()));
+
+        CHECK(actual == expected);
+    }
+
+    SECTION("example 3: no neighbor")
+    {
+        md::point const query_point = {-1.0, 1.0, 1.0};
+        std::multiset<md::index> actual;
+
+        searcher.query(query_point, std::inserter(actual, actual.end()));
+
+        CHECK(actual.empty());
+    }
+}

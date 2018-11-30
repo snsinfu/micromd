@@ -40,12 +40,11 @@ namespace md
                 hash.modulus,
                 hash.modulus + 1
             };
-            std::set<hash_t> hash_deltas;
 
             for (hash_t const dx : coord_deltas) {
                 for (hash_t const dy : coord_deltas) {
                     for (hash_t const dz : coord_deltas) {
-                        hash_deltas.insert(hash_(dx, dy, dz));
+                        hash_deltas_.insert(hash_(dx, dy, dz));
                     }
                 }
             }
@@ -53,7 +52,7 @@ namespace md
             for (hash_t center = 0; center < hash.modulus; center++) {
                 std::vector<md::index>& neighbors = buckets_[center].neighbors;
 
-                for (hash_t const delta : hash_deltas) {
+                for (hash_t const delta : hash_deltas_) {
                     hash_t const neighbor = (center + delta) % hash.modulus;
 
                     // Leverage symmetry to reduce search space.
@@ -89,6 +88,27 @@ namespace md
                     search_among(center, buckets_[neighbor], out);
                 }
             }
+        }
+
+        // query outputs the indices of points neighboring to given point.
+        template<typename OutputIterator>
+        void query(md::point point, OutputIterator out) const
+        {
+            using hash_t = md::linear_hash::hash_t;
+
+            hash_t const center_index = locate_bucket(point);
+            md::scalar const dcut2 = dcut_ * dcut_;
+
+            for (hash_t const delta : hash_deltas_) {
+                hash_bucket const& bucket = buckets_[(center_index + delta) % hash_.modulus];
+
+                for (hash_bucket::member member : bucket.members) {
+                    if (md::squared_distance(member.point, point) < dcut2) {
+                        *out++ = member.index;
+                    }
+                }
+            }
+
         }
 
     private:
@@ -154,6 +174,7 @@ namespace md
     private:
         md::scalar dcut_;
         md::linear_hash hash_;
+        std::set<md::linear_hash::hash_t> hash_deltas_;
         std::vector<hash_bucket> buckets_;
     };
 }
