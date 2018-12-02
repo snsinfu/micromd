@@ -1,5 +1,7 @@
 #include <functional>
 #include <memory>
+#include <numeric>
+#include <stdexcept>
 
 #include <md/basic_types.hpp>
 #include <md/forcefield.hpp>
@@ -111,4 +113,86 @@ TEST_CASE("simulate_brownian_dynamics - supports adaptive time-stepping")
     md::simulate_brownian_dynamics(system, config);
 
     CHECK(recorder.mean() == Approx(config.spacestep).epsilon(0.1));
+}
+
+TEST_CASE("simulate_brownian_dynamics - correctly samples simple canonical distribution")
+{
+    // Record radial position of a particle in a harmonic well.
+    md::scalar const mu = 1.23;
+    md::scalar const K = 4.56;
+    md::scalar const kT = 7.89;
+    md::scalar const dt = 0.98;
+    md::step const sample_count = 5000;
+
+    class test_forcefield : public md::forcefield
+    {
+    public:
+        md::scalar K = 1;
+
+        md::scalar compute_energy(md::system const&) override
+        {
+            throw std::logic_error("not implemented");
+        }
+
+        void compute_force(md::system const& system, md::array_view<md::vector> forces) override
+        {
+            md::array_view<md::point const> positions = system.view_positions();
+
+            for (md::index i = 0; i < system.particle_count(); i++) {
+                md::vector const r = positions[i] - md::point{0, 0, 0};
+                md::vector const F = -K * r;
+                forces[i] += F;
+            }
+        }
+    };
+
+    test_forcefield forcefield;
+    forcefield.K = K;
+
+    md::system system;
+    system.add_particle().mobility = mu;
+    system.add_forcefield(forcefield);
+
+    // Sample radial positions from a Brownian trajectory.
+    std::vector<md::scalar> radial_samples;
+
+    auto const callback = [&](md::step) {
+        md::point const pos = system.view_positions()[0];
+        radial_samples.push_back(pos.distance(md::point{0, 0, 0}));
+    };
+
+    md::brownian_dynamics_config config;
+    config.temperature = kT;
+    config.timestep = dt;
+    config.steps = sample_count;
+    config.callback = callback;
+
+    md::simulate_brownian_dynamics(system, config);
+
+    // KS test (95%)
+    md::scalar const critical_point = 1.63 / std::sqrt(sample_count);
+
+    std::sort(radial_samples.begin(), radial_samples.end());
+
+    std::vector<md::scalar> canonical_cdf;
+    for (md::scalar const r : radial_samples) {
+        md::scalar const pmf = r * r * std::exp(-0.5 * K * r * r / kT);
+        canonical_cdf.push_back(pmf);
+    }
+    std::partial_sum(canonical_cdf.begin(), canonical_cdf.end(), canonical_cdf.begin());
+
+    for (md::scalar& p : canonical_cdf) {
+        p /= canonical_cdf.back();
+    }
+
+    md::scalar D = 0;
+    md::scalar rank = 0;
+
+    for (md::index i = 0; i < sample_count; i++) {
+        md::scalar const sample_cdf = rank / md::scalar(sample_count);
+        D = std::max(D, std::fabs(sample_cdf - canonical_cdf[i]));
+        rank++;
+    }
+
+    CHECK(D < critical_point);
 }
