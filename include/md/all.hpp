@@ -17,10 +17,14 @@
 #include "forcefield/composite_forcefield.hpp"
 #include "forcefield/ellipsoid_surface_forcefield.hpp"
 #include "forcefield/neighbor_pair_forcefield.hpp"
+#include "forcefield/point_source_forcefield.hpp"
 #include "forcefield/sequential_pair_forcefield.hpp"
 #include "forcefield/sphere_surface_forcefield.hpp"
 
 #include "simulation/brownian_dynamics.hpp"
 #include "simulation/newtonian_dynamics.hpp"
+
+#include "misc/linear_hash.hpp"
+#include "misc/neighbor_searcher.hpp"
 
 #endif
