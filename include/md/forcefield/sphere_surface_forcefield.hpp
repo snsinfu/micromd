@@ -61,9 +61,10 @@ namespace md
     public:
         // set_ellipsoid changes the ellipsoid to given one. Default is the unit
         // sphere placed at the origin.
-        void set_sphere(md::sphere sphere)
+        Derived& set_sphere(md::sphere sphere)
         {
             sphere_ = sphere;
+            return derived();
         }
 
         // compute_energy implements md::forcefield.

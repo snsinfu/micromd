@@ -31,9 +31,10 @@ namespace md
     {
     public:
         // set_point_source sets a source point.
-        void set_point_source(md::point pt)
+        Derived& set_point_source(md::point pt)
         {
             source_ = pt;
+            return derived();
         }
 
         // compute_energy implements md::forcefield.

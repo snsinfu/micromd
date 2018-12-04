@@ -37,9 +37,10 @@ namespace md
     public:
         // add_segment marks all adjacent particles in a segment as interacting.
         // The range [first,last] is inclusive.
-        void add_segment(md::index first, md::index last)
+        Derived& add_segment(md::index first, md::index last)
         {
             segments_.emplace_back(first, last);
+            return derived();
         }
 
         // compute_energy implements md::forcefield.

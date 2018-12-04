@@ -148,3 +148,20 @@ TEST_CASE("sphere_surface_forcefield - computes outward forcefield")
     CHECK(forces[6].x == 0);
     CHECK(forces[7].x == Approx(xh - x7));
 }
+
+TEST_CASE("sphere_surface_forcefield::set_sphere - returns self")
+{
+    class test_forcefield : public md::sphere_surface_forcefield<test_forcefield>
+    {
+    public:
+        md::harmonic_potential sphere_outward_potential(md::system const&, md::index)
+        {
+            return md::harmonic_potential{};
+        }
+    };
+
+    test_forcefield test;
+    test_forcefield& ref = test.set_sphere(md::sphere{});
+
+    CHECK(&ref == &test);
+}

@@ -58,3 +58,20 @@ TEST_CASE("point_source_forcefield - computes correct forcefield")
     CHECK((forces[1] - (ps - p1)).norm() == Approx(0).margin(1e-6));
     CHECK((forces[2] - (ps - p2)).norm() == Approx(0).margin(1e-6));
 }
+
+TEST_CASE("sphere_surface_forcefield::set_point_source - returns self")
+{
+    class test_forcefield : public md::point_source_forcefield<test_forcefield>
+    {
+    public:
+        md::harmonic_potential point_source_potential(md::system const&, md::index)
+        {
+            return md::harmonic_potential{};
+        }
+    };
+
+    test_forcefield test;
+    test_forcefield& ref = test.set_point_source(md::point{0, 0, 0});
+
+    CHECK(&ref == &test);
+}

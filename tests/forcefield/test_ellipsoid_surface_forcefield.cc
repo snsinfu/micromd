@@ -205,3 +205,20 @@ TEST_CASE("ellipsoid_surface_forcefield - computes outward forcefield")
     CHECK(forces[3].x == 0);
     CHECK(forces[4].x == Approx(f4).epsilon(0.1));
 }
+
+TEST_CASE("ellipsoid_surface_forcefield::set_ellipsoid - returns self")
+{
+    class test_forcefield : public md::ellipsoid_surface_forcefield<test_forcefield>
+    {
+    public:
+        md::harmonic_potential ellipsoid_outward_potential(md::system const&, md::index)
+        {
+            return md::harmonic_potential{};
+        }
+    };
+
+    test_forcefield test;
+    test_forcefield& ref = test.set_ellipsoid(md::ellipsoid{});
+
+    CHECK(&ref == &test);
+}

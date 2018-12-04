@@ -97,3 +97,20 @@ TEST_CASE("sequential_pair_forcefield - computes bond interactions")
         CHECK(forces[4].x == Approx(x3 - x4));
     }
 }
+
+TEST_CASE("sequential_pair_forcefield::add_segment - returns self")
+{
+    class test_forcefield : public md::sequential_pair_forcefield<test_forcefield>
+    {
+    public:
+        md::harmonic_potential sequential_pair_potential(md::system const&, md::index, md::index)
+        {
+            return md::harmonic_potential{};
+        }
+    };
+
+    test_forcefield test;
+    test_forcefield& ref = test.add_segment(0, 9);
+
+    CHECK(&ref == &test);
+}

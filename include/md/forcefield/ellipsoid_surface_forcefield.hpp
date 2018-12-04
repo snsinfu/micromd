@@ -120,9 +120,10 @@ namespace md
     {
     public:
         // set_ellipsoid changes the ellipsoid to given one.
-        void set_ellipsoid(md::ellipsoid ellip)
+        Derived& set_ellipsoid(md::ellipsoid ellip)
         {
             ellipsoid_ = ellip;
+            return derived();
         }
 
         // compute_energy implements md::forcefield.
