@@ -1,13 +1,13 @@
 # Molecular Dynamics Microframework
 
-![C++14][cxx-badge]
+[![Release][release-badge]][release-url]
 [![Build Status][travis-badge]][travis-url]
 [![Boost License][license-badge]][license-url]
-[![Release][release-badge]][release-url]
+![C++14,17,2a][cxx-badge]
 
 Header-only molecular dynamics microframework.
 
-[cxx-badge]: https://img.shields.io/badge/C%2B%2B-14-orange.svg
+[cxx-badge]: https://img.shields.io/badge/C%2B%2B-14%2F17%2F2a-orange.svg
 [license-badge]: https://img.shields.io/badge/license-Boost-blue.svg
 [license-url]: https://raw.githubusercontent.com/snsinfu/micromd/master/LICENSE.txt
 [travis-badge]: https://travis-ci.org/snsinfu/micromd.svg?branch=master
