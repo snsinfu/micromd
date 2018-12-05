@@ -15,6 +15,8 @@
 #include "../forcefield.hpp"
 #include "../system.hpp"
 
+#include "detail/pair_potfun.hpp"
+
 
 namespace md
 {
@@ -76,6 +78,35 @@ namespace md
             return static_cast<Derived&>(*this);
         }
     };
+
+    template<typename PotFun>
+    class basic_all_pair_forcefield
+        : public md::all_pair_forcefield<basic_all_pair_forcefield<PotFun>>
+    {
+    public:
+        explicit basic_all_pair_forcefield(PotFun potfun)
+            : potfun_{potfun}
+        {
+        }
+
+        auto all_pair_potential(md::system const&, md::index i, md::index j) const
+        {
+            return potfun_(i, j);
+        }
+
+    private:
+        PotFun potfun_;
+    };
+
+    // make_all_pair_forcefield implements md::all_pair_forcefield with given
+    // potential object or lambda returning a potential object.
+    template<typename P>
+    auto make_all_pair_forcefield(P pot)
+    {
+        auto potfun = detail::make_pair_potfun(pot);
+        using potfun_type = decltype(potfun);
+        return md::basic_all_pair_forcefield<potfun_type>{potfun};
+    }
 }
 
 #endif
