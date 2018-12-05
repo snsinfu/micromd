@@ -99,45 +99,45 @@ namespace md
         md::neighbor_list neighbor_list_;
     };
 
-    // Undocumented experimental features:
-
-    namespace detail
+    template<typename PotFun>
+    class basic_neighbor_pair_forcefield
+        : public md::neighbor_pair_forcefield<basic_neighbor_pair_forcefield<PotFun>>
     {
-        template<typename PF>
-        class basic_neighbor_pair_forcefield
-            : public md::neighbor_pair_forcefield<basic_neighbor_pair_forcefield<PF>>
+    public:
+        explicit basic_neighbor_pair_forcefield(PotFun potfun)
+            : potfun_{potfun}
         {
-        public:
-            basic_neighbor_pair_forcefield(md::scalar dcut, PF potfun)
-                : dcut_{dcut}, potfun_{potfun}
-            {
-            }
+        }
 
-            inline md::scalar neighbor_distance(md::system const&) const
-            {
-                return dcut_;
-            }
+        basic_neighbor_pair_forcefield& set_neighbor_distance(md::scalar ndist)
+        {
+            ndist_ = ndist;
+            return *this;
+        }
 
-            inline auto neighbor_pair_potential(md::system const&, md::index i, md::index j) const
-            {
-                return potfun_(i, j);
-            }
+        md::scalar neighbor_distance(md::system const&) const
+        {
+            return ndist_;
+        }
 
-        private:
-            md::scalar dcut_;
-            PF potfun_;
-        };
-    }
+        auto neighbor_pair_potential(md::system const&, md::index i, md::index j) const
+        {
+            return potfun_(i, j);
+        }
 
+    private:
+        PotFun potfun_;
+        md::scalar ndist_;
+    };
+
+    // make_neighbor_pair_forcefield implements md::neighbor_pair_forcefield
+    // with given potential object or lambda returning a potential object.
     template<typename P>
-    void force_neighbor_pairs(md::system& system, md::scalar dcut, P pot)
+    auto make_neighbor_pair_forcefield(P pot)
     {
         auto potfun = detail::make_pair_potfun(pot);
-        using potfun_t = decltype(potfun);
-
-        system.add_forcefield(
-            std::make_shared<detail::basic_neighbor_pair_forcefield<potfun_t>>(dcut, potfun)
-        );
+        using potfun_type = decltype(potfun);
+        return md::basic_neighbor_pair_forcefield<potfun_type>{potfun};
     }
 }
 

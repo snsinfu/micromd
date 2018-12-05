@@ -116,106 +116,36 @@ TEST_CASE("neighbor_pair_forcefield - computes correct forcefield")
     CHECK(max_difference(actual_forces, expected_forces) < 1e-6);
 }
 
-TEST_CASE("force_neighbor_pairs - defines neighbor_pair_forcefield using potential factory")
+TEST_CASE("make_neighbor_pair_forcefield - creates an neighbor_pair_forcefield")
 {
-    // Particles on a 5x5x5 grid
+    struct harmonic_potential
+    {
+        md::scalar spring_constant;
+
+        md::scalar evaluate_energy(md::vector r) const
+        {
+            return spring_constant * r.squared_norm() / 2;
+        }
+
+        md::vector evaluate_force(md::vector r) const
+        {
+            return -spring_constant * r;
+        }
+    };
+
     md::system system;
 
-    for (int x = -2; x <= 2; x++) {
-        for (int y = -2; y <= 2; y++) {
-            for (int z = -2; z <= 2; z++) {
-                md::basic_particle_data data;
+    auto ff = md::make_neighbor_pair_forcefield(harmonic_potential{1.23});
+    ff.set_neighbor_distance(4.56);
 
-                data.position = {
-                    x * 0.5,
-                    y * 0.5,
-                    z * 0.5
-                };
+    auto ndist = ff.neighbor_distance(system);
+    auto pot = ff.neighbor_pair_potential(system, 0, 1);
 
-                system.add_particle(data);
-            }
-        }
-    }
+    using ff_type = decltype(ff);
+    using pot_type = decltype(pot);
 
-    bell_potential potential;
-    md::force_neighbor_pairs(system, 1, [](md::index, md::index) {
-        return bell_potential{};
-    });
-
-    std::vector<md::vector> actual_forces(system.particle_count());
-    std::vector<md::vector> expected_forces(system.particle_count());
-
-    system.compute_force(actual_forces);
-
-    md::scalar actual_energy = system.compute_potential_energy();
-    md::scalar expected_energy = 0;
-
-    md::array_view<md::point const> positions = system.view_positions();
-
-    for (md::index i = 0; i < positions.size(); i++) {
-        for (md::index j = 0; j < i; j++) {
-            md::vector const r = positions[i] - positions[j];
-            md::vector const force = potential.evaluate_force(r);
-            md::scalar const energy = potential.evaluate_energy(r);
-
-            expected_forces[i] += force;
-            expected_forces[j] -= force;
-
-            expected_energy += energy;
-        }
-    }
-
-    CHECK(actual_energy == Approx(expected_energy));
-    CHECK(max_difference(actual_forces, expected_forces) < 1e-6);
-}
-
-TEST_CASE("force_neighbor_pairs - defines neighbor_pair_forcefield using potential object")
-{
-    // Particles on a 5x5x5 grid
-    md::system system;
-
-    for (int x = -2; x <= 2; x++) {
-        for (int y = -2; y <= 2; y++) {
-            for (int z = -2; z <= 2; z++) {
-                md::basic_particle_data data;
-
-                data.position = {
-                    x * 0.5,
-                    y * 0.5,
-                    z * 0.5
-                };
-
-                system.add_particle(data);
-            }
-        }
-    }
-
-    bell_potential potential;
-    md::force_neighbor_pairs(system, 1, potential);
-
-    std::vector<md::vector> actual_forces(system.particle_count());
-    std::vector<md::vector> expected_forces(system.particle_count());
-
-    system.compute_force(actual_forces);
-
-    md::scalar actual_energy = system.compute_potential_energy();
-    md::scalar expected_energy = 0;
-
-    md::array_view<md::point const> positions = system.view_positions();
-
-    for (md::index i = 0; i < positions.size(); i++) {
-        for (md::index j = 0; j < i; j++) {
-            md::vector const r = positions[i] - positions[j];
-            md::vector const force = potential.evaluate_force(r);
-            md::scalar const energy = potential.evaluate_energy(r);
-
-            expected_forces[i] += force;
-            expected_forces[j] -= force;
-
-            expected_energy += energy;
-        }
-    }
-
-    CHECK(actual_energy == Approx(expected_energy));
-    CHECK(max_difference(actual_forces, expected_forces) < 1e-6);
+    CHECK(std::is_base_of<md::neighbor_pair_forcefield<ff_type>, ff_type>::value);
+    CHECK(std::is_same<pot_type, harmonic_potential>::value);
+    CHECK(pot.spring_constant == 1.23);
+    CHECK(ndist == 4.56);
 }
