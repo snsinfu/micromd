@@ -22,7 +22,7 @@ override CXXFLAGS += \
   $(INCLUDES)
 
 SOURCES = $(shell find * -name "*.cc")
-OBJECTS = $(addsuffix .o, $(basename $(SOURCES)))
+OBJECTS = $(SOURCES:.cc=.o)
 
 ARTIFACTS = $(OBJECTS) *.dSYM main
 
