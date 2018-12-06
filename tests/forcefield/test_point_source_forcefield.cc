@@ -59,7 +59,7 @@ TEST_CASE("point_source_forcefield - computes correct forcefield")
     CHECK((forces[2] - (ps - p2)).norm() == Approx(0).margin(1e-6));
 }
 
-TEST_CASE("sphere_surface_forcefield::set_point_source - returns self")
+TEST_CASE("point_source_forcefield::set_point_source - returns self")
 {
     class test_forcefield : public md::point_source_forcefield<test_forcefield>
     {

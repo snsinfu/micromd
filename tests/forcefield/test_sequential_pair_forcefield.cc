@@ -115,7 +115,7 @@ TEST_CASE("sequential_pair_forcefield::add_segment - returns self")
     CHECK(&ref == &test);
 }
 
-TEST_CASE("make_sequential_pair_forcefield - creates an sequential_pair_forcefield")
+TEST_CASE("make_sequential_pair_forcefield - creates a sequential_pair_forcefield")
 {
     struct harmonic_potential
     {

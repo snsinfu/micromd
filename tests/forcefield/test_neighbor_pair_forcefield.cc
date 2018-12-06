@@ -116,7 +116,7 @@ TEST_CASE("neighbor_pair_forcefield - computes correct forcefield")
     CHECK(max_difference(actual_forces, expected_forces) < 1e-6);
 }
 
-TEST_CASE("make_neighbor_pair_forcefield - creates an neighbor_pair_forcefield")
+TEST_CASE("make_neighbor_pair_forcefield - creates a neighbor_pair_forcefield")
 {
     struct harmonic_potential
     {
