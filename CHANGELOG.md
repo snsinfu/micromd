@@ -7,6 +7,7 @@
 - Forcefield templates:
   - `all_pair_forcefield`
   - `point_source_forcefield`
+  - `sequential_triple_forcefield`
 - Misc:
   - `neighbor_searcher`
 
