@@ -12,6 +12,8 @@
 #include "../forcefield.hpp"
 #include "../system.hpp"
 
+#include "detail/field_potfun.hpp"
+
 
 namespace md
 {
@@ -78,6 +80,35 @@ namespace md
 
         md::point source_;
     };
+
+    template<typename PotFun>
+    class basic_point_source_forcefield
+        : public md::point_source_forcefield<basic_point_source_forcefield<PotFun>>
+    {
+    public:
+        explicit basic_point_source_forcefield(PotFun potfun)
+            : potfun_{potfun}
+        {
+        }
+
+        auto point_source_potential(md::system const&, md::index i) const
+        {
+            return potfun_(i);
+        }
+
+    private:
+        PotFun potfun_;
+    };
+
+    // make_point_source_forcefield implements md::point_source_forcefield
+    // with given potential object or lambda returning a potential object.
+    template<typename P>
+    auto make_point_source_forcefield(P pot)
+    {
+        auto potfun = detail::make_field_potfun(pot);
+        using potfun_type = decltype(potfun);
+        return md::basic_point_source_forcefield<potfun_type>{potfun};
+    }
 }
 
 #endif

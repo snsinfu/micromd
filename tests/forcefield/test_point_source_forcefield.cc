@@ -75,3 +75,35 @@ TEST_CASE("point_source_forcefield::set_point_source - returns self")
 
     CHECK(&ref == &test);
 }
+
+TEST_CASE("make_point_source_forcefield - creates a point_source_forcefield")
+{
+    struct harmonic_potential
+    {
+        md::scalar spring_constant;
+
+        md::scalar evaluate_energy(md::vector r) const
+        {
+            return spring_constant * r.squared_norm() / 2;
+        }
+
+        md::vector evaluate_force(md::vector r) const
+        {
+            return -spring_constant * r;
+        }
+    };
+
+    md::system system;
+
+    auto ff = md::make_point_source_forcefield(harmonic_potential{1.23});
+    ff.set_point_source(md::point{1, 2, 3});
+
+    auto pot = ff.point_source_potential(system, 0);
+
+    using ff_type = decltype(ff);
+    using pot_type = decltype(pot);
+
+    CHECK(std::is_base_of<md::point_source_forcefield<ff_type>, ff_type>::value);
+    CHECK(std::is_same<pot_type, harmonic_potential>::value);
+    CHECK(pot.spring_constant == 1.23);
+}
