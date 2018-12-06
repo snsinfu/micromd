@@ -30,7 +30,7 @@ namespace md
         // Constructor takes the cut-off distance and a hash function to use.
         //
         // The modulus of the hash determines the number of buckets where points
-        // are assigned. It should not be .
+        // are assigned. It cannot be zero.
         neighbor_searcher(md::scalar dcut, md::linear_hash hash)
             : dcut_{dcut}, hash_{hash}, buckets_(hash.modulus)
         {
