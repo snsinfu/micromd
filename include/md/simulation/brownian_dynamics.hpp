@@ -63,7 +63,7 @@ namespace md
 
         detail::brownian_simulator simulator(system, *timestepper, config.temperature, config.seed);
 
-        for (md::step step_ctr = 0; step_ctr < config.steps; step_ctr++) {
+        for (md::step step_ctr = 1; step_ctr <= config.steps; step_ctr++) {
             simulator.simulate_step();
 
             if (config.callback) {

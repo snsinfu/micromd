@@ -115,6 +115,23 @@ TEST_CASE("simulate_brownian_dynamics - supports adaptive time-stepping")
     CHECK(recorder.mean() == Approx(config.spacestep).epsilon(0.1));
 }
 
+TEST_CASE("simulate_brownian_dynamics - callback step is 1-based")
+{
+    md::system system;
+    system.add_particle();
+
+    std::vector<md::step> actual_steps;
+    std::vector<md::step> expected_steps = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+    md::brownian_dynamics_config config;
+    config.steps = 10;
+    config.callback = [&](md::step step) { actual_steps.push_back(step); };
+
+    md::simulate_brownian_dynamics(system, config);
+
+    CHECK(actual_steps == expected_steps);
+}
+
 TEST_CASE("simulate_brownian_dynamics - correctly samples simple canonical distribution")
 {
     // Record radial position of a particle in a harmonic well.
