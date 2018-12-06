@@ -16,6 +16,8 @@
 
 #include "../potential/constant_potential.hpp"
 
+#include "detail/field_potfun.hpp"
+
 
 namespace md
 {
@@ -159,6 +161,64 @@ namespace md
 
         md::sphere sphere_;
     };
+
+    template<typename PotFun>
+    class basic_sphere_inward_forcefield
+        : public md::sphere_surface_forcefield<basic_sphere_inward_forcefield<PotFun>>
+    {
+    public:
+        explicit basic_sphere_inward_forcefield(PotFun potfun)
+            : potfun_{potfun}
+        {
+        }
+
+        auto sphere_inward_potential(md::system const&, md::index i) const
+        {
+            return potfun_(i);
+        }
+
+    private:
+        PotFun potfun_;
+    };
+
+    template<typename PotFun>
+    class basic_sphere_outward_forcefield
+        : public md::sphere_surface_forcefield<basic_sphere_outward_forcefield<PotFun>>
+    {
+    public:
+        explicit basic_sphere_outward_forcefield(PotFun potfun)
+            : potfun_{potfun}
+        {
+        }
+
+        auto sphere_outward_potential(md::system const&, md::index i) const
+        {
+            return potfun_(i);
+        }
+
+    private:
+        PotFun potfun_;
+    };
+
+    // make_sphere_inward_forcefield implements md::sphere_surface_forcefield
+    // with given potential object or lambda returning a potential object.
+    template<typename P>
+    auto make_sphere_inward_forcefield(P pot)
+    {
+        auto potfun = detail::make_field_potfun(pot);
+        using potfun_type = decltype(potfun);
+        return md::basic_sphere_inward_forcefield<potfun_type>{potfun};
+    }
+
+    // make_sphere_outward_forcefield implements md::sphere_surface_forcefield
+    // with given potential object or lambda returning a potential object.
+    template<typename P>
+    auto make_sphere_outward_forcefield(P pot)
+    {
+        auto potfun = detail::make_field_potfun(pot);
+        using potfun_type = decltype(potfun);
+        return md::basic_sphere_outward_forcefield<potfun_type>{potfun};
+    }
 }
 
 #endif
