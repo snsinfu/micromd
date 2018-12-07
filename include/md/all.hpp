@@ -10,6 +10,7 @@
 #include "system.hpp"
 
 #include "potential/constant_potential.hpp"
+#include "potential/cosine_bending_potential.hpp"
 #include "potential/harmonic_potential.hpp"
 #include "potential/lennard_jones_potential.hpp"
 #include "potential/softcore_potential.hpp"
