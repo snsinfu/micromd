@@ -16,6 +16,8 @@
 #include "../forcefield.hpp"
 #include "../system.hpp"
 
+#include "detail/triple_potfun.hpp"
+
 
 namespace md
 {
@@ -102,6 +104,38 @@ namespace md
 
         std::vector<std::pair<md::index, md::index>> segments_;
     };
+
+    template<typename PotFun>
+    class basic_sequential_triple_forcefield
+        : public md::sequential_triple_forcefield<basic_sequential_triple_forcefield<PotFun>>
+    {
+    public:
+        explicit basic_sequential_triple_forcefield(PotFun potfun)
+            : potfun_{potfun}
+        {
+        }
+
+        auto sequential_triple_potential(
+            md::system const&, md::index i, md::index j, md::index k
+        ) const
+        {
+            return potfun_(i, j, k);
+        }
+
+    private:
+        PotFun potfun_;
+    };
+
+    // make_sequential_triple_forcefield implements
+    // md::sequential_triple_forcefield with given potential object or lambda
+    // returning a potential object.
+    template<typename P>
+    auto make_sequential_triple_forcefield(P pot)
+    {
+        auto potfun = detail::make_triple_potfun(pot);
+        using potfun_type = decltype(potfun);
+        return md::basic_sequential_triple_forcefield<potfun_type>{potfun};
+    }
 }
 
 #endif

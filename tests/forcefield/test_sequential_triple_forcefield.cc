@@ -10,11 +10,13 @@
 #include <catch.hpp>
 
 
-TEST_CASE("sequential_triple_forcefield - computes interactions within triplets")
+namespace
 {
     // u(r,s) = K dot(r, s)
     struct dot_potential
     {
+        md::scalar K;
+
         md::scalar evaluate_energy(md::vector r, md::vector s) const
         {
             return r.dot(s);
@@ -25,7 +27,10 @@ TEST_CASE("sequential_triple_forcefield - computes interactions within triplets"
             return std::make_tuple(-s, s - r, r);
         }
     };
+}
 
+TEST_CASE("sequential_triple_forcefield - computes interactions within triplets")
+{
     class chain_forcefield : public md::sequential_triple_forcefield<chain_forcefield>
     {
     public:
@@ -85,3 +90,38 @@ TEST_CASE("sequential_triple_forcefield - computes interactions within triplets"
         CHECK(forces[4].x == 0);
     }
 }
+
+TEST_CASE("sequential_triple_forcefield::add_segment - returns self")
+{
+    class test_forcefield : public md::sequential_triple_forcefield<test_forcefield>
+    {
+    public:
+        dot_potential sequential_triple_potential(
+            md::system const&, md::index, md::index, md::index
+        ) const
+        {
+            return dot_potential{};
+        }
+    };
+
+    test_forcefield test;
+    test_forcefield& ref = test.add_segment(0, 9);
+
+    CHECK(&ref == &test);
+}
+
+TEST_CASE("make_sequential_triple_forcefield - creates a sequential_triple_forcefield")
+{
+    md::system system;
+
+    auto ff = md::make_sequential_triple_forcefield(dot_potential{1.23});
+    auto pot = ff.sequential_triple_potential(system, 0, 1, 2);
+
+    using ff_type = decltype(ff);
+    using pot_type = decltype(pot);
+
+    CHECK(std::is_base_of<md::sequential_triple_forcefield<ff_type>, ff_type>::value);
+    CHECK(std::is_same<pot_type, dot_potential>::value);
+    CHECK(pot.K == 1.23);
+}
+

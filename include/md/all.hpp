@@ -19,6 +19,7 @@
 #include "forcefield/neighbor_pair_forcefield.hpp"
 #include "forcefield/point_source_forcefield.hpp"
 #include "forcefield/sequential_pair_forcefield.hpp"
+#include "forcefield/sequential_triple_forcefield.hpp"
 #include "forcefield/sphere_surface_forcefield.hpp"
 
 #include "simulation/brownian_dynamics.hpp"
