@@ -46,11 +46,11 @@ TEST_CASE("cosine_bending_potential - computes correct interaction")
     CHECK(std::get<0>(force).x == Approx(0.174411));
     CHECK(std::get<0>(force).y == Approx(0.0436028));
     CHECK(std::get<0>(force).z == Approx(-0.0872055));
-    CHECK(std::get<1>(force).x == Approx(-0.100737));
-    CHECK(std::get<1>(force).y == Approx(-0.0646524));
-    CHECK(std::get<1>(force).z == Approx(-0.0285673));
-    CHECK(std::get<2>(force).x == Approx(-0.0736736));
-    CHECK(std::get<2>(force).y == Approx(0.0210496));
-    CHECK(std::get<2>(force).z == Approx(0.115773));
+    CHECK(std::get<1>(force).x == Approx(-0.248085));
+    CHECK(std::get<1>(force).y == Approx(-0.0225532));
+    CHECK(std::get<1>(force).z == Approx(0.202978));
+    CHECK(std::get<2>(force).x == Approx(0.0736736));
+    CHECK(std::get<2>(force).y == Approx(-0.0210496));
+    CHECK(std::get<2>(force).z == Approx(-0.115773));
 
 }
