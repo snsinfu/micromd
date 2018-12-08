@@ -8,9 +8,9 @@ addons:
       - libc++-dev
 
 script:
-  - make -C tests -j 4 CXX=g++
+  - make -C tests -j 4 TAGS="*" CXX=g++
   - make -C tests clean
-  - make -C tests -j 4 CXX=clang++ CXXFLAGS=-stdlib=libc++
+  - make -C tests -j 4 TAGS="*" CXX=clang++ CXXFLAGS=-stdlib=libc++
   - make -C bundle VERSION=$TRAVIS_BRANCH
 
 deploy:
