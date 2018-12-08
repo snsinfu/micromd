@@ -16,7 +16,9 @@ forcefield/test_sequential_triple_forcefield.o: \
   ../include/md/forcefield/sequential_triple_forcefield.hpp \
   ../include/md/forcefield/../basic_types.hpp \
   ../include/md/forcefield/../forcefield.hpp \
-  ../include/md/forcefield/../system.hpp
+  ../include/md/forcefield/../system.hpp \
+  ../include/md/forcefield/detail/triple_potfun.hpp \
+  ../include/md/forcefield/detail/../../basic_types.hpp
 forcefield/test_sequential_pair_forcefield.o: \
   forcefield/test_sequential_pair_forcefield.cc \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
@@ -236,6 +238,20 @@ potential/test_constant_potential.o: potential/test_constant_potential.cc \
   ../include/md/basic_types/point.hpp ../include/md/basic_types/sfc.hpp \
   ../include/md/basic_types/ziggurat.hpp \
   ../include/md/potential/constant_potential.hpp \
+  ../include/md/potential/../basic_types.hpp
+potential/test_soft_lennard_jones_potential.o: \
+  potential/test_soft_lennard_jones_potential.cc \
+  ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
+  ../include/md/basic_types/point.hpp ../include/md/basic_types/sfc.hpp \
+  ../include/md/basic_types/ziggurat.hpp \
+  ../include/md/potential/soft_lennard_jones_potential.hpp \
+  ../include/md/potential/../basic_types.hpp
+potential/test_cosine_bending_potential.o: \
+  potential/test_cosine_bending_potential.cc \
+  ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
+  ../include/md/basic_types/point.hpp ../include/md/basic_types/sfc.hpp \
+  ../include/md/basic_types/ziggurat.hpp \
+  ../include/md/potential/cosine_bending_potential.hpp \
   ../include/md/potential/../basic_types.hpp
 potential/test_harmonic_potential.o: potential/test_harmonic_potential.cc \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \

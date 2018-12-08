@@ -8,6 +8,8 @@
   - `all_pair_forcefield`
   - `point_source_forcefield`
   - `sequential_triple_forcefield`
+- Potentials:
+  - `soft_lennard_jones_potential`
 - Misc:
   - `neighbor_searcher`
 

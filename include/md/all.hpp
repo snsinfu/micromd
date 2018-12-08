@@ -13,6 +13,7 @@
 #include "potential/cosine_bending_potential.hpp"
 #include "potential/harmonic_potential.hpp"
 #include "potential/lennard_jones_potential.hpp"
+#include "potential/soft_lennard_jones_potential.hpp"
 #include "potential/softcore_potential.hpp"
 
 #include "forcefield/all_pair_forcefield.hpp"
