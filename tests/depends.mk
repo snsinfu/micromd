@@ -233,6 +233,12 @@ potential/test_softcore_potential.o: potential/test_softcore_potential.cc \
   ../include/md/basic_types/ziggurat.hpp \
   ../include/md/potential/softcore_potential.hpp \
   ../include/md/potential/../basic_types.hpp
+potential/test_spring_potential.o: potential/test_spring_potential.cc \
+  ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
+  ../include/md/basic_types/point.hpp ../include/md/basic_types/sfc.hpp \
+  ../include/md/basic_types/ziggurat.hpp \
+  ../include/md/potential/spring_potential.hpp \
+  ../include/md/potential/../basic_types.hpp
 potential/test_constant_potential.o: potential/test_constant_potential.cc \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
   ../include/md/basic_types/point.hpp ../include/md/basic_types/sfc.hpp \

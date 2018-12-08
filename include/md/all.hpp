@@ -15,6 +15,7 @@
 #include "potential/lennard_jones_potential.hpp"
 #include "potential/soft_lennard_jones_potential.hpp"
 #include "potential/softcore_potential.hpp"
+#include "potential/spring_potential.hpp"
 
 #include "forcefield/all_pair_forcefield.hpp"
 #include "forcefield/composite_forcefield.hpp"

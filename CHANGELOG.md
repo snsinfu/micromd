@@ -10,6 +10,7 @@
   - `sequential_triple_forcefield`
 - Potentials:
   - `soft_lennard_jones_potential`
+  - `spring_potential`
 - Misc:
   - `neighbor_searcher`
 
