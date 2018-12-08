@@ -48,6 +48,8 @@ TEST_CASE("sequential_triple_forcefield - computes interactions within triplets"
     md::scalar const x3 = system.add_particle().position.x = 6;
     md::scalar const x4 = system.add_particle().position.x = 10;
 
+    (void) x4;
+
     SECTION("no segment")
     {
         chain_forcefield chain;
