@@ -7,17 +7,27 @@ addons:
       - clang
       - libc++-dev
 
-script:
-  - make -C tests -j 4 TAGS="*" CXX=g++
-  - make -C tests clean
-  - make -C tests -j 4 TAGS="*" CXX=clang++ CXXFLAGS=-stdlib=libc++
-  - make -C bundle VERSION=$TRAVIS_BRANCH
+stages:
+  - test
+  - deploy
 
-deploy:
-  provider: releases
-  api_key: $GITHUB_TOKEN
-  file: bundle/md.hpp
-  skip_cleanup: true
-  on:
-    tags: true
-    condition: $TRAVIS_TAG =~ v[0-9]+.*
+jobs:
+  include:
+    - stage: test
+      name: g++
+      script: make -C tests -j 2 TAGS="*" CXX=g++
+
+    - stage: test
+      name: clang++
+      script: make -C tests -j 2 TAGS="*" CXX=clang++ CXXFLAGS=-stdlib=libc++
+
+    - stage: deploy
+      script: make -C bundle VERSION=$TRAVIS_BRANCH
+      deploy:
+        provider: releases
+        api_key: $GITHUB_TOKEN
+        file: bundle/md.hpp
+        skip_cleanup: true
+        on:
+          tags: true
+          condition: $TRAVIS_TAG =~ v[0-9]+.*
