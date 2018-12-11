@@ -76,6 +76,35 @@ TEST_CASE("point_source_forcefield::set_point_source - returns self")
     CHECK(&ref == &test);
 }
 
+TEST_CASE("point_source_forcefield::compute_force - adds force to array")
+{
+    class test_forcefield : public md::point_source_forcefield<test_forcefield>
+    {
+    public:
+        md::harmonic_potential point_source_potential(md::system const&, md::index)
+        {
+            return md::harmonic_potential{};
+        }
+    };
+
+    md::system system;
+
+    md::point const p0 = system.add_particle().position = {1.1, 0, 0};
+
+    test_forcefield test;
+    test.set_point_source(md::point{0, 0, 0});
+
+    // compute_force does not clear existing force
+    std::vector<md::vector> forces = {
+        {1, 2, 3}
+    };
+    test.compute_force(system, forces);
+
+    CHECK(forces[0].x == Approx(1 - p0.x));
+    CHECK(forces[0].y == Approx(2 - p0.y));
+    CHECK(forces[0].z == Approx(3 - p0.z));
+}
+
 TEST_CASE("make_point_source_forcefield - creates a point_source_forcefield")
 {
     struct harmonic_potential

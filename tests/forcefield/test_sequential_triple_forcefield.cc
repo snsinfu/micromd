@@ -112,6 +112,49 @@ TEST_CASE("sequential_triple_forcefield::add_segment - returns self")
     CHECK(&ref == &test);
 }
 
+TEST_CASE("sequential_triple_forcefield::compute_force - adds force to array")
+{
+    class test_forcefield : public md::sequential_triple_forcefield<test_forcefield>
+    {
+    public:
+        dot_potential sequential_triple_potential(
+            md::system const&, md::index, md::index, md::index
+        ) const
+        {
+            return dot_potential{};
+        }
+    };
+
+    md::system system;
+
+    md::point const p0 = system.add_particle().position = {1, 0, 0};
+    md::point const p1 = system.add_particle().position = {0, 1, 0};
+    md::point const p2 = system.add_particle().position = {0, 0, 1};
+
+    test_forcefield ff;
+    ff.add_segment(0, 2);
+
+    // compute_force does not clear existing force
+    std::vector<md::vector> forces = {
+        {1, 2, 3},
+        {4, 5, 6},
+        {7, 8, 9}
+    };
+    ff.compute_force(system, forces);
+
+    CHECK(forces[0].x == Approx(1 - (p1 - p2).x));
+    CHECK(forces[0].y == Approx(2 - (p1 - p2).y));
+    CHECK(forces[0].z == Approx(3 - (p1 - p2).z));
+
+    CHECK(forces[1].x == Approx(4 + (p1 - p2).x - (p0 - p1).x));
+    CHECK(forces[1].y == Approx(5 + (p1 - p2).y - (p0 - p1).y));
+    CHECK(forces[1].z == Approx(6 + (p1 - p2).z - (p0 - p1).z));
+
+    CHECK(forces[2].x == Approx(7 + (p0 - p1).x));
+    CHECK(forces[2].y == Approx(8 + (p0 - p1).y));
+    CHECK(forces[2].z == Approx(9 + (p0 - p1).z));
+}
+
 TEST_CASE("make_sequential_triple_forcefield - creates a sequential_triple_forcefield")
 {
     md::system system;

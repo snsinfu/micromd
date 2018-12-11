@@ -223,6 +223,42 @@ TEST_CASE("ellipsoid_surface_forcefield::set_ellipsoid - returns self")
     CHECK(&ref == &test);
 }
 
+TEST_CASE("ellipsoid_surface_forcefield::compute_force - adds force to array")
+{
+    class outward_forcefield : public md::ellipsoid_surface_forcefield<outward_forcefield>
+    {
+    public:
+        md::harmonic_potential ellipsoid_outward_potential(md::system const&, md::index)
+        {
+            return md::harmonic_potential{};
+        }
+    };
+
+    md::system system;
+
+    // A particle near surface
+    system.add_particle().position = {1.01, 0, 0};
+
+    md::ellipsoid ellip;
+    ellip.center = {0, 0, 0};
+    ellip.semiaxis_x = 1;
+    ellip.semiaxis_y = 0.8;
+    ellip.semiaxis_z = 0.6;
+
+    outward_forcefield outward;
+    outward.set_ellipsoid(ellip);
+
+    // compute_force does not clear existing force
+    std::vector<md::vector> forces = {
+        {1, 2, 3}
+    };
+    outward.compute_force(system, forces);
+
+    CHECK(forces[0].x == Approx(1 - (1.01 - 1.0)).epsilon(0.1));
+    CHECK(forces[0].y == Approx(2).epsilon(0.1));
+    CHECK(forces[0].z == Approx(3).epsilon(0.1));
+}
+
 TEST_CASE("make_ellipsoid_inward_forcefield - creates a ellipsoid_surface_forcefield")
 {
     struct harmonic_potential

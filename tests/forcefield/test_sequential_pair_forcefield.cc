@@ -115,6 +115,40 @@ TEST_CASE("sequential_pair_forcefield::add_segment - returns self")
     CHECK(&ref == &test);
 }
 
+TEST_CASE("sequential_pair_forcefield::compute_force - adds force to array")
+{
+    class test_forcefield : public md::sequential_pair_forcefield<test_forcefield>
+    {
+    public:
+        md::harmonic_potential sequential_pair_potential(md::system const&, md::index, md::index)
+        {
+            return md::harmonic_potential{};
+        }
+    };
+
+    md::system system;
+
+    system.add_particle().position = {1, 0, 0};
+    system.add_particle().position = {0, 1, 0};
+
+    test_forcefield ff;
+    ff.add_segment(0, 1);
+
+    // compute_force does not clear existing force
+    std::vector<md::vector> forces = {
+        {1, 2, 3},
+        {4, 5, 6}
+    };
+    ff.compute_force(system, forces);
+
+    CHECK(forces[0].x == Approx(1 - 1));
+    CHECK(forces[0].y == Approx(2 + 1));
+    CHECK(forces[0].z == Approx(3));
+    CHECK(forces[1].x == Approx(4 + 1));
+    CHECK(forces[1].y == Approx(5 - 1));
+    CHECK(forces[1].z == Approx(6));
+}
+
 TEST_CASE("make_sequential_pair_forcefield - creates a sequential_pair_forcefield")
 {
     struct harmonic_potential
