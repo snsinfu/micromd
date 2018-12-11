@@ -5,6 +5,8 @@
 #include <md/basic_types.hpp>
 #include <md/forcefield.hpp>
 #include <md/system.hpp>
+#include <md/potential/harmonic_potential.hpp>
+#include <md/potential/softcore_potential.hpp>
 
 #include <md/forcefield/neighbor_pair_forcefield.hpp>
 
@@ -13,28 +15,6 @@
 
 namespace
 {
-    // u(r) = 1 - r^2  (r < 1)
-    struct bell_potential
-    {
-        md::scalar evaluate_energy(md::vector r) const
-        {
-            if (r.squared_norm() < 1) {
-                return 1 - r.squared_norm();
-            } else {
-                return 0;
-            }
-        }
-
-        md::vector evaluate_force(md::vector r) const
-        {
-            if (r.squared_norm() < 1) {
-                return 2 * r;
-            } else {
-                return {};
-            }
-        }
-    };
-
     md::scalar max_difference(
         md::array_view<md::vector const> v1,
         md::array_view<md::vector const> v2
@@ -61,9 +41,9 @@ TEST_CASE("neighbor_pair_forcefield - computes correct forcefield")
             return 1;
         }
 
-        bell_potential neighbor_pair_potential(md::system const&, md::index, md::index)
+        md::softcore_potential<2> neighbor_pair_potential(md::system const&, md::index, md::index)
         {
-            return bell_potential{};
+            return md::softcore_potential<2>{1, 1};
         }
     };
 
@@ -87,7 +67,7 @@ TEST_CASE("neighbor_pair_forcefield - computes correct forcefield")
     }
 
     test_forcefield forcefield;
-    bell_potential potential;
+    md::softcore_potential<2> potential;
 
     std::vector<md::vector> actual_forces(system.particle_count());
     std::vector<md::vector> expected_forces(system.particle_count());
@@ -126,9 +106,9 @@ TEST_CASE("neighbor_pair_forcefield::compute_force - adds force to array")
             return 1;
         }
 
-        bell_potential neighbor_pair_potential(md::system const&, md::index, md::index)
+        md::softcore_potential<2> neighbor_pair_potential(md::system const&, md::index, md::index)
         {
-            return bell_potential{};
+            return md::softcore_potential<2>{1, 1};
         }
     };
 
@@ -156,24 +136,9 @@ TEST_CASE("neighbor_pair_forcefield::compute_force - adds force to array")
 
 TEST_CASE("make_neighbor_pair_forcefield - creates a neighbor_pair_forcefield")
 {
-    struct harmonic_potential
-    {
-        md::scalar spring_constant;
-
-        md::scalar evaluate_energy(md::vector r) const
-        {
-            return spring_constant * r.squared_norm() / 2;
-        }
-
-        md::vector evaluate_force(md::vector r) const
-        {
-            return -spring_constant * r;
-        }
-    };
-
     md::system system;
 
-    auto ff = md::make_neighbor_pair_forcefield(harmonic_potential{1.23});
+    auto ff = md::make_neighbor_pair_forcefield(md::softcore_potential<2>{1.23, 4.56});
     ff.set_neighbor_distance(4.56);
 
     auto ndist = ff.neighbor_distance(system);
@@ -183,7 +148,8 @@ TEST_CASE("make_neighbor_pair_forcefield - creates a neighbor_pair_forcefield")
     using pot_type = decltype(pot);
 
     CHECK(std::is_base_of<md::neighbor_pair_forcefield<ff_type>, ff_type>::value);
-    CHECK(std::is_same<pot_type, harmonic_potential>::value);
-    CHECK(pot.spring_constant == 1.23);
+    CHECK(std::is_same<pot_type, md::softcore_potential<2>>::value);
+    CHECK(pot.overlap_energy == 1.23);
+    CHECK(pot.cutoff_distance == 4.56);
     CHECK(ndist == 4.56);
 }

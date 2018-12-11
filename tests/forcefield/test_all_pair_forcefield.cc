@@ -6,6 +6,7 @@
 #include <md/basic_types.hpp>
 #include <md/forcefield.hpp>
 #include <md/system.hpp>
+#include <md/potential/harmonic_potential.hpp>
 
 #include <md/forcefield/all_pair_forcefield.hpp>
 
@@ -32,26 +33,12 @@ namespace
 
 TEST_CASE("all_pair_forcefield - computes correct forcefield")
 {
-    // u(r) = r^2
-    struct harmonic_potential
-    {
-        md::scalar evaluate_energy(md::vector r) const
-        {
-            return r.squared_norm();
-        }
-
-        md::vector evaluate_force(md::vector r) const
-        {
-            return -r;
-        }
-    };
-
     class test_forcefield : public md::all_pair_forcefield<test_forcefield>
     {
     public:
-        harmonic_potential all_pair_potential(md::system const&, md::index, md::index)
+        md::harmonic_potential all_pair_potential(md::system const&, md::index, md::index)
         {
-            return harmonic_potential{};
+            return md::harmonic_potential{};
         }
     };
 
@@ -71,7 +58,7 @@ TEST_CASE("all_pair_forcefield - computes correct forcefield")
     }
 
     test_forcefield forcefield;
-    harmonic_potential potential;
+    md::harmonic_potential potential;
 
     std::vector<md::vector> actual_forces(system.particle_count());
     std::vector<md::vector> expected_forces(system.particle_count());
@@ -102,26 +89,12 @@ TEST_CASE("all_pair_forcefield - computes correct forcefield")
 
 TEST_CASE("all_pair_forcefield::compute_force - adds force to array")
 {
-    // u(r) = r^2
-    struct harmonic_potential
-    {
-        md::scalar evaluate_energy(md::vector r) const
-        {
-            return r.squared_norm();
-        }
-
-        md::vector evaluate_force(md::vector r) const
-        {
-            return -r;
-        }
-    };
-
     class test_forcefield : public md::all_pair_forcefield<test_forcefield>
     {
     public:
-        harmonic_potential all_pair_potential(md::system const&, md::index, md::index)
+        md::harmonic_potential all_pair_potential(md::system const&, md::index, md::index)
         {
-            return harmonic_potential{};
+            return md::harmonic_potential{};
         }
     };
 
@@ -149,30 +122,15 @@ TEST_CASE("all_pair_forcefield::compute_force - adds force to array")
 
 TEST_CASE("make_all_pair_forcefield - creates an all_pair_forcefield")
 {
-    struct harmonic_potential
-    {
-        md::scalar spring_constant;
-
-        md::scalar evaluate_energy(md::vector r) const
-        {
-            return spring_constant * r.squared_norm() / 2;
-        }
-
-        md::vector evaluate_force(md::vector r) const
-        {
-            return -spring_constant * r;
-        }
-    };
-
     md::system system;
 
-    auto ff = md::make_all_pair_forcefield(harmonic_potential{1.23});
+    auto ff = md::make_all_pair_forcefield(md::harmonic_potential{1.23});
     auto pot = ff.all_pair_potential(system, 0, 1);
 
     using ff_type = decltype(ff);
     using pot_type = decltype(pot);
 
     CHECK(std::is_base_of<md::all_pair_forcefield<ff_type>, ff_type>::value);
-    CHECK(std::is_same<pot_type, harmonic_potential>::value);
+    CHECK(std::is_same<pot_type, md::harmonic_potential>::value);
     CHECK(pot.spring_constant == 1.23);
 }

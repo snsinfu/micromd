@@ -12,25 +12,12 @@
 
 TEST_CASE("point_source_forcefield - computes correct forcefield")
 {
-    struct test_potential
-    {
-        md::scalar evaluate_energy(md::vector r) const
-        {
-            return r.squared_norm();
-        }
-
-        md::vector evaluate_force(md::vector r) const
-        {
-            return -r;
-        }
-    };
-
     class test_forcefield : public md::point_source_forcefield<test_forcefield>
     {
     public:
-        test_potential point_source_potential(md::system const&, md::index)
+        md::harmonic_potential point_source_potential(md::system const&, md::index)
         {
-            return test_potential{};
+            return md::harmonic_potential{};
         }
     };
 
@@ -44,9 +31,9 @@ TEST_CASE("point_source_forcefield - computes correct forcefield")
     forcefield.set_point_source(ps);
 
     md::scalar const expected_energy =
-        (p0 - ps).squared_norm() +
-        (p1 - ps).squared_norm() +
-        (p2 - ps).squared_norm();
+        0.5 * (p0 - ps).squared_norm() +
+        0.5 * (p1 - ps).squared_norm() +
+        0.5 * (p2 - ps).squared_norm();
 
     CHECK(forcefield.compute_energy(system) == Approx(expected_energy));
 
@@ -107,24 +94,9 @@ TEST_CASE("point_source_forcefield::compute_force - adds force to array")
 
 TEST_CASE("make_point_source_forcefield - creates a point_source_forcefield")
 {
-    struct harmonic_potential
-    {
-        md::scalar spring_constant;
-
-        md::scalar evaluate_energy(md::vector r) const
-        {
-            return spring_constant * r.squared_norm() / 2;
-        }
-
-        md::vector evaluate_force(md::vector r) const
-        {
-            return -spring_constant * r;
-        }
-    };
-
     md::system system;
 
-    auto ff = md::make_point_source_forcefield(harmonic_potential{1.23});
+    auto ff = md::make_point_source_forcefield(md::harmonic_potential{1.23});
     ff.set_point_source(md::point{1, 2, 3});
 
     auto pot = ff.point_source_potential(system, 0);
@@ -133,6 +105,6 @@ TEST_CASE("make_point_source_forcefield - creates a point_source_forcefield")
     using pot_type = decltype(pot);
 
     CHECK(std::is_base_of<md::point_source_forcefield<ff_type>, ff_type>::value);
-    CHECK(std::is_same<pot_type, harmonic_potential>::value);
+    CHECK(std::is_same<pot_type, md::harmonic_potential>::value);
     CHECK(pot.spring_constant == 1.23);
 }

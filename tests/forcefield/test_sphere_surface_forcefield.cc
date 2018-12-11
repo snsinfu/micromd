@@ -202,27 +202,12 @@ TEST_CASE("sphere_surface_forcefield::compute_force - adds force to array")
 
 TEST_CASE("make_sphere_inward_forcefield - creates a sphere_surface_forcefield")
 {
-    struct harmonic_potential
-    {
-        md::scalar spring_constant;
-
-        md::scalar evaluate_energy(md::vector r) const
-        {
-            return spring_constant * r.squared_norm() / 2;
-        }
-
-        md::vector evaluate_force(md::vector r) const
-        {
-            return -spring_constant * r;
-        }
-    };
-
     md::system system;
 
-    auto ff = md::make_sphere_inward_forcefield(harmonic_potential{1.23});
+    auto ff = md::make_sphere_inward_forcefield(md::harmonic_potential{1.23});
     ff.set_sphere(md::sphere{});
 
-    harmonic_potential pot = ff.sphere_inward_potential(system, 0);
+    md::harmonic_potential pot = ff.sphere_inward_potential(system, 0);
 
     using ff_type = decltype(ff);
 
@@ -232,27 +217,12 @@ TEST_CASE("make_sphere_inward_forcefield - creates a sphere_surface_forcefield")
 
 TEST_CASE("make_sphere_outward_forcefield - creates a sphere_surface_forcefield")
 {
-    struct harmonic_potential
-    {
-        md::scalar spring_constant;
-
-        md::scalar evaluate_energy(md::vector r) const
-        {
-            return spring_constant * r.squared_norm() / 2;
-        }
-
-        md::vector evaluate_force(md::vector r) const
-        {
-            return -spring_constant * r;
-        }
-    };
-
     md::system system;
 
-    auto ff = md::make_sphere_outward_forcefield(harmonic_potential{1.23});
+    auto ff = md::make_sphere_outward_forcefield(md::harmonic_potential{1.23});
     ff.set_sphere(md::sphere{});
 
-    harmonic_potential pot = ff.sphere_outward_potential(system, 0);
+    md::harmonic_potential pot = ff.sphere_outward_potential(system, 0);
 
     using ff_type = decltype(ff);
 

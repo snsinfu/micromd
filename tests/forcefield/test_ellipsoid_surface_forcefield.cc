@@ -261,27 +261,12 @@ TEST_CASE("ellipsoid_surface_forcefield::compute_force - adds force to array")
 
 TEST_CASE("make_ellipsoid_inward_forcefield - creates a ellipsoid_surface_forcefield")
 {
-    struct harmonic_potential
-    {
-        md::scalar spring_constant;
-
-        md::scalar evaluate_energy(md::vector r) const
-        {
-            return spring_constant * r.squared_norm() / 2;
-        }
-
-        md::vector evaluate_force(md::vector r) const
-        {
-            return -spring_constant * r;
-        }
-    };
-
     md::system system;
 
-    auto ff = md::make_ellipsoid_inward_forcefield(harmonic_potential{1.23});
+    auto ff = md::make_ellipsoid_inward_forcefield(md::harmonic_potential{1.23});
     ff.set_ellipsoid(md::ellipsoid{});
 
-    harmonic_potential pot = ff.ellipsoid_inward_potential(system, 0);
+    md::harmonic_potential pot = ff.ellipsoid_inward_potential(system, 0);
 
     using ff_type = decltype(ff);
 
@@ -291,27 +276,12 @@ TEST_CASE("make_ellipsoid_inward_forcefield - creates a ellipsoid_surface_forcef
 
 TEST_CASE("make_ellipsoid_outward_forcefield - creates a ellipsoid_surface_forcefield")
 {
-    struct harmonic_potential
-    {
-        md::scalar spring_constant;
-
-        md::scalar evaluate_energy(md::vector r) const
-        {
-            return spring_constant * r.squared_norm() / 2;
-        }
-
-        md::vector evaluate_force(md::vector r) const
-        {
-            return -spring_constant * r;
-        }
-    };
-
     md::system system;
 
-    auto ff = md::make_ellipsoid_outward_forcefield(harmonic_potential{1.23});
+    auto ff = md::make_ellipsoid_outward_forcefield(md::harmonic_potential{1.23});
     ff.set_ellipsoid(md::ellipsoid{});
 
-    harmonic_potential pot = ff.ellipsoid_outward_potential(system, 0);
+    md::harmonic_potential pot = ff.ellipsoid_outward_potential(system, 0);
 
     using ff_type = decltype(ff);
 
