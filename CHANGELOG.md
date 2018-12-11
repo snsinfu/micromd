@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- `sphere_surface_forcefield` overwrites force array
+
 ## v0.1.0
 
 ### Added

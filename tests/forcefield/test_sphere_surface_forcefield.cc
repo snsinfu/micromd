@@ -166,6 +166,40 @@ TEST_CASE("sphere_surface_forcefield::set_sphere - returns self")
     CHECK(&ref == &test);
 }
 
+TEST_CASE("sphere_surface_forcefield::compute_force - adds force to array")
+{
+    class outward_forcefield : public md::sphere_surface_forcefield<outward_forcefield>
+    {
+    public:
+        md::harmonic_potential sphere_outward_potential(md::system const&, md::index)
+        {
+            return md::harmonic_potential{};
+        }
+    };
+
+    md::system system;
+
+    // A particle near surface
+    system.add_particle().position = {1.1, 0, 0};
+
+    md::sphere sphere;
+    sphere.center = {0, 0, 0};
+    sphere.radius = 1;
+
+    outward_forcefield outward;
+    outward.set_sphere(sphere);
+
+    // compute_force does not clear existing force
+    std::vector<md::vector> forces = {
+        {1, 2, 3}
+    };
+    outward.compute_force(system, forces);
+
+    CHECK(forces[0].x == Approx(1 - (1.1 - 1.0)));
+    CHECK(forces[0].y == Approx(2));
+    CHECK(forces[0].z == Approx(3));
+}
+
 TEST_CASE("make_sphere_inward_forcefield - creates a sphere_surface_forcefield")
 {
     struct harmonic_potential

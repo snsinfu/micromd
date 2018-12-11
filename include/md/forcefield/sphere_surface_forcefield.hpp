@@ -136,7 +136,7 @@ namespace md
 
                 md::vector const aniso = scale * (force.project(r) - force);
 
-                forces[i] = force + aniso;
+                forces[i] += force + aniso;
             }
         }
 
