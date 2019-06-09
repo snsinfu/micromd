@@ -4,6 +4,8 @@
 
 ### Added
 
+- Potentials:
+  - `polybell_potential`
 - Misc:
   - `particle_ref::view(key)` for attribute access
   - `power<N>(x)`
