@@ -78,10 +78,9 @@ namespace md
             }
         }
 
-    private:
         // get_neighbor_list returns a reference to the up-to-date neighbor list
         // for the system.
-        md::neighbor_list& get_neighbor_list(md::system const& system)
+        md::neighbor_list const& get_neighbor_list(md::system const& system)
         {
             neighbor_list_.update(
                 system.view_positions(),
@@ -90,6 +89,7 @@ namespace md
             return neighbor_list_;
         }
 
+    private:
         // derived returns a reference to this object as the CRTP derived class.
         Derived& derived()
         {

@@ -1,5 +1,8 @@
 #include <algorithm>
 #include <cassert>
+#include <iterator>
+#include <set>
+#include <utility>
 #include <vector>
 
 #include <md/basic_types.hpp>
@@ -152,4 +155,25 @@ TEST_CASE("make_neighbor_pair_forcefield - creates a neighbor_pair_forcefield")
     CHECK(pot.overlap_energy == 1.23);
     CHECK(pot.cutoff_distance == 4.56);
     CHECK(ndist == 4.56);
+}
+
+TEST_CASE("neighbor_pair_forcefield::get_neighbor_list - returns neighbor list")
+{
+    md::system system;
+    system.add_particle().position = {0, 0, 0};
+    system.add_particle().position = {0, 0, 1};
+    system.add_particle().position = {0, 0, 2};
+    system.add_particle().position = {0, 0, 3};
+
+    auto ff = md::make_neighbor_pair_forcefield(md::softcore_potential<2>{});
+    ff.set_neighbor_distance(1.5);
+
+    md::neighbor_list const& nlist = ff.get_neighbor_list(system);
+    std::multiset<std::pair<md::index, md::index>> pairs;
+    std::copy(nlist.begin(), nlist.end(), std::inserter(pairs, pairs.end()));
+
+    std::multiset<std::pair<md::index, md::index>> expected = {
+        {0, 1}, {1, 2}, {2, 3}
+    };
+    CHECK(pairs == expected);
 }
