@@ -12,6 +12,8 @@
 
 #include "../basic_types.hpp"
 
+#include "attribute.hpp"
+
 
 namespace md
 {
@@ -21,6 +23,7 @@ namespace md
     // system.
     struct particle_ref
     {
+        md::system& system;
         md::index index;
 
         md::scalar& mass;
@@ -29,6 +32,9 @@ namespace md
         md::vector& velocity;
 
         particle_ref(md::system& system, md::index idx);
+
+        template<typename T, typename Tag>
+        T& view(md::attribute_key<T, Tag> key);
     };
 
     // particle_iterator is a forward iterator that scans particles in a system.

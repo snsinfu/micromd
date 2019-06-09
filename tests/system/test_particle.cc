@@ -1,4 +1,5 @@
 #include <md/system.hpp>
+#include <md/system/attribute.hpp>
 #include <md/system/particle.hpp>
 
 #include <catch.hpp>
@@ -40,6 +41,19 @@ TEST_CASE("particle_ref - provides write access to basic attributes")
     CHECK(system.view_mobilities()[0] == 6.54);
     CHECK((system.view_positions()[0] - md::point{3, 2, 1}).norm() == 0);
     CHECK((system.view_velocities()[0] - md::vector{2, 3, 4}).norm() == 0);
+}
+
+TEST_CASE("particle_ref - allows access to any attribute")
+{
+    md::system system;
+
+    md::attribute_key<md::scalar, struct my_attr_key> my_attr = {};
+    system.require(my_attr);
+
+    md::particle_ref part = system.add_particle();
+    part.view(my_attr) = 1.23;
+
+    CHECK(system.view(my_attr)[0] == 1.23);
 }
 
 TEST_CASE("particle_iterator - allows access to a range of particles")

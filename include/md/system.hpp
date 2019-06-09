@@ -244,12 +244,19 @@ namespace md
     };
 
     inline md::particle_ref::particle_ref(md::system& system, md::index idx)
-        : index{idx}
+        : system{system}
+        , index{idx}
         , mass{system.view_masses()[idx]}
         , mobility{system.view_mobilities()[idx]}
         , position{system.view_positions()[idx]}
         , velocity{system.view_velocities()[idx]}
     {
+    }
+
+    template<typename T, typename Tag>
+    T& md::particle_ref::view(md::attribute_key<T, Tag> key)
+    {
+        return system.view(key)[index];
     }
 }
 

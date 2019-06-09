@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Added
+
+- Misc:
+  - `particle_ref::view(key)` for attribute access
+
 ### Fixed
 
 - `sphere_surface_forcefield` overwrites force array
