@@ -121,6 +121,14 @@ namespace md
     class ellipsoid_surface_forcefield : public virtual md::forcefield
     {
     public:
+        struct statistics
+        {
+            // Sum of the normal reaction force acting on the surface calculated
+            // in the previous call of compute_force().
+            md::scalar reaction_force = 0;
+        };
+        statistics stats;
+
         // set_ellipsoid changes the ellipsoid to given one.
         Derived& set_ellipsoid(md::ellipsoid ellip)
         {
@@ -161,6 +169,8 @@ namespace md
         {
             md::array_view<md::point const> positions = system.view_positions();
 
+            stats.reaction_force = 0;
+
             for (md::index i = 0; i < system.particle_count(); i++) {
                 detail::ellipsoid_eval const ev = detail::evaluate_point(ellipsoid_, positions[i]);
 
@@ -186,6 +196,12 @@ namespace md
                 md::vector const force = iso_force + strain_force;
 
                 forces[i] += force;
+
+                if (ev.implicit < 0) {
+                    stats.reaction_force += force.dot(ev.delta) / ev.delta.norm();
+                } else {
+                    stats.reaction_force -= force.dot(ev.delta) / ev.delta.norm();
+                }
             }
         }
 

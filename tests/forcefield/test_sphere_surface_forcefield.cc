@@ -200,6 +200,65 @@ TEST_CASE("sphere_surface_forcefield::compute_force - adds force to array")
     CHECK(forces[0].z == Approx(3));
 }
 
+TEST_CASE("sphere_surface_forcefield::compute_force - collects normal force stats")
+{
+    class surface_forcefield : public md::sphere_surface_forcefield<surface_forcefield>
+    {
+    public:
+        md::harmonic_potential surface_inward_potential(md::system const&, md::index)
+        {
+            return md::harmonic_potential{};
+        }
+
+        md::harmonic_potential surface_outward_potential(md::system const&, md::index)
+        {
+            return md::harmonic_potential{};
+        }
+    };
+
+    SECTION("outward force")
+    {
+        md::system system;
+        system.add_particle().position = {1.1, 0, 0};
+        system.add_particle().position = {0, 1.1, 0};
+        system.add_particle().position = {0, 0, 1.1};
+
+        md::sphere sphere;
+        sphere.center = {0, 0, 0};
+        sphere.radius = 1;
+
+        surface_forcefield ff;
+        ff.set_sphere(sphere);
+
+        std::vector<md::vector> forces(system.particle_count());
+        ff.compute_force(system, forces);
+        auto const sum_normal = forces[0].x + forces[1].y + forces[2].z;
+
+        CHECK(ff.stats.reaction_force == Approx(-sum_normal));
+    }
+
+    SECTION("inward force")
+    {
+        md::system system;
+        system.add_particle().position = {0.9, 0, 0};
+        system.add_particle().position = {0, 0.9, 0};
+        system.add_particle().position = {0, 0, 0.9};
+
+        md::sphere sphere;
+        sphere.center = {0, 0, 0};
+        sphere.radius = 1;
+
+        surface_forcefield ff;
+        ff.set_sphere(sphere);
+
+        std::vector<md::vector> forces(system.particle_count());
+        ff.compute_force(system, forces);
+        auto const sum_normal = forces[0].x + forces[1].y + forces[2].z;
+
+        CHECK(ff.stats.reaction_force == Approx(-sum_normal));
+    }
+}
+
 TEST_CASE("make_sphere_inward_forcefield - creates a sphere_surface_forcefield")
 {
     md::system system;

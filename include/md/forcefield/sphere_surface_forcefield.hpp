@@ -61,6 +61,14 @@ namespace md
     class sphere_surface_forcefield : public virtual md::forcefield
     {
     public:
+        struct statistics
+        {
+            // Sum of the normal reaction force acting on the surface calculated
+            // in the previous call of compute_force().
+            md::scalar reaction_force = 0;
+        };
+        statistics stats;
+
         // set_ellipsoid changes the ellipsoid to given one. Default is the unit
         // sphere placed at the origin.
         Derived& set_sphere(md::sphere sphere)
@@ -112,6 +120,8 @@ namespace md
 
             md::array_view<md::point const> positions = system.view_positions();
 
+            stats.reaction_force = 0;
+
             for (md::index i = 0; i < system.particle_count(); i++) {
                 md::vector const r = positions[i] - center;
                 md::scalar const r2 = r.squared_norm();
@@ -137,6 +147,7 @@ namespace md
                 md::vector const aniso = scale * (force.project(r) - force);
 
                 forces[i] += force + aniso;
+                stats.reaction_force -= force.dot(r) / r.norm();
             }
         }
 

@@ -1,3 +1,4 @@
+#include <iostream>
 #include <vector>
 
 #include <md/basic_types.hpp>
@@ -257,6 +258,69 @@ TEST_CASE("ellipsoid_surface_forcefield::compute_force - adds force to array")
     CHECK(forces[0].x == Approx(1 - (1.01 - 1.0)).epsilon(0.1));
     CHECK(forces[0].y == Approx(2).epsilon(0.1));
     CHECK(forces[0].z == Approx(3).epsilon(0.1));
+}
+
+TEST_CASE("ellipsoid_surface_forcefield::compute_force - collects normal force stats")
+{
+    class surface_forcefield : public md::ellipsoid_surface_forcefield<surface_forcefield>
+    {
+    public:
+        md::harmonic_potential ellipsoid_inward_potential(md::system const&, md::index)
+        {
+            return md::harmonic_potential{};
+        }
+
+        md::harmonic_potential ellipsoid_outward_potential(md::system const&, md::index)
+        {
+            return md::harmonic_potential{};
+        }
+    };
+
+    SECTION("outward force")
+    {
+        md::system system;
+        system.add_particle().position = {1.1, 0, 0};
+        system.add_particle().position = {0, 0.9, 0};
+        system.add_particle().position = {0, 0, 0.7};
+
+        md::ellipsoid ellip;
+        ellip.center = {0, 0, 0};
+        ellip.semiaxis_x = 1;
+        ellip.semiaxis_y = 0.8;
+        ellip.semiaxis_z = 0.6;
+
+        surface_forcefield ff;
+        ff.set_ellipsoid(ellip);
+
+        std::vector<md::vector> forces(system.particle_count());
+        ff.compute_force(system, forces);
+        auto const sum_normal = forces[0].x + forces[1].y + forces[2].z;
+
+        CHECK(ff.stats.reaction_force == Approx(-sum_normal));
+    }
+
+    SECTION("inward force")
+    {
+        md::system system;
+        system.add_particle().position = {0.9, 0, 0};
+        system.add_particle().position = {0, 0.7, 0};
+        system.add_particle().position = {0, 0, 0.5};
+
+        md::ellipsoid ellip;
+        ellip.center = {0, 0, 0};
+        ellip.semiaxis_x = 1;
+        ellip.semiaxis_y = 0.8;
+        ellip.semiaxis_z = 0.6;
+
+        surface_forcefield ff;
+        ff.set_ellipsoid(ellip);
+
+        std::vector<md::vector> forces(system.particle_count());
+        ff.compute_force(system, forces);
+        auto const sum_normal = forces[0].x + forces[1].y + forces[2].z;
+
+        CHECK(ff.stats.reaction_force == Approx(-sum_normal));
+    }
 }
 
 TEST_CASE("make_ellipsoid_inward_forcefield - creates a ellipsoid_surface_forcefield")
