@@ -8,26 +8,11 @@
 // This module provides a softcore short-range potential.
 
 #include "../basic_types.hpp"
+#include "../misc/math.hpp"
 
 
 namespace md
 {
-    namespace detail
-    {
-        inline md::scalar power(md::scalar x, int n)
-        {
-            if (n == 0) {
-                return 1;
-            }
-
-            md::scalar pow = x;
-            for (int i = 1; i < n; i++) {
-                pow *= x;
-            }
-            return pow;
-        }
-    }
-
     // softcore_potential implements the following bell-shaped short-range
     // potential energy function:
     //
@@ -63,7 +48,7 @@ namespace md
                 return 0;
             }
 
-            return overlap_energy * detail::power(g, N);
+            return overlap_energy * md::power<N>(g);
         }
 
         md::vector evaluate_force(md::vector r) const
@@ -76,7 +61,7 @@ namespace md
                 return {};
             }
 
-            return 2 * N * overlap_energy * k2 * detail::power(g, N - 1) * r;
+            return 2 * N * overlap_energy * k2 * md::power<N - 1>(g) * r;
         }
     };
 }
