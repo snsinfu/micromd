@@ -6,6 +6,7 @@
 
 - Forcefield templates:
   - `selected_pair_forcefield`
+  - `subsystem_pair_forcefield`
 - Potentials:
   - `polybell_potential`
 - Misc:
