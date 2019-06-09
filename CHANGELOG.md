@@ -6,6 +6,8 @@
 
 - Misc:
   - `particle_ref::view(key)` for attribute access
+  - `power<N>(x)`
+  - `power_sqrt<N>(x)`
 
 ### Fixed
 
