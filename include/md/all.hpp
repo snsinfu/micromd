@@ -13,6 +13,7 @@
 #include "potential/cosine_bending_potential.hpp"
 #include "potential/harmonic_potential.hpp"
 #include "potential/lennard_jones_potential.hpp"
+#include "potential/polybell_potential.hpp"
 #include "potential/soft_lennard_jones_potential.hpp"
 #include "potential/softcore_potential.hpp"
 #include "potential/spring_potential.hpp"
@@ -22,14 +23,17 @@
 #include "forcefield/ellipsoid_surface_forcefield.hpp"
 #include "forcefield/neighbor_pair_forcefield.hpp"
 #include "forcefield/point_source_forcefield.hpp"
+#include "forcefield/selected_pair_forcefield.hpp"
 #include "forcefield/sequential_pair_forcefield.hpp"
 #include "forcefield/sequential_triple_forcefield.hpp"
 #include "forcefield/sphere_surface_forcefield.hpp"
+#include "forcefield/subsystem_pair_forcefield.hpp"
 
 #include "simulation/brownian_dynamics.hpp"
 #include "simulation/newtonian_dynamics.hpp"
 
 #include "misc/linear_hash.hpp"
+#include "misc/math.hpp"
 #include "misc/neighbor_searcher.hpp"
 
 #endif
