@@ -139,6 +139,37 @@ forcefield/test_composite_forcefield.o: \
   ../include/md/forcefield/../basic_types.hpp \
   ../include/md/forcefield/../forcefield.hpp \
   ../include/md/forcefield/../system.hpp
+forcefield/test_inter_subsystem_neighbor_pair_forcefield.o: \
+  forcefield/test_inter_subsystem_neighbor_pair_forcefield.cc \
+  ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
+  ../include/md/basic_types/point.hpp ../include/md/basic_types/sfc.hpp \
+  ../include/md/basic_types/ziggurat.hpp ../include/md/forcefield.hpp \
+  ../include/md/system.hpp ../include/md/system/attribute.hpp \
+  ../include/md/system/particle.hpp \
+  ../include/md/system/../basic_types.hpp \
+  ../include/md/system/detail/attribute_table.hpp \
+  ../include/md/system/detail/../../basic_types.hpp \
+  ../include/md/system/detail/../attribute.hpp \
+  ../include/md/system/detail/array_erasure.hpp \
+  ../include/md/system/detail/iterator_range.hpp \
+  ../include/md/system/detail/sum_forcefield.hpp \
+  ../include/md/system/detail/../../forcefield.hpp \
+  ../include/md/potential/harmonic_potential.hpp \
+  ../include/md/potential/../basic_types.hpp \
+  ../include/md/potential/softcore_potential.hpp \
+  ../include/md/potential/../misc/math.hpp \
+  ../include/md/potential/../misc/../basic_types.hpp \
+  ../include/md/forcefield/inter_subsystem_neighbor_pair_forcefield.hpp \
+  ../include/md/forcefield/../basic_types.hpp \
+  ../include/md/forcefield/../forcefield.hpp \
+  ../include/md/forcefield/../system.hpp \
+  ../include/md/forcefield/detail/inter_subsystem_neighbor_list.hpp \
+  ../include/md/forcefield/detail/../../basic_types.hpp \
+  ../include/md/forcefield/detail/../../misc/linear_hash.hpp \
+  ../include/md/forcefield/detail/../../misc/neighbor_searcher.hpp \
+  ../include/md/potential/../misc/linear_hash.hpp \
+  ../include/md/forcefield/detail/neighbor_list_heuristics.hpp \
+  ../include/md/forcefield/detail/pair_potfun.hpp
 forcefield/test_inter_subsystem_forcefield.o: \
   forcefield/test_inter_subsystem_forcefield.cc \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
