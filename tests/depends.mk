@@ -149,6 +149,29 @@ forcefield/detail/test_neighbor_list.o: \
   ../include/md/forcefield/detail/../../misc/linear_hash.hpp \
   ../include/md/forcefield/detail/../../misc/neighbor_searcher.hpp \
   ../include/md/forcefield/detail/../../misc/../basic_types.hpp
+forcefield/test_intra_subsystem_pair_forcefield.o: \
+  forcefield/test_intra_subsystem_pair_forcefield.cc \
+  ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
+  ../include/md/basic_types/point.hpp ../include/md/basic_types/sfc.hpp \
+  ../include/md/basic_types/ziggurat.hpp ../include/md/forcefield.hpp \
+  ../include/md/system.hpp ../include/md/system/attribute.hpp \
+  ../include/md/system/particle.hpp \
+  ../include/md/system/../basic_types.hpp \
+  ../include/md/system/detail/attribute_table.hpp \
+  ../include/md/system/detail/../../basic_types.hpp \
+  ../include/md/system/detail/../attribute.hpp \
+  ../include/md/system/detail/array_erasure.hpp \
+  ../include/md/system/detail/iterator_range.hpp \
+  ../include/md/system/detail/sum_forcefield.hpp \
+  ../include/md/system/detail/../../forcefield.hpp \
+  ../include/md/potential/harmonic_potential.hpp \
+  ../include/md/potential/../basic_types.hpp \
+  ../include/md/forcefield/intra_subsystem_pair_forcefield.hpp \
+  ../include/md/forcefield/../basic_types.hpp \
+  ../include/md/forcefield/../forcefield.hpp \
+  ../include/md/forcefield/../system.hpp \
+  ../include/md/forcefield/detail/pair_potfun.hpp \
+  ../include/md/forcefield/detail/../../basic_types.hpp
 forcefield/test_selected_pair_forcefield.o: \
   forcefield/test_selected_pair_forcefield.cc \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
@@ -214,29 +237,6 @@ forcefield/test_all_pair_forcefield.o: \
   ../include/md/potential/harmonic_potential.hpp \
   ../include/md/potential/../basic_types.hpp \
   ../include/md/forcefield/all_pair_forcefield.hpp \
-  ../include/md/forcefield/../basic_types.hpp \
-  ../include/md/forcefield/../forcefield.hpp \
-  ../include/md/forcefield/../system.hpp \
-  ../include/md/forcefield/detail/pair_potfun.hpp \
-  ../include/md/forcefield/detail/../../basic_types.hpp
-forcefield/test_subsystem_pair_forcefield.o: \
-  forcefield/test_subsystem_pair_forcefield.cc \
-  ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
-  ../include/md/basic_types/point.hpp ../include/md/basic_types/sfc.hpp \
-  ../include/md/basic_types/ziggurat.hpp ../include/md/forcefield.hpp \
-  ../include/md/system.hpp ../include/md/system/attribute.hpp \
-  ../include/md/system/particle.hpp \
-  ../include/md/system/../basic_types.hpp \
-  ../include/md/system/detail/attribute_table.hpp \
-  ../include/md/system/detail/../../basic_types.hpp \
-  ../include/md/system/detail/../attribute.hpp \
-  ../include/md/system/detail/array_erasure.hpp \
-  ../include/md/system/detail/iterator_range.hpp \
-  ../include/md/system/detail/sum_forcefield.hpp \
-  ../include/md/system/detail/../../forcefield.hpp \
-  ../include/md/potential/harmonic_potential.hpp \
-  ../include/md/potential/../basic_types.hpp \
-  ../include/md/forcefield/subsystem_pair_forcefield.hpp \
   ../include/md/forcefield/../basic_types.hpp \
   ../include/md/forcefield/../forcefield.hpp \
   ../include/md/forcefield/../system.hpp \

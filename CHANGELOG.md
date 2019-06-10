@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Forcefield templates:
+  - `intra_subsystem_pair_forcefield`
+
+### Changed
+
+- Renamed `subsystem_pair_forcefield` to `intra_subsystem_pair_forcefield`
+
 ## v0.1.1
 
 ### Added

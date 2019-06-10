@@ -2,8 +2,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef MD_FORCEFIELD_SUBSYSTEM_PAIR_FORCEFIELD_HPP
-#define MD_FORCEFIELD_SUBSYSTEM_PAIR_FORCEFIELD_HPP
+#ifndef MD_FORCEFIELD_INTRA_SUBSYSTEM_PAIR_FORCEFIELD_HPP
+#define MD_FORCEFIELD_INTRA_SUBSYSTEM_PAIR_FORCEFIELD_HPP
 
 // This module provides a template forcefield implementation that computes
 // interactions between particle pairs in a subsystem.
@@ -21,12 +21,12 @@
 
 namespace md
 {
-    // subsystem_pair_forcefield implements md::forcefield. It computes
+    // intra_subsystem_pair_forcefield implements md::forcefield. It computes
     // interactions between pairs of particles in a subsystem.
     //
     // This is a CRTP base class. Derived class must define a callback:
     //
-    //     auto subsystem_pair_potential(
+    //     auto intra_subsystem_pair_potential(
     //         md::system const& system,
     //         md::index i,
     //         md::index j
@@ -34,13 +34,15 @@ namespace md
     //     Returns the potential object for (i,j) pair.
     //
     template<typename Derived>
-    class subsystem_pair_forcefield : public virtual md::forcefield
+    class intra_subsystem_pair_forcefield : public virtual md::forcefield
     {
     public:
-        // add_target selects a particle.
-        Derived& add_target(md::index idx)
+        // set_subsystem sets the subsystem to the set of particles of given
+        // indices.
+        Derived& set_subsystem(md::array_view<md::index const> indices)
         {
-            targets_.push_back(idx);
+            targets_.clear();
+            targets_.assign(indices.begin(), indices.end());
             return derived();
         }
 
@@ -55,7 +57,7 @@ namespace md
                     auto& part_i = part_evals[i];
                     auto& part_j = part_evals[j];
 
-                    auto const pot = derived().subsystem_pair_potential(
+                    auto const pot = derived().intra_subsystem_pair_potential(
                         system, part_i.index, part_j.index
                     );
                     auto const r = part_i.position - part_j.position;
@@ -77,7 +79,7 @@ namespace md
                     auto& part_i = part_evals[i];
                     auto& part_j = part_evals[j];
 
-                    auto const pot = derived().subsystem_pair_potential(
+                    auto const pot = derived().intra_subsystem_pair_potential(
                         system, part_i.index, part_j.index
                     );
                     auto const r = part_i.position - part_j.position;
@@ -129,16 +131,18 @@ namespace md
     };
 
     template<typename PotFun>
-    class basic_subsystem_pair_forcefield
-        : public md::subsystem_pair_forcefield<basic_subsystem_pair_forcefield<PotFun>>
+    class basic_intra_subsystem_pair_forcefield
+        : public md::intra_subsystem_pair_forcefield<
+            basic_intra_subsystem_pair_forcefield<PotFun>
+        >
     {
     public:
-        explicit basic_subsystem_pair_forcefield(PotFun potfun)
+        explicit basic_intra_subsystem_pair_forcefield(PotFun potfun)
             : potfun_{potfun}
         {
         }
 
-        auto subsystem_pair_potential(md::system const&, md::index i, md::index j) const
+        auto intra_subsystem_pair_potential(md::system const&, md::index i, md::index j) const
         {
             return potfun_(i, j);
         }
@@ -147,14 +151,14 @@ namespace md
         PotFun potfun_;
     };
 
-    // make_subsystem_pair_forcefield implements md::subsystem_pair_forcefield
+    // make_intra_subsystem_pair_forcefield implements md::subsystem_pair_forcefield
     // with given potential object or lambda returning a potential object.
     template<typename P>
-    auto make_subsystem_pair_forcefield(P pot)
+    auto make_intra_subsystem_pair_forcefield(P pot)
     {
         auto potfun = detail::make_pair_potfun(pot);
         using potfun_type = decltype(potfun);
-        return md::basic_subsystem_pair_forcefield<potfun_type>{potfun};
+        return md::basic_intra_subsystem_pair_forcefield<potfun_type>{potfun};
     }
 }
 

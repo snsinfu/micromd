@@ -8,7 +8,7 @@
 #include <md/system.hpp>
 #include <md/potential/harmonic_potential.hpp>
 
-#include <md/forcefield/subsystem_pair_forcefield.hpp>
+#include <md/forcefield/intra_subsystem_pair_forcefield.hpp>
 
 #include <catch.hpp>
 
@@ -31,12 +31,14 @@ namespace
     }
 }
 
-TEST_CASE("subsystem_pair_forcefield - computes correct forcefield")
+TEST_CASE("intra_subsystem_pair_forcefield - computes correct forcefield")
 {
-    class test_forcefield : public md::subsystem_pair_forcefield<test_forcefield>
+    class test_forcefield : public md::intra_subsystem_pair_forcefield<test_forcefield>
     {
     public:
-        md::harmonic_potential subsystem_pair_potential(md::system const&, md::index, md::index)
+        md::harmonic_potential intra_subsystem_pair_potential(
+            md::system const&, md::index, md::index
+        )
         {
             return md::harmonic_potential{};
         }
@@ -49,12 +51,9 @@ TEST_CASE("subsystem_pair_forcefield - computes correct forcefield")
         system.add_particle().position = {0.1 * i, 0, 0};
     }
 
-    std::vector<md::index> subsystem = {0, 2, 4, 6, 8};
-
+    std::vector<md::index> targets = {0, 2, 4, 6, 8};
     test_forcefield forcefield;
-    for (md::index i : subsystem) {
-        forcefield.add_target(i);
-    }
+    forcefield.set_subsystem(targets);
 
     md::scalar expected_energy = 0;
     std::vector<md::vector> expected_forces(system.particle_count());
@@ -62,8 +61,8 @@ TEST_CASE("subsystem_pair_forcefield - computes correct forcefield")
     md::array_view<md::point const> positions = system.view_positions();
     md::harmonic_potential potential;
 
-    for (md::index i : subsystem) {
-        for (md::index j : subsystem) {
+    for (md::index i : targets) {
+        for (md::index j : targets) {
             if (i >= j) {
                 continue;
             }
@@ -87,12 +86,12 @@ TEST_CASE("subsystem_pair_forcefield - computes correct forcefield")
     CHECK(max_difference(actual_forces, expected_forces) < 1e-6);
 }
 
-TEST_CASE("subsystem_pair_forcefield::compute_force - adds force to array")
+TEST_CASE("intra_subsystem_pair_forcefield::compute_force - adds force to array")
 {
-    class test_forcefield : public md::subsystem_pair_forcefield<test_forcefield>
+    class test_forcefield : public md::intra_subsystem_pair_forcefield<test_forcefield>
     {
     public:
-        md::harmonic_potential subsystem_pair_potential(md::system const&, md::index, md::index)
+        md::harmonic_potential intra_subsystem_pair_potential(md::system const&, md::index, md::index)
         {
             return md::harmonic_potential{};
         }
@@ -103,10 +102,9 @@ TEST_CASE("subsystem_pair_forcefield::compute_force - adds force to array")
     system.add_particle().position = {1, 0, 0};
     system.add_particle().position = {0, 1, 0};
 
+    std::vector<md::index> subsystem = {0, 1};
     test_forcefield ff;
-
-    ff.add_target(0);
-    ff.add_target(1);
+    ff.set_subsystem(subsystem);
 
     // compute_force does not clear existing force
     std::vector<md::vector> forces = {
@@ -123,17 +121,17 @@ TEST_CASE("subsystem_pair_forcefield::compute_force - adds force to array")
     CHECK(forces[1].z == Approx(6));
 }
 
-TEST_CASE("make_subsystem_pair_forcefield - creates an subsystem_pair_forcefield")
+TEST_CASE("make_intra_subsystem_pair_forcefield - creates an intra_subsystem_pair_forcefield")
 {
     md::system system;
 
-    auto ff = md::make_subsystem_pair_forcefield(md::harmonic_potential{1.23});
-    auto pot = ff.subsystem_pair_potential(system, 0, 1);
+    auto ff = md::make_intra_subsystem_pair_forcefield(md::harmonic_potential{1.23});
+    auto pot = ff.intra_subsystem_pair_potential(system, 0, 1);
 
     using ff_type = decltype(ff);
     using pot_type = decltype(pot);
 
-    CHECK(std::is_base_of<md::subsystem_pair_forcefield<ff_type>, ff_type>::value);
+    CHECK(std::is_base_of<md::intra_subsystem_pair_forcefield<ff_type>, ff_type>::value);
     CHECK(std::is_same<pot_type, md::harmonic_potential>::value);
     CHECK(pot.spring_constant == 1.23);
 }
