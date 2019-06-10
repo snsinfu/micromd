@@ -21,7 +21,6 @@
 
 #include "neighbor_list_heuristics.hpp"
 
-#include <iostream>
 
 namespace md
 {

@@ -14,8 +14,6 @@
 
 #include <catch.hpp>
 
-#include <iostream>
-
 
 namespace
 {
