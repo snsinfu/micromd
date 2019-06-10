@@ -7,6 +7,7 @@
 - Forcefield templates:
   - `intra_subsystem_pair_forcefield`
   - `inter_subsystem_pair_forcefield`
+  - `intra_subsystem_neighbor_pair_forcefield`
 
 ### Changed
 
