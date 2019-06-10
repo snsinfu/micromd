@@ -21,6 +21,7 @@
 #include "forcefield/all_pair_forcefield.hpp"
 #include "forcefield/composite_forcefield.hpp"
 #include "forcefield/ellipsoid_surface_forcefield.hpp"
+#include "forcefield/inter_subsystem_pair_forcefield.hpp"
 #include "forcefield/intra_subsystem_pair_forcefield.hpp"
 #include "forcefield/neighbor_pair_forcefield.hpp"
 #include "forcefield/point_source_forcefield.hpp"
