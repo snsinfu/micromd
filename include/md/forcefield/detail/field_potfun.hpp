@@ -30,7 +30,7 @@ namespace md
 
         template<
             typename PotFun,
-            typename = decltype(std::declval<PotFun>()(md::index{}, md::index{}))
+            typename = decltype(std::declval<PotFun>()(md::index{}))
         >
         PotFun make_field_potfun(PotFun potfun)
         {

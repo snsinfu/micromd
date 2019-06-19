@@ -94,17 +94,33 @@ TEST_CASE("point_source_forcefield::compute_force - adds force to array")
 
 TEST_CASE("make_point_source_forcefield - creates a point_source_forcefield")
 {
-    md::system system;
+    SECTION("fixed potential")
+    {
+        auto ff = md::make_point_source_forcefield(md::harmonic_potential{1.23});
+        ff.set_point_source(md::point{1, 2, 3});
 
-    auto ff = md::make_point_source_forcefield(md::harmonic_potential{1.23});
-    ff.set_point_source(md::point{1, 2, 3});
+        md::system system;
+        md::harmonic_potential pot = ff.point_source_potential(system, 0);
+        CHECK(pot.spring_constant == 1.23);
 
-    auto pot = ff.point_source_potential(system, 0);
+        using ff_type = decltype(ff);
+        CHECK(std::is_base_of<md::point_source_forcefield<ff_type>, ff_type>::value);
+    }
 
-    using ff_type = decltype(ff);
-    using pot_type = decltype(pot);
+    SECTION("lambda potential")
+    {
+        auto ff = md::make_point_source_forcefield([](md::index i) {
+            return md::harmonic_potential{i * 1.0};
+        });
+        ff.set_point_source(md::point{1, 2, 3});
 
-    CHECK(std::is_base_of<md::point_source_forcefield<ff_type>, ff_type>::value);
-    CHECK(std::is_same<pot_type, md::harmonic_potential>::value);
-    CHECK(pot.spring_constant == 1.23);
+        md::system system;
+        md::harmonic_potential pot1 = ff.point_source_potential(system, 1);
+        md::harmonic_potential pot2 = ff.point_source_potential(system, 2);
+        CHECK(pot1.spring_constant == Approx(1));
+        CHECK(pot2.spring_constant == Approx(2));
+
+        using ff_type = decltype(ff);
+        CHECK(std::is_base_of<md::point_source_forcefield<ff_type>, ff_type>::value);
+    }
 }

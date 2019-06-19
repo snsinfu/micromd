@@ -261,30 +261,66 @@ TEST_CASE("sphere_surface_forcefield::compute_force - collects normal force stat
 
 TEST_CASE("make_sphere_inward_forcefield - creates a sphere_surface_forcefield")
 {
-    md::system system;
+    SECTION("fixed potential")
+    {
+        auto ff = md::make_sphere_inward_forcefield(md::harmonic_potential{1.23});
+        ff.set_sphere(md::sphere{});
 
-    auto ff = md::make_sphere_inward_forcefield(md::harmonic_potential{1.23});
-    ff.set_sphere(md::sphere{});
+        md::system system;
+        md::harmonic_potential pot = ff.sphere_inward_potential(system, 0);
+        CHECK(pot.spring_constant == 1.23);
 
-    md::harmonic_potential pot = ff.sphere_inward_potential(system, 0);
+        using ff_type = decltype(ff);
+        CHECK(std::is_base_of<md::sphere_surface_forcefield<ff_type>, ff_type>::value);
+    }
 
-    using ff_type = decltype(ff);
+    SECTION("lambda potential")
+    {
+        auto ff = md::make_sphere_inward_forcefield([](md::index i) {
+            return md::harmonic_potential{i * 1.0};
+        });
+        ff.set_sphere(md::sphere{});
 
-    CHECK(std::is_base_of<md::sphere_surface_forcefield<ff_type>, ff_type>::value);
-    CHECK(pot.spring_constant == 1.23);
+        md::system system;
+        md::harmonic_potential pot1 = ff.sphere_inward_potential(system, 1);
+        md::harmonic_potential pot2 = ff.sphere_inward_potential(system, 2);
+        CHECK(pot1.spring_constant == Approx(1));
+        CHECK(pot2.spring_constant == Approx(2));
+
+        using ff_type = decltype(ff);
+        CHECK(std::is_base_of<md::sphere_surface_forcefield<ff_type>, ff_type>::value);
+    }
 }
 
 TEST_CASE("make_sphere_outward_forcefield - creates a sphere_surface_forcefield")
 {
-    md::system system;
+    SECTION("fixed potential")
+    {
+        auto ff = md::make_sphere_outward_forcefield(md::harmonic_potential{1.23});
+        ff.set_sphere(md::sphere{});
 
-    auto ff = md::make_sphere_outward_forcefield(md::harmonic_potential{1.23});
-    ff.set_sphere(md::sphere{});
+        md::system system;
+        md::harmonic_potential pot = ff.sphere_outward_potential(system, 0);
+        CHECK(pot.spring_constant == 1.23);
 
-    md::harmonic_potential pot = ff.sphere_outward_potential(system, 0);
+        using ff_type = decltype(ff);
+        CHECK(std::is_base_of<md::sphere_surface_forcefield<ff_type>, ff_type>::value);
+    }
 
-    using ff_type = decltype(ff);
+    SECTION("lambda potential")
+    {
+        auto ff = md::make_sphere_outward_forcefield([](md::index i) {
+            return md::harmonic_potential{i * 1.0};
+        });
+        ff.set_sphere(md::sphere{});
 
-    CHECK(std::is_base_of<md::sphere_surface_forcefield<ff_type>, ff_type>::value);
-    CHECK(pot.spring_constant == 1.23);
+        md::system system;
+        md::harmonic_potential pot1 = ff.sphere_outward_potential(system, 1);
+        md::harmonic_potential pot2 = ff.sphere_outward_potential(system, 2);
+        CHECK(pot1.spring_constant == Approx(1));
+        CHECK(pot2.spring_constant == Approx(2));
+
+        using ff_type = decltype(ff);
+        CHECK(std::is_base_of<md::sphere_surface_forcefield<ff_type>, ff_type>::value);
+    }
 }
