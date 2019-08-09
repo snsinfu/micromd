@@ -97,7 +97,7 @@ namespace md
     private:
         // Double indirections like positions[targets_[i]] harm performance. So
         // copy subsystem into a temp array and work on it.
-        struct alignas(64) particle_eval
+        struct particle_eval
         {
             md::index  index    = 0;
             md::point  position = {};

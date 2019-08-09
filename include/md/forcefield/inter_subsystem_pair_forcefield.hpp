@@ -100,7 +100,7 @@ namespace md
     private:
         // TODO: Investigate if copying subsystem (like done here) is actually
         // beneficial or not.
-        struct alignas(64) particle_eval
+        struct particle_eval
         {
             md::index  index    = 0;
             md::point  position = {};
