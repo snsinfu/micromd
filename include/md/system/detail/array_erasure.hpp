@@ -71,14 +71,14 @@ namespace md
             }
 
             // size returns the length of the array.
-            std::size_t size() const override
+            std::size_t size() const final override
             {
                 return values_.size();
             }
 
             // resize extends or shrinks the array to given length. New elements
             // are initialized with the default value.
-            void resize(std::size_t size) override
+            void resize(std::size_t size) final override
             {
                 values_.resize(size, default_);
             }
