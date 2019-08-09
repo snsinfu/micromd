@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.1
+
+### Fixed
+
+- `system::view(key)` is now almost zero-overhead
+
 ## v0.2.0
 
 ### Added
