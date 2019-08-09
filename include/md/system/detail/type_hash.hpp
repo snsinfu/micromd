@@ -19,10 +19,13 @@ namespace md
         // n is the number of hashed types.
         struct type_hash
         {
-            // hash_v<T> is a unique integer associated to the type T. Do not
-            // use this value before entering main.
+            // hash<T>::value is a unique integer associated to the type T. Do
+            // not use this value before entering main.
             template<typename T>
-            static std::size_t const hash_v;
+            struct hash
+            {
+                static std::size_t const value;
+            };
 
             // size returns the number of hashed types. Do not use this function
             // before entering main.
@@ -40,7 +43,7 @@ namespace md
         };
 
         template<typename T>
-        std::size_t const type_hash::hash_v = type_hash::get_counter()++;
+        std::size_t const type_hash::hash<T>::value = type_hash::get_counter()++;
     }
 }
 

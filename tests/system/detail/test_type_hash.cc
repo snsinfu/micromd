@@ -10,9 +10,9 @@ TEST_CASE("type_hash::hash_v - is unique")
 {
     using md::detail::type_hash;
 
-    std::size_t const foo = type_hash::hash_v<struct foo_tag>;
-    std::size_t const bar = type_hash::hash_v<struct bar_tag>;
-    std::size_t const baz = type_hash::hash_v<struct baz_tag>;
+    std::size_t const foo = type_hash::hash<struct foo_tag>::value;
+    std::size_t const bar = type_hash::hash<struct bar_tag>::value;
+    std::size_t const baz = type_hash::hash<struct baz_tag>::value;
 
     CHECK(foo != bar);
     CHECK(bar != baz);
@@ -23,9 +23,9 @@ TEST_CASE("type_hash::hash_v - is less than size()")
 {
     using md::detail::type_hash;
 
-    std::size_t const foo = type_hash::hash_v<struct foo_tag>;
-    std::size_t const bar = type_hash::hash_v<struct bar_tag>;
-    std::size_t const baz = type_hash::hash_v<struct baz_tag>;
+    std::size_t const foo = type_hash::hash<struct foo_tag>::value;
+    std::size_t const bar = type_hash::hash<struct bar_tag>::value;
+    std::size_t const baz = type_hash::hash<struct baz_tag>::value;
 
     CHECK(foo < type_hash::size());
     CHECK(bar < type_hash::size());

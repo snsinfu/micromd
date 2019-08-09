@@ -56,7 +56,7 @@ namespace md
             template<typename T, typename Tag>
             void require(md::attribute_key<T, Tag> key)
             {
-                auto& entry = arrays_[detail::type_hash::hash_v<Tag>];
+                auto& entry = arrays_[detail::type_hash::hash<Tag>::value];
                 if (!entry) {
                     entry = detail::array_erasure::make<T>(size_, md::default_value(key));
                 }
@@ -66,13 +66,13 @@ namespace md
             template<typename T, typename Tag>
             md::array_view<T> view(md::attribute_key<T, Tag>)
             {
-                return arrays_[detail::type_hash::hash_v<Tag>]->template recover<T>();
+                return arrays_[detail::type_hash::hash<Tag>::value]->template recover<T>();
             }
 
             template<typename T, typename Tag>
             md::array_view<T const> view(md::attribute_key<T, Tag>) const
             {
-                return arrays_[detail::type_hash::hash_v<Tag>]->template recover<T>();
+                return arrays_[detail::type_hash::hash<Tag>::value]->template recover<T>();
             }
 
         private:
