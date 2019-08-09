@@ -8,8 +8,8 @@
 // This module defines attribute_table class: A data structure like a columnar
 // database (or a dataframe), keyed by attribute_keys.
 
+#include <cstddef>
 #include <memory>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -17,27 +17,23 @@
 #include "../attribute.hpp"
 
 #include "array_erasure.hpp"
+#include "type_hash.hpp"
 
 
 namespace md
 {
     namespace detail
     {
-        using type_hash_t = void const*;
-
-        // type_hash assigns a unique value for each given type.
-        template<typename Tag>
-        inline type_hash_t type_hash() noexcept
-        {
-            static char dummy;
-            return &dummy;
-        }
-
         // attribute_table is a table of arrays (columns) of the same length.
         // Each column is keyed by a tag type.
         class attribute_table
         {
         public:
+            attribute_table()
+                : arrays_(detail::type_hash::size())
+            {
+            }
+
             // size returns the number of elements in the columns.
             md::index size() const
             {
@@ -47,8 +43,10 @@ namespace md
             // resize resizes all the columns to the given size.
             void resize(md::index size)
             {
-                for (auto& node : arrays_) {
-                    node.second->resize(size);
+                for (auto& array : arrays_) {
+                    if (array) {
+                        array->resize(size);
+                    }
                 }
                 size_ = size;
             }
@@ -58,13 +56,9 @@ namespace md
             template<typename T, typename Tag>
             void require(md::attribute_key<T, Tag> key)
             {
-                type_hash_t const tag_key = type_hash<Tag>();
-
-                if (arrays_.find(tag_key) == arrays_.end()) {
-                    arrays_.emplace(
-                        tag_key,
-                        detail::array_erasure::make<T>(size_, md::default_value(key))
-                    );
+                auto& entry = arrays_[detail::type_hash::hash_v<Tag>];
+                if (!entry) {
+                    entry = detail::array_erasure::make<T>(size_, md::default_value(key));
                 }
             }
 
@@ -72,18 +66,18 @@ namespace md
             template<typename T, typename Tag>
             md::array_view<T> view(md::attribute_key<T, Tag>)
             {
-                return arrays_.at(type_hash<Tag>())->template recover<T>();
+                return arrays_[detail::type_hash::hash_v<Tag>]->template recover<T>();
             }
 
             template<typename T, typename Tag>
             md::array_view<T const> view(md::attribute_key<T, Tag>) const
             {
-                return arrays_.at(type_hash<Tag>())->template recover<T>();
+                return arrays_[detail::type_hash::hash_v<Tag>]->template recover<T>();
             }
 
         private:
             md::index size_ = 0;
-            std::unordered_map<type_hash_t, std::unique_ptr<detail::array_erasure>> arrays_;
+            std::vector<std::unique_ptr<detail::array_erasure>> arrays_;
         };
     }
 }
