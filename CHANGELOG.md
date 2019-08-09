@@ -1,5 +1,12 @@
 # Changelog
 
+## v0.2.2
+
+### Fixed
+
+- Worked around false-positive stack-buffer-overflow reports
+- `system::view` performance hit due to unnecessary virtual calls
+
 ## v0.2.1
 
 ### Fixed
