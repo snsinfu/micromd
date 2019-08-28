@@ -425,6 +425,25 @@ misc/test_math.o: misc/test_math.cc ../include/md/misc/math.hpp \
   ../include/md/misc/../basic_types/point.hpp \
   ../include/md/misc/../basic_types/sfc.hpp \
   ../include/md/misc/../basic_types/ziggurat.hpp
+misc/test_box.o: misc/test_box.cc ../include/md/basic_types.hpp \
+  ../include/md/basic_types/array_view.hpp \
+  ../include/md/basic_types/point.hpp ../include/md/basic_types/sfc.hpp \
+  ../include/md/basic_types/ziggurat.hpp ../include/md/misc/box.hpp \
+  ../include/md/misc/../basic_types.hpp \
+  ../include/md/misc/nsearch_detail/math.hpp \
+  ../include/md/misc/nsearch_detail/../../basic_types.hpp
+misc/test_neighbor_searcher_v2.o: misc/test_neighbor_searcher_v2.cc \
+  ../include/md/misc/box.hpp ../include/md/misc/../basic_types.hpp \
+  ../include/md/misc/../basic_types/array_view.hpp \
+  ../include/md/misc/../basic_types/point.hpp \
+  ../include/md/misc/../basic_types/sfc.hpp \
+  ../include/md/misc/../basic_types/ziggurat.hpp \
+  ../include/md/misc/nsearch_detail/math.hpp \
+  ../include/md/misc/nsearch_detail/../../basic_types.hpp \
+  ../include/md/misc/neighbor_searcher_v2.hpp \
+  ../include/md/misc/nsearch_detail/search_grid.hpp \
+  ../include/md/misc/nsearch_detail/../box.hpp \
+  ../include/md/misc/nsearch_detail/../linear_hash.hpp
 potential/test_constant_potential.o: potential/test_constant_potential.cc \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
   ../include/md/basic_types/point.hpp ../include/md/basic_types/sfc.hpp \
