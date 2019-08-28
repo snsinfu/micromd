@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Misc:
+  - `open_box`, `periodic_box`, `xy_periodic_box`
+  - `neighbor_searcher_v2<Box>`
+
+
 ## v0.2.2
 
 ### Fixed
