@@ -66,9 +66,7 @@ namespace md
         {
             auto const bucket_index = grid_.locate_bucket(point);
             auto const& bucket = grid_.buckets[bucket_index];
-            for (auto const neighbor_index : bucket.complete_neighbors) {
-                search_among(bucket, grid_.buckets[neighbor_index], out);
-            }
+            query_around(bucket, point, out);
         }
 
     private:
@@ -97,6 +95,26 @@ namespace md
                         std::min(member_i.index, member_j.index),
                         std::max(member_i.index, member_j.index)
                     );
+                }
+            }
+        }
+
+        // Query neighboring points around the given bucket.
+        template<typename OutputIterator>
+        inline void query_around(
+            nsearch_detail::spatial_bucket const& bucket,
+            md::point point,
+            OutputIterator& out
+        ) const
+        {
+            auto const dcut2 = dcut_ * dcut_;
+
+            for (auto const neighbor_index : bucket.complete_neighbors) {
+                auto const& neighbor = grid_.buckets[neighbor_index];
+                for (auto const member : neighbor.members) {
+                    if (squared_distance(member.point, point) < dcut2) {
+                        *out++ = member.index;
+                    }
                 }
             }
         }
