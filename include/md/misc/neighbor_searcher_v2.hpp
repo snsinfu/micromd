@@ -28,7 +28,7 @@ namespace md
         // Constructor initializes search strategy using given information.
         // Points are not set.
         neighbor_searcher_v2(Box box, md::scalar dcut)
-            : grid_{box, dcut}, dcut_{dcut}
+            : box_{box}, grid_{box, dcut}, dcut_{dcut}
         {
         }
 
