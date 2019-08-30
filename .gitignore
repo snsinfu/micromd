@@ -1,7 +1,7 @@
 *.dSYM
 *.o
 main
-md.hpp
+/bundle/md.hpp
 /experiments
 
 .ccls-cache

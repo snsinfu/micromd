@@ -1,4 +1,4 @@
-ROOT = ../include/md/all.hpp
+ROOT = ../include/md.hpp
 HEADERS = $(shell find ../include/md -name "*.hpp")
 TEMPLATE = template.hpp
 VERSION ?= unreleased
