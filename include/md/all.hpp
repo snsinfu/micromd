@@ -35,8 +35,10 @@
 #include "simulation/brownian_dynamics.hpp"
 #include "simulation/newtonian_dynamics.hpp"
 
+#include "misc/box.hpp"
 #include "misc/linear_hash.hpp"
 #include "misc/math.hpp"
 #include "misc/neighbor_searcher.hpp"
+#include "misc/neighbor_searcher_v2.hpp"
 
 #endif
