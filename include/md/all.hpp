@@ -26,6 +26,7 @@
 #include "forcefield/intra_subsystem_neighbor_pair_forcefield.hpp"
 #include "forcefield/intra_subsystem_pair_forcefield.hpp"
 #include "forcefield/neighbor_pair_forcefield.hpp"
+#include "forcefield/neighbor_pair_forcefield_v2.hpp"
 #include "forcefield/point_source_forcefield.hpp"
 #include "forcefield/selected_pair_forcefield.hpp"
 #include "forcefield/sequential_pair_forcefield.hpp"
