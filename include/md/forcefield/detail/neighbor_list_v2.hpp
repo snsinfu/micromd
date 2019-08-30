@@ -9,7 +9,6 @@
 // neighbor pairs in a system. Used to implement neighbor_pair_forcefield_v2.
 
 #include <algorithm>
-#include <cmath>
 #include <iterator>
 #include <utility>
 #include <vector>

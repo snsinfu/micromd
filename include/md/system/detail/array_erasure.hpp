@@ -8,7 +8,6 @@
 // This module provides a type erasure for resizable arrays. The class is used
 // by attribute_table to store differently typed arrays (columns).
 
-#include <cassert>
 #include <cstddef>
 #include <memory>
 #include <vector>

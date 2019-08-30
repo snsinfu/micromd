@@ -8,9 +8,7 @@
 // This module defines attribute_table class: A data structure like a columnar
 // database (or a dataframe), keyed by attribute_keys.
 
-#include <cstddef>
 #include <memory>
-#include <utility>
 #include <vector>
 
 #include "../../basic_types.hpp"

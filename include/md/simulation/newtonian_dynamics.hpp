@@ -7,7 +7,6 @@
 
 // This module provides a function for simulating Newtonian dynamics.
 
-#include <cmath>
 #include <functional>
 #include <vector>
 

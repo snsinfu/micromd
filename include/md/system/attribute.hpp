@@ -17,11 +17,6 @@
 // parameter type Tag, which is supposed to be a unique struct, is used to
 // identify the attribute.
 
-#include <memory>
-#include <unordered_map>
-#include <utility>
-#include <vector>
-
 
 namespace md
 {

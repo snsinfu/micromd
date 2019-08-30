@@ -8,8 +8,6 @@
 // This module provides a template forcefield implementation that computes
 // interactions between pairs of particles from two subsystems.
 
-#include <type_traits>
-#include <utility>
 #include <vector>
 
 #include "../basic_types.hpp"

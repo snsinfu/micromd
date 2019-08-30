@@ -8,7 +8,6 @@
 // This class provides a forcefield implementation that combines one or more
 // forcefields into a simple summation of them.
 
-#include <cassert>
 #include <memory>
 #include <vector>
 

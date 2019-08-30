@@ -9,7 +9,6 @@
 
 #include <cmath>
 #include <cstdint>
-#include <utility>
 #include <vector>
 
 #include "../../basic_types.hpp"

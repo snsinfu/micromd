@@ -8,9 +8,6 @@
 // This module provides a template forcefield implementation that computes
 // short-range interactions between particles in a cutoff distance.
 
-#include <type_traits>
-#include <utility>
-
 #include "../basic_types.hpp"
 #include "../forcefield.hpp"
 #include "../system.hpp"

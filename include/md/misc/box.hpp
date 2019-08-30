@@ -7,9 +7,6 @@
 
 // This module provides box types that represent boundary conditions.
 
-#include <algorithm>
-#include <utility>
-
 #include "../basic_types.hpp"
 
 #include "nsearch_detail/math.hpp"

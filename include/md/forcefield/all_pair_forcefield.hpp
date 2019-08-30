@@ -8,9 +8,6 @@
 // This module provides a template forcefield implementation that computes
 // interactions between all particle pairs.
 
-#include <type_traits>
-#include <utility>
-
 #include "../basic_types.hpp"
 #include "../forcefield.hpp"
 #include "../system.hpp"

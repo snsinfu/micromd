@@ -8,9 +8,6 @@
 // This module provides a template forcefield implementation that quickly
 // computes short-range pairwise interactions in open and periodic systems.
 
-#include <type_traits>
-#include <utility>
-
 #include "../basic_types.hpp"
 #include "../forcefield.hpp"
 #include "../system.hpp"
