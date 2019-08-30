@@ -4,6 +4,8 @@
 
 ### Added
 
+- Forcefield templates:
+  - `neighbor_pair_forcefield_v2`
 - Misc:
   - `open_box`, `periodic_box`, `xy_periodic_box`
   - `neighbor_searcher_v2<Box>`

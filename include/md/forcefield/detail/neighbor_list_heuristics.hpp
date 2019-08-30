@@ -8,7 +8,10 @@
 // This module provides some heuristic helper functions for neighbor_list and
 // subsystem_neighbor_list implementation.
 
+#include <cmath>
+
 #include "../../basic_types.hpp"
+#include "../../misc/box.hpp"
 #include "../../misc/linear_hash.hpp"
 
 
@@ -41,6 +44,66 @@ namespace md
         {
             // Heuristic: 1.2 gives fairly good performance.
             return 1.2 * dcut;
+        }
+
+        // stddev_points computes the standard deviation of points along each
+        // axis.
+        inline md::vector stddev_points(md::array_view<md::point const> points)
+        {
+            md::vector mean;
+            md::vector mean_sq;
+
+            for (auto const point : points) {
+                auto const r = point - points[0];
+                mean += r;
+                mean_sq += r.hadamard(r);
+            }
+
+            if (!points.empty()) {
+                mean /= md::scalar(points.size());
+                mean_sq /= md::scalar(points.size());
+            }
+
+            auto const var = mean_sq - mean.hadamard(mean);
+            auto const std_x = std::sqrt(var.x);
+            auto const std_y = std::sqrt(var.y);
+            auto const std_z = std::sqrt(var.z);
+            return {std_x, std_y, std_z};
+        }
+
+        // set_box_hints updates hint fields (e.g., z_span) of box using some
+        // heuristics on given points.
+        template<typename Box>
+        void set_box_hints(
+            Box& box, md::array_view<md::point const> points
+        )
+        {
+            // No hint in general case.
+            (void) box;
+            (void) points;
+        }
+
+        template<>
+        inline void set_box_hints<md::open_box>(
+            md::open_box& box, md::array_view<md::point const> points
+        )
+        {
+            box.particle_count = points.size();
+        }
+
+        template<>
+        inline void set_box_hints<md::xy_periodic_box>(
+            md::xy_periodic_box& box, md::array_view<md::point const> points
+        )
+        {
+            box.particle_count = points.size();
+
+            // The span of uniform distribution is about 3.5x the stddev. The
+            // real distribution is not necessarily uniform but it works well
+            // in practice.
+            constexpr md::scalar span_per_stddev = 3.5;
+            auto const stddev = stddev_points(points);
+            box.z_span = span_per_stddev * stddev.z;
         }
     }
 }
