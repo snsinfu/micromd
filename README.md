@@ -24,7 +24,7 @@ directory. You can then use micromd by `#include <md.hpp>`.
 
 ### Option 2: Git submodule
 
-Clone the repository as a git submodule:
+Clone the repository as a git submodule (change the submodule path as you like):
 
 ```
 git submodule add https://github.com/snsinfu/micromd submodules/github.com/snsinfu/micromd
@@ -36,7 +36,7 @@ Then, add this to your g++/clang++ flags (`CXXFLAGS` if you use Makefile):
 -isystem submodules/github.com/snsinfu/micromd/include
 ```
 
-You can then use micromd by `#include <md/all.hpp>`.
+You can then use micromd by `#include <md.hpp>`.
 
 ## Test
 
