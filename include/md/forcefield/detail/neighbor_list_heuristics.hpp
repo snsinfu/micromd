@@ -103,7 +103,13 @@ namespace md
             // in practice.
             constexpr md::scalar span_per_stddev = 3.5;
             auto const stddev = stddev_points(points);
-            box.z_span = span_per_stddev * stddev.z;
+            auto const span = span_per_stddev * stddev.z;
+
+            // Quantize to the multiple of a unit length to stabilize hint value
+            // response to similarly distributed points. This helps neighbor
+            // searcher reuse.
+            auto const unit = (box.x_period + box.y_period) / 20;
+            box.z_span = std::ceil(span / unit) * unit;
         }
     }
 }
