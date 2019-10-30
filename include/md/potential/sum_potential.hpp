@@ -9,6 +9,7 @@
 // Including this header enables `operator+` on potential functors.
 
 #include "../basic_types.hpp"
+#include "detail/detection.hpp"
 
 
 namespace md
@@ -38,20 +39,6 @@ namespace md
             return potential_1.evaluate_force(r) + potential_2.evaluate_force(r);
         }
     };
-
-    namespace detail
-    {
-        // SFINAE utility that detects pairwise potential functor.
-        template<
-            typename Pot,
-            md::scalar(Pot::*)(md::vector) const = &Pot::evaluate_energy,
-            md::vector(Pot::*)(md::vector) const = &Pot::evaluate_force
-        >
-        Pot detect_pairwise_potential();
-
-        template<typename Pot>
-        using pairwise_potential_t = decltype(detect_pairwise_potential<Pot>());
-    }
 
     // Make pairwise potential functors addable.
     template<typename Pot1, typename Pot2>
