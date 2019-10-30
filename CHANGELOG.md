@@ -3,7 +3,11 @@
 ## Unreleased
 
 - Potentials:
-  - Added `semispring_potential`
+  - Added `semispring_potential`: Spring potential that is only effective for
+    distances longer than the equilibrium distance.
+  - Added `wrapped_potential`: Identity wrapper for potential functor. This
+    introduces custom potential in the `md` namespace, which enables arithmetic
+    operations on the custom potential.
 
 ## v0.4.0
 

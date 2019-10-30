@@ -589,6 +589,16 @@ potential/test_scaled_potential.o: potential/test_scaled_potential.cc \
   ../include/md/potential/scaled_potential.hpp \
   ../include/md/potential/detail/detection.hpp \
   ../include/md/potential/detail/../../basic_types.hpp
+potential/test_wrapped_potential.o: potential/test_wrapped_potential.cc \
+  ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
+  ../include/md/basic_types/point.hpp ../include/md/basic_types/sfc.hpp \
+  ../include/md/basic_types/ziggurat.hpp \
+  ../include/md/potential/wrapped_potential.hpp \
+  ../include/md/potential/../basic_types.hpp \
+  ../include/md/potential/detail/detection.hpp \
+  ../include/md/potential/detail/../../basic_types.hpp \
+  ../include/md/potential/scaled_potential.hpp \
+  ../include/md/potential/sum_potential.hpp
 potential/test_sum_potential.o: potential/test_sum_potential.cc \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
   ../include/md/basic_types/point.hpp ../include/md/basic_types/sfc.hpp \
