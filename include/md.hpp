@@ -16,6 +16,7 @@
 #include "md/potential/harmonic_potential.hpp"
 #include "md/potential/lennard_jones_potential.hpp"
 #include "md/potential/polybell_potential.hpp"
+#include "md/potential/semispring_potential.hpp"
 #include "md/potential/softcore_potential.hpp"
 #include "md/potential/soft_lennard_jones_potential.hpp"
 #include "md/potential/spring_potential.hpp"

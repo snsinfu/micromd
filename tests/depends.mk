@@ -600,6 +600,13 @@ potential/test_sum_potential.o: potential/test_sum_potential.cc \
   ../include/md/potential/sum_potential.hpp \
   ../include/md/potential/detail/detection.hpp \
   ../include/md/potential/detail/../../basic_types.hpp
+potential/test_semispring_potential.o: \
+  potential/test_semispring_potential.cc ../include/md/basic_types.hpp \
+  ../include/md/basic_types/array_view.hpp \
+  ../include/md/basic_types/point.hpp ../include/md/basic_types/sfc.hpp \
+  ../include/md/basic_types/ziggurat.hpp \
+  ../include/md/potential/semispring_potential.hpp \
+  ../include/md/potential/../basic_types.hpp
 simulation/test_newtonian_dynamics.o: \
   simulation/test_newtonian_dynamics.cc ../include/md/basic_types.hpp \
   ../include/md/basic_types/array_view.hpp \

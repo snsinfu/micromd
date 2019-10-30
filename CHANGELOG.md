@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Potentials:
+  - Added `semispring_potential`
+
 ## v0.4.0
 
 - Performance:
