@@ -3,7 +3,9 @@
 ## Unreleased
 
 - Performance:
-  - `neighbor_pair_forcefield_v2` is now ~20% faster in some case.
+  - `neighbor_pair_forcefield_v2` is now ~20% faster in some case
+- Potentials:
+  - Binary potential functors now support linear arithmetics
 
 ## v0.3.1
 

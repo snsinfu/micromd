@@ -5,10 +5,12 @@
 #ifndef MD_HPP
 #define MD_HPP
 
+// Framework
 #include "md/basic_types.hpp"
 #include "md/forcefield.hpp"
 #include "md/system.hpp"
 
+// Potentials
 #include "md/potential/constant_potential.hpp"
 #include "md/potential/cosine_bending_potential.hpp"
 #include "md/potential/harmonic_potential.hpp"
@@ -18,6 +20,12 @@
 #include "md/potential/soft_lennard_jones_potential.hpp"
 #include "md/potential/spring_potential.hpp"
 
+// Potential wrappers
+#include "md/potential/diff_potential.hpp"
+#include "md/potential/scaled_potential.hpp"
+#include "md/potential/sum_potential.hpp"
+
+// Forcefields
 #include "md/forcefield/all_pair_forcefield.hpp"
 #include "md/forcefield/composite_forcefield.hpp"
 #include "md/forcefield/ellipsoid_surface_forcefield.hpp"
@@ -33,9 +41,11 @@
 #include "md/forcefield/sequential_triple_forcefield.hpp"
 #include "md/forcefield/sphere_surface_forcefield.hpp"
 
+// Simulations
 #include "md/simulation/brownian_dynamics.hpp"
 #include "md/simulation/newtonian_dynamics.hpp"
 
+// Misc.
 #include "md/misc/box.hpp"
 #include "md/misc/linear_hash.hpp"
 #include "md/misc/math.hpp"
