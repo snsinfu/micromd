@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.4.0
 
 - Performance:
   - `neighbor_pair_forcefield_v2` is now ~20% faster in some case
