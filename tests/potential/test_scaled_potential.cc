@@ -33,3 +33,29 @@ TEST_CASE("scaled_potential - computes scalar-multiplied potential")
         CHECK(actual.z == Approx(expect.z));
     }
 }
+
+TEST_CASE("scaled_potential - computes negated potential")
+{
+    md::harmonic_potential harmonic{0.1};
+
+    using negated_type = md::scaled_potential<md::harmonic_potential>;
+    const negated_type negated = -harmonic;
+
+    SECTION("energy")
+    {
+        const md::vector r = {1, 2, 3};
+        const md::scalar actual = negated.evaluate_energy(r);
+        const md::scalar expect = -harmonic.evaluate_energy(r);
+        CHECK(actual == Approx(expect));
+    }
+
+    SECTION("force")
+    {
+        const md::vector r = {1, 2, 3};
+        const md::vector actual = negated.evaluate_force(r);
+        const md::vector expect = -harmonic.evaluate_force(r);
+        CHECK(actual.x == Approx(expect.x));
+        CHECK(actual.y == Approx(expect.y));
+        CHECK(actual.z == Approx(expect.z));
+    }
+}

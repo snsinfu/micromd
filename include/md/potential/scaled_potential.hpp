@@ -55,6 +55,13 @@ namespace md
     {
         return scaled_potential<Pot>{pot, factor};
     }
+
+    // Make pairwise potential functors negatable.
+    template<typename Pot>
+    scaled_potential<detail::pairwise_potential_t<Pot>> operator-(Pot const& pot)
+    {
+        return scaled_potential<Pot>{pot, -1};
+    }
 }
 
 #endif
