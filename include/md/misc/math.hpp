@@ -23,8 +23,8 @@ namespace md
         }
 
         // Exponentiation by squaring. The loop would be unrolled by compiler.
-        md::scalar pow = 1;
-        for (int n = N; n > 0; n /= 2) {
+        md::scalar pow = x;
+        for (int n = N - 1; n > 0; n /= 2) {
             if (n % 2) {
                 pow *= x;
             }
