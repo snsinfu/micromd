@@ -48,7 +48,7 @@ TEST_CASE("particle_ref - allows access to any attribute")
     md::system system;
 
     md::attribute_key<md::scalar, struct my_attr_key> my_attr = {};
-    system.require(my_attr);
+    system.add_attribute(my_attr);
 
     md::particle_ref part = system.add_particle();
     part.view(my_attr) = 1.23;

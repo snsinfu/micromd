@@ -68,10 +68,10 @@ namespace md
     public:
         system()
         {
-            require(md::mass_attribute);
-            require(md::mobility_attribute);
-            require(md::position_attribute);
-            require(md::velocity_attribute);
+            add_attribute(md::mass_attribute);
+            add_attribute(md::mobility_attribute);
+            add_attribute(md::position_attribute);
+            add_attribute(md::velocity_attribute);
         }
 
         // add_particle adds a particle to the system.
@@ -104,11 +104,19 @@ namespace md
             return attributes_.size();
         }
 
-        // require creates a particle attribute if it does not exist.
+        // add_attribute creates a particle attribute if it does not exist.
+        template<typename T, typename Tag>
+        void add_attribute(md::attribute_key<T, Tag> key)
+        {
+            attributes_.require(key);
+        }
+
+        // `require` is an alias of `add_attribute`. It will be deprecated in
+        // the future.
         template<typename T, typename Tag>
         void require(md::attribute_key<T, Tag> key)
         {
-            attributes_.require(key);
+            add_attribute(key);
         }
 
         // view returns a view into the array of particle attribute values.

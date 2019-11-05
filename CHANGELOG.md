@@ -13,6 +13,13 @@
     introduces custom potential in the `md` namespace, which enables arithmetic
     operations on the custom potential.
 
+### Changes
+
+- Renamed `system::require()` to `system::add_attribute()` for API consistency.
+  The old function `system::require()` is kept for backward compatibility for
+  now; it will be deprecated in the future.
+
+
 ## v0.4.0
 
 ### Optimizations
