@@ -15,8 +15,12 @@
 
 ## v0.4.0
 
-- Performance:
-  - `neighbor_pair_forcefield_v2` is now ~20% faster in some case
+### Optimizations
+
+- `neighbor_pair_forcefield_v2` is now ~20% faster in some case
+
+### New features
+
 - Potentials:
   - Binary potential functors now support linear arithmetics
 
@@ -24,7 +28,7 @@
 
 ## v0.3.0
 
-### Added
+### New features
 
 - Forcefield templates:
   - `neighbor_pair_forcefield_v2`
@@ -32,23 +36,22 @@
   - `open_box`, `periodic_box`, `xy_periodic_box`
   - `neighbor_searcher_v2<Box>`
 
-
 ## v0.2.2
 
-### Fixed
+### Bug fixes
 
 - Worked around false-positive stack-buffer-overflow reports
 - `system::view` performance hit due to unnecessary virtual calls
 
 ## v0.2.1
 
-### Fixed
+### Bug fixes
 
 - `system::view(key)` is now almost zero-overhead
 
 ## v0.2.0
 
-### Added
+### New features
 
 - Forcefield templates:
   - `intra_subsystem_pair_forcefield`
@@ -56,13 +59,13 @@
   - `intra_subsystem_neighbor_pair_forcefield`
   - `inter_subsystem_neighbor_pair_forcefield`
 
-### Changed
+### Changes
 
 - Renamed `subsystem_pair_forcefield` to `intra_subsystem_pair_forcefield`
 
 ## v0.1.1
 
-### Added
+### New features
 
 - Forcefield templates:
   - `selected_pair_forcefield`
@@ -80,7 +83,7 @@
 
 ## v0.1.0
 
-### Added
+### New features
 
 - Forcefield templates:
   - `all_pair_forcefield`
@@ -94,7 +97,7 @@
 
 ## v0.0.1
 
-### Added
+### New features
 
 - Basic functionalities
 - Forcefield templates:
