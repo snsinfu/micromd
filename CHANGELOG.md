@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### New features
+
+- Forcefield templates:
+  - Added `plane_surface_forcefield`: Forcefield on both sides of a plane.
 - Potentials:
   - Added `semispring_potential`: Spring potential that is only effective for
     distances longer than the equilibrium distance.

@@ -186,6 +186,31 @@ forcefield/test_inter_subsystem_forcefield.o: \
   ../include/md/forcefield/../system.hpp \
   ../include/md/forcefield/detail/pair_potfun.hpp \
   ../include/md/forcefield/detail/../../basic_types.hpp
+forcefield/test_plane_surface_forcefield.o: \
+  forcefield/test_plane_surface_forcefield.cc \
+  ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
+  ../include/md/basic_types/point.hpp ../include/md/basic_types/sfc.hpp \
+  ../include/md/basic_types/ziggurat.hpp ../include/md/forcefield.hpp \
+  ../include/md/system.hpp ../include/md/system/attribute.hpp \
+  ../include/md/system/particle.hpp \
+  ../include/md/system/../basic_types.hpp \
+  ../include/md/system/detail/attribute_table.hpp \
+  ../include/md/system/detail/../../basic_types.hpp \
+  ../include/md/system/detail/../attribute.hpp \
+  ../include/md/system/detail/array_erasure.hpp \
+  ../include/md/system/detail/type_hash.hpp \
+  ../include/md/system/detail/iterator_range.hpp \
+  ../include/md/system/detail/sum_forcefield.hpp \
+  ../include/md/system/detail/../../forcefield.hpp \
+  ../include/md/forcefield/plane_surface_forcefield.hpp \
+  ../include/md/forcefield/../basic_types.hpp \
+  ../include/md/forcefield/../forcefield.hpp \
+  ../include/md/forcefield/../system.hpp \
+  ../include/md/forcefield/../potential/constant_potential.hpp \
+  ../include/md/forcefield/../potential/../basic_types.hpp \
+  ../include/md/forcefield/detail/field_potfun.hpp \
+  ../include/md/forcefield/detail/../../basic_types.hpp \
+  ../include/md/potential/harmonic_potential.hpp
 forcefield/test_inter_subsystem_neighbor_pair_forcefield.o: \
   forcefield/test_inter_subsystem_neighbor_pair_forcefield.cc \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
