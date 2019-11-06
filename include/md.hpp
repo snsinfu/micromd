@@ -25,6 +25,7 @@
 #include "md/potential/diff_potential.hpp"
 #include "md/potential/scaled_potential.hpp"
 #include "md/potential/sum_potential.hpp"
+#include "md/potential/wrapped_potential.hpp"
 
 // Forcefields
 #include "md/forcefield/all_pair_forcefield.hpp"
