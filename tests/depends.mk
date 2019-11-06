@@ -609,6 +609,12 @@ potential/test_diff_potential.o: potential/test_diff_potential.cc \
   ../include/md/potential/diff_potential.hpp \
   ../include/md/potential/detail/detection.hpp \
   ../include/md/potential/detail/../../basic_types.hpp
+potential/test_soft_wca_potential.o: potential/test_soft_wca_potential.cc \
+  ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
+  ../include/md/basic_types/point.hpp ../include/md/basic_types/sfc.hpp \
+  ../include/md/basic_types/ziggurat.hpp \
+  ../include/md/potential/soft_wca_potential.hpp \
+  ../include/md/potential/../basic_types.hpp
 potential/test_scaled_potential.o: potential/test_scaled_potential.cc \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
   ../include/md/basic_types/point.hpp ../include/md/basic_types/sfc.hpp \

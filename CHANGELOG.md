@@ -11,6 +11,7 @@
     distances longer than the equilibrium distance.
   - Added `wca_potential`: Lennard-Jones potential with a cut-off at the
     potential minimum.
+  - Added `soft_wca_potential`: Soft variant of `wca_potential`.
   - Added `wrapped_potential`: Identity wrapper for potential functor. This
     introduces custom potential in the `md` namespace, which enables arithmetic
     operations on the custom potential.

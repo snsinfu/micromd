@@ -19,6 +19,7 @@
 #include "md/potential/semispring_potential.hpp"
 #include "md/potential/softcore_potential.hpp"
 #include "md/potential/soft_lennard_jones_potential.hpp"
+#include "md/potential/soft_wca_potential.hpp"
 #include "md/potential/spring_potential.hpp"
 #include "md/potential/wca_potential.hpp"
 
