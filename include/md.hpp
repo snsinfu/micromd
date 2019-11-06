@@ -20,6 +20,7 @@
 #include "md/potential/softcore_potential.hpp"
 #include "md/potential/soft_lennard_jones_potential.hpp"
 #include "md/potential/spring_potential.hpp"
+#include "md/potential/wca_potential.hpp"
 
 // Potential wrappers
 #include "md/potential/diff_potential.hpp"

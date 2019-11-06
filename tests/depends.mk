@@ -564,6 +564,12 @@ potential/test_softcore_potential.o: potential/test_softcore_potential.cc \
   ../include/md/potential/../basic_types.hpp \
   ../include/md/potential/../misc/math.hpp \
   ../include/md/potential/../misc/../basic_types.hpp
+potential/test_wca_potential.o: potential/test_wca_potential.cc \
+  ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
+  ../include/md/basic_types/point.hpp ../include/md/basic_types/sfc.hpp \
+  ../include/md/basic_types/ziggurat.hpp \
+  ../include/md/potential/wca_potential.hpp \
+  ../include/md/potential/../basic_types.hpp
 potential/test_cosine_bending_potential.o: \
   potential/test_cosine_bending_potential.cc \
   ../include/md/basic_types.hpp ../include/md/basic_types/array_view.hpp \
