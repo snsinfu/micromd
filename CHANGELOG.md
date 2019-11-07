@@ -16,6 +16,10 @@
     introduces custom potential in the `md` namespace, which enables arithmetic
     operations on the custom potential.
 
+### Optimizations
+
+- Optimized potential functors to enable more function inlining.
+
 ### Changes
 
 - Renamed `system::require()` to `system::add_attribute()` for API consistency.

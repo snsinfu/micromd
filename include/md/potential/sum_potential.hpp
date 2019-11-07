@@ -29,12 +29,12 @@ namespace md
         {
         }
 
-        md::scalar evaluate_energy(md::vector r) const
+        inline md::scalar evaluate_energy(md::vector r) const
         {
             return potential_1.evaluate_energy(r) + potential_2.evaluate_energy(r);
         }
 
-        md::vector evaluate_force(md::vector r) const
+        inline md::vector evaluate_force(md::vector r) const
         {
             return potential_1.evaluate_force(r) + potential_2.evaluate_force(r);
         }
