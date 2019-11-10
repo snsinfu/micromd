@@ -37,7 +37,9 @@ clean:
 	rm -rf $(ARTIFACTS)
 
 depends:
-	for s in $(SOURCES); do $(CXX) $(CXXFLAGS) -MM -MF- -MT $${s%.cc}.o $${s}; done > depends.mk
+	for s in $(SOURCES); do \
+	    $(CXX) $(CXXFLAGS) -MM -MF- -MT $${s%.cc}.o $${s}; \
+	done | ./sort_depends.py > depends.mk
 
 main: $(OBJECTS)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJECTS)
