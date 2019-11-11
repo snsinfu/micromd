@@ -150,3 +150,110 @@ TEST_CASE("neighbor_pair_forcefield_v2::set_targets - limits search targets")
 
     CHECK(actual_energy == Approx(expect_energy));
 }
+
+TEST_CASE("neighbor_pair_forcefield_v2::set_box - changes box")
+{
+    md::scalar const cutoff_distance = 0.1;
+
+    md::periodic_box box_1;
+    box_1.x_period = 1;
+    box_1.y_period = 1;
+    box_1.z_period = 1;
+
+    md::periodic_box box_2;
+    box_2.x_period = 0.6;
+    box_2.y_period = 0.6;
+    box_2.z_period = 0.6;
+
+    md::system system;
+    system.add_particle().position = {1.0, 1.0, 1.0};
+    system.add_particle().position = {0.6, 0.6, 0.6};
+    system.add_particle().position = {0.0, 0.0, 0.0};
+
+    // Reference brute-force computation.
+    md::softcore_potential<3> potential;
+    potential.overlap_energy = 1.0;
+    potential.cutoff_distance = cutoff_distance;
+
+    md::array_view<md::point const> positions = system.view_positions();
+    md::scalar expect_energy_1 = 0;
+    md::scalar expect_energy_2 = 0;
+
+    for (md::index i = 0; i < system.particle_count(); i++) {
+        for (md::index j = i + 1; j < system.particle_count(); j++) {
+            md::vector const r_1 = box_1.shortest_displacement(positions[i], positions[j]);
+            md::vector const r_2 = box_2.shortest_displacement(positions[i], positions[j]);
+
+            if (r_1.norm() < cutoff_distance) {
+                expect_energy_1 += potential.evaluate_energy(r_1);
+            }
+            if (r_2.norm() < cutoff_distance) {
+                expect_energy_2 += potential.evaluate_energy(r_2);
+            }
+        }
+    }
+
+    // Test neighbor_pair_forcefield_v2 implementation.
+    auto forcefield =
+        md::make_neighbor_pair_forcefield_v2<md::periodic_box>(
+            potential
+        )
+        .set_neighbor_distance(cutoff_distance);
+
+    forcefield.set_box(box_1);
+    md::scalar const actual_energy_1 = forcefield.compute_energy(system);
+
+    forcefield.set_box(box_2);
+    md::scalar const actual_energy_2 = forcefield.compute_energy(system);
+
+    CHECK(actual_energy_1 == Approx(expect_energy_1));
+    CHECK(actual_energy_2 == Approx(expect_energy_2));
+}
+
+TEST_CASE("neighbor_pair_forcefield_v2::set_neighbor_distance - changes neighbor distance")
+{
+    md::scalar const dcut_1 = 0.15;
+    md::scalar const dcut_2 = 0.25;
+
+    md::system system;
+    system.add_particle().position = {0.0, 0.0, 0.0};
+    system.add_particle().position = {0.1, 0.0, 0.0};
+    system.add_particle().position = {0.2, 0.0, 0.0};
+
+    // Reference brute-force computation.
+    md::softcore_potential<3> potential;
+    potential.overlap_energy = 1.0;
+    potential.cutoff_distance = 0.2;
+
+    md::array_view<md::point const> positions = system.view_positions();
+    md::scalar expect_energy_1 = 0;
+    md::scalar expect_energy_2 = 0;
+
+    for (md::index i = 0; i < system.particle_count(); i++) {
+        for (md::index j = i + 1; j < system.particle_count(); j++) {
+            md::vector const r = positions[i] - positions[j];
+
+            if (r.norm() < dcut_1) {
+                expect_energy_1 += potential.evaluate_energy(r);
+            }
+            if (r.norm() < dcut_2) {
+                expect_energy_2 += potential.evaluate_energy(r);
+            }
+        }
+    }
+
+    // Test neighbor_pair_forcefield_v2 implementation.
+    auto forcefield =
+        md::make_neighbor_pair_forcefield_v2<md::open_box>(
+            potential
+        );
+
+    forcefield.set_neighbor_distance(dcut_1);
+    md::scalar const actual_energy_1 = forcefield.compute_energy(system);
+
+    forcefield.set_neighbor_distance(dcut_2);
+    md::scalar const actual_energy_2 = forcefield.compute_energy(system);
+
+    CHECK(actual_energy_1 == Approx(expect_energy_1));
+    CHECK(actual_energy_2 == Approx(expect_energy_2));
+}

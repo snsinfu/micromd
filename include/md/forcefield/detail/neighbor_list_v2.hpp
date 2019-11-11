@@ -107,6 +107,14 @@ namespace md
                 return false;
             }
 
+            // Geometry has changed.
+            bool const box_changed = !detail::approx(box, prev_box_);
+            bool const dcut_changed = !detail::approx(dcut, prev_dcut_);
+            if (box_changed || dcut_changed) {
+                return false;
+            }
+
+            // Number of points changed.
             if (targets_.empty()) { // FIXME: ad-hoc if
                 if (points.size() != prev_points_.size()) {
                     return false;
@@ -155,7 +163,17 @@ namespace md
             md::array_view<md::point const> points, md::scalar dcut, Box box
         )
         {
-            detail::set_box_hints(box, points);
+            if (targets_.empty()) { // FIXME: ad-hoc if
+                prev_points_.assign(points.begin(), points.end());
+            } else {
+                prev_points_.clear();
+                prev_points_.reserve(targets_.size());
+                for (md::index const i : targets_) {
+                    prev_points_.push_back(points[i]);
+                }
+            }
+
+            detail::set_box_hints(box, prev_points_);
 
             // Let v be the verlet factor. The cost of list construction scales
             // with v^3, while the benefit of list reuse scales with (v-1). So
@@ -168,19 +186,13 @@ namespace md
             // if possible.
             bool const box_changed = !detail::approx(box, prev_box_);
             bool const verlet_changed = !detail::approx(verlet_radius, prev_verlet_radius_);
-            if (box_changed || verlet_changed) {
+            if (true || box_changed || verlet_changed) {
                 searcher_ = md::neighbor_searcher_v2<Box>{box, verlet_radius};
             }
 
-            if (targets_.empty()) { // FIXME: ad-hoc if
-                prev_points_.assign(points.begin(), points.end());
-            } else {
-                prev_points_.clear();
-                prev_points_.reserve(targets_.size());
-                for (md::index const i : targets_) {
-                    prev_points_.push_back(points[i]);
-                }
-            }
+            prev_box_ = box;
+            prev_verlet_radius_ = verlet_radius;
+            prev_dcut_ = dcut;
 
             pairs_.clear();
             searcher_.set_points(prev_points_);
@@ -220,6 +232,7 @@ namespace md
     private:
         Box prev_box_;
         md::scalar prev_verlet_radius_ = 1;
+        md::scalar prev_dcut_ = 1;
         md::neighbor_searcher_v2<Box> searcher_;
         std::vector<md::point> prev_points_;
         std::vector<std::pair<md::index, md::index>> pairs_;
