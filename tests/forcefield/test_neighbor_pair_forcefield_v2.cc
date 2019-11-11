@@ -92,3 +92,61 @@ TEST_CASE("neighbor_pair_forcefield_v2 - computes correct forcefield")
     CHECK(actual_energy == Approx(expect_energy));
     CHECK(max_difference(actual_forces, expect_forces) == Approx(0).margin(0.001));
 }
+
+TEST_CASE("neighbor_pair_forcefield_v2::set_targets - limits search targets")
+{
+    md::scalar const cutoff_distance = 0.1;
+
+    md::periodic_box box;
+    box.x_period = 0.9;
+    box.y_period = 1.0;
+    box.z_period = 1.1;
+
+    std::set<md::index> const targets = {
+        2, 3, 5, 7
+    };
+
+    // Most particles are within the cutoff distance.
+    md::system system;
+
+    system.add_particle().position = {0.1, 0.1, 0.1};
+    system.add_particle().position = {0.1, 0.1, 0.1};
+    system.add_particle().position = {0.1, 0.1, 0.1}; // 2
+    system.add_particle().position = {0.1, 0.1, 0.1}; // 3
+    system.add_particle().position = {0.1, 0.1, 0.1};
+    system.add_particle().position = {0.0, 0.0, 0.0}; // 5
+    system.add_particle().position = {0.0, 0.0, 0.0};
+    system.add_particle().position = {0.0, 0.0, 0.0}; // 7
+    system.add_particle().position = {0.0, 0.0, 0.0};
+    system.add_particle().position = {0.0, 0.0, 0.0};
+
+    // Short-range interactions.
+    md::softcore_potential<3> potential;
+    potential.overlap_energy = 1.0;
+    potential.cutoff_distance = cutoff_distance;
+
+    auto forcefield = md::make_neighbor_pair_forcefield_v2<md::periodic_box>(
+        potential
+    )
+    .set_targets(targets)
+    .set_box(box)
+    .set_neighbor_distance(cutoff_distance);
+
+    md::array_view<md::point const> positions = system.view_positions();
+    md::scalar actual_energy = forcefield.compute_energy(system);
+    md::scalar expect_energy = 0;
+
+    for (md::index const i : targets) {
+        for (md::index const j : targets) {
+            if (i >= j) {
+                continue;
+            }
+            md::vector const r = box.shortest_displacement(positions[i], positions[j]);
+            if (r.norm() < cutoff_distance) {
+                expect_energy += potential.evaluate_energy(r);
+            }
+        }
+    }
+
+    CHECK(actual_energy == Approx(expect_energy));
+}

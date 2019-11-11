@@ -82,6 +82,13 @@ namespace md
             }
         }
 
+        template<typename R>
+        Derived& set_targets(R const& targets)
+        {
+            neighbor_list_.set_targets(targets);
+            return derived();
+        }
+
     private:
         // get_neighbor_list returns a reference to the up-to-date neighbor list
         // for the system.
