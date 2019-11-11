@@ -7,6 +7,8 @@
 
 // This internal module provides neighbor_list_v2: A data structure for tracking
 // neighbor pairs in a system. Used to implement neighbor_pair_forcefield_v2.
+//
+// TODO: Refactor before adding more features.
 
 #include <algorithm>
 #include <cmath>
@@ -100,8 +102,18 @@ namespace md
             md::array_view<md::point const> points, md::scalar dcut, Box box
         ) const
         {
+            // List has not been constructed yet.
+            if (prev_points_.empty()) {
+                return false;
+            }
+
             if (targets_.empty()) { // FIXME: ad-hoc if
                 if (points.size() != prev_points_.size()) {
+                    return false;
+                }
+            } else {
+                md::index const max_target = targets_.back();
+                if (max_target >= points.size()) {
                     return false;
                 }
             }
