@@ -16,6 +16,8 @@
     introduces custom potential in the `md` namespace, which enables arithmetic
     operations on the custom potential.
   - Added `soft_well_potential`: Long-range, bounded, attractive potential.
+  - Added `cutoff_potential`: Wraps a pairwise potential and applies cut-off
+    at specified distance.
 
 ### Optimizations
 

@@ -451,6 +451,15 @@ potential/test_cosine_bending_potential.o: \
   ../include/md/basic_types/ziggurat.hpp \
   ../include/md/potential/cosine_bending_potential.hpp \
   potential/test_cosine_bending_potential.cc
+potential/test_cutoff_potential.o: \
+  ../include/md/basic_types.hpp \
+  ../include/md/basic_types/array_view.hpp \
+  ../include/md/basic_types/point.hpp \
+  ../include/md/basic_types/sfc.hpp \
+  ../include/md/basic_types/ziggurat.hpp \
+  ../include/md/potential/cutoff_potential.hpp \
+  ../include/md/potential/lennard_jones_potential.hpp \
+  potential/test_cutoff_potential.cc
 potential/test_diff_potential.o: \
   ../include/md/basic_types.hpp \
   ../include/md/basic_types/array_view.hpp \

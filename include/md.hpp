@@ -25,6 +25,7 @@
 #include "md/potential/wca_potential.hpp"
 
 // Potential wrappers
+#include "md/potential/cutoff_potential.hpp"
 #include "md/potential/diff_potential.hpp"
 #include "md/potential/scaled_potential.hpp"
 #include "md/potential/sum_potential.hpp"
