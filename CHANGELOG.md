@@ -15,6 +15,7 @@
   - Added `wrapped_potential`: Identity wrapper for potential functor. This
     introduces custom potential in the `md` namespace, which enables arithmetic
     operations on the custom potential.
+  - Added `soft_well_potential`: Long-range, bounded, attractive potential.
 
 ### Optimizations
 
