@@ -186,7 +186,7 @@ namespace md
             // if possible.
             bool const box_changed = !detail::approx(box, prev_box_);
             bool const verlet_changed = !detail::approx(verlet_radius, prev_verlet_radius_);
-            if (true || box_changed || verlet_changed) {
+            if (box_changed || verlet_changed) {
                 searcher_ = md::neighbor_searcher_v2<Box>{box, verlet_radius};
             }
 
