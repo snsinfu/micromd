@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <iterator>
 #include <memory>
 #include <utility>
@@ -67,6 +68,12 @@ namespace md
         {
         }
 
+        template<typename R>
+        void set_targets(R const& targets)
+        {
+            targets_.assign(std::begin(targets), std::end(targets));
+        }
+
         // Rebuilds the neighbor list if necessary.
         void update(md::array_view<md::point const> points, md::scalar dcut, Box box)
         {
@@ -93,8 +100,10 @@ namespace md
             md::array_view<md::point const> points, md::scalar dcut, Box box
         ) const
         {
-            if (points.size() != prev_points_.size()) {
-                return false;
+            if (targets_.empty()) { // FIXME: ad-hoc if
+                if (points.size() != prev_points_.size()) {
+                    return false;
+                }
             }
 
             // False negatives (unlisted point pairs that fall actually within
@@ -106,12 +115,26 @@ namespace md
                 return false;
             }
 
-            for (md::index i = 0; i < points.size(); i++) {
-                md::vector const disp = box.shortest_displacement(points[i], prev_points_[i]);
-                if (disp.squared_norm() > threshold * threshold) {
-                    return false;
+            if (targets_.empty()) { // FIXME: ad-hoc if
+                for (md::index i = 0; i < points.size(); i++) {
+                    md::vector const disp = box.shortest_displacement(
+                        points[i], prev_points_[i]
+                    );
+                    if (disp.squared_norm() > threshold * threshold) {
+                        return false;
+                    }
+                }
+            } else {
+                for (md::index i = 0; i < prev_points_.size(); i++) {
+                    md::vector const disp = box.shortest_displacement(
+                        points[targets_[i]], prev_points_[i]
+                    );
+                    if (disp.squared_norm() > threshold * threshold) {
+                        return false;
+                    }
                 }
             }
+
             return true;
         }
 
@@ -137,10 +160,49 @@ namespace md
                 searcher_ = md::neighbor_searcher_v2<Box>{box, verlet_radius};
             }
 
-            prev_points_.assign(points.begin(), points.end());
+            if (targets_.empty()) { // FIXME: ad-hoc if
+                prev_points_.assign(points.begin(), points.end());
+            } else {
+                prev_points_.clear();
+                prev_points_.reserve(targets_.size());
+                for (md::index const i : targets_) {
+                    prev_points_.push_back(points[i]);
+                }
+            }
+
             pairs_.clear();
             searcher_.set_points(prev_points_);
-            searcher_.search(std::back_inserter(pairs_));
+
+            if (targets_.empty()) { // FIXME: ad-hoc if
+                searcher_.search(std::back_inserter(pairs_));
+            } else {
+                struct index_mapper
+                {
+                    std::vector<md::index> const& map;
+                    std::vector<std::pair<md::index, md::index>>& output;
+
+                    index_mapper& operator++()
+                    {
+                        return *this;
+                    }
+
+                    index_mapper operator++(int)
+                    {
+                        return *this;
+                    }
+
+                    void operator=(std::pair<md::index, md::index> const& pair)
+                    {
+                        output.emplace_back(map[pair.first], map[pair.second]);
+                    }
+
+                    index_mapper& operator*()
+                    {
+                        return *this;
+                    }
+                };
+                searcher_.search(index_mapper { targets_, pairs_ });
+            }
         }
 
     private:
@@ -149,6 +211,7 @@ namespace md
         md::neighbor_searcher_v2<Box> searcher_;
         std::vector<md::point> prev_points_;
         std::vector<std::pair<md::index, md::index>> pairs_;
+        std::vector<md::index> targets_;
     };
 }
 
