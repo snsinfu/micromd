@@ -403,6 +403,14 @@ misc/test_box.o: \
   ../include/md/misc/box.hpp \
   ../include/md/misc/nsearch_detail/math.hpp \
   misc/test_box.cc
+misc/test_index_range.o: \
+  ../include/md/basic_types.hpp \
+  ../include/md/basic_types/array_view.hpp \
+  ../include/md/basic_types/point.hpp \
+  ../include/md/basic_types/sfc.hpp \
+  ../include/md/basic_types/ziggurat.hpp \
+  ../include/md/misc/index_range.hpp \
+  misc/test_index_range.cc
 misc/test_linear_hash.o: \
   ../include/md/misc/linear_hash.hpp \
   misc/test_linear_hash.cc

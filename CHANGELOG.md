@@ -18,6 +18,9 @@
   - Added `soft_well_potential`: Long-range, bounded, attractive potential.
   - Added `cutoff_potential`: Wraps a pairwise potential and applies cut-off
     at specified distance.
+- Misc:
+  - Added `index_iterator` and `index_range`: Tools for iterating over a
+    contiguous range of `index` values.
 
 ### Optimizations
 

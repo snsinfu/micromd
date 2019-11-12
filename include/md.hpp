@@ -54,6 +54,7 @@
 
 // Misc.
 #include "md/misc/box.hpp"
+#include "md/misc/index_range.hpp"
 #include "md/misc/linear_hash.hpp"
 #include "md/misc/math.hpp"
 #include "md/misc/neighbor_searcher.hpp"
