@@ -1,39 +1,86 @@
-// Copyright snsinfu 2018-2019.
+// Copyright snsinfu 2019.
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #ifndef MD_FORCEFIELD_DETAIL_NEIGHBOR_LIST_HPP
 #define MD_FORCEFIELD_DETAIL_NEIGHBOR_LIST_HPP
 
-// This module provides neighbor_list: A data structure for tracking neighbor
-// pairs in a system. Used to implement neighbor_pair_forcefield.
+// This internal module provides neighbor_list: A data structure for tracking
+// neighbor pairs in a system. Used to implement neighbor_pair_forcefield.
+//
+// TODO: Refactor before adding more features.
 
 #include <algorithm>
+#include <cmath>
+#include <cstddef>
 #include <iterator>
+#include <memory>
 #include <utility>
 #include <vector>
 
 #include "../../basic_types.hpp"
-#include "../../misc/linear_hash.hpp"
+#include "../../misc/box.hpp"
 #include "../../misc/neighbor_searcher.hpp"
-
 #include "neighbor_list_heuristics.hpp"
 
 
 namespace md
 {
+    namespace detail
+    {
+        inline bool approx(md::scalar x, md::scalar y)
+        {
+            // FIXME: Magic number
+            constexpr md::scalar epsilon = 1e-6;
+            return std::fabs(x - y) < epsilon * std::fabs(y);
+        }
+
+        // FIXME: Box abstraction leaks here
+        inline bool approx(md::open_box box1, md::open_box box2)
+        {
+            return box1.particle_count == box2.particle_count;
+        }
+
+        inline bool approx(md::periodic_box box1, md::periodic_box box2)
+        {
+            return approx(box1.x_period, box2.x_period)
+                && approx(box1.y_period, box2.y_period)
+                && approx(box1.z_period, box2.z_period);
+        }
+
+        inline bool approx(md::xy_periodic_box box1, md::xy_periodic_box box2)
+        {
+            return approx(box1.x_period, box2.x_period)
+                && approx(box1.y_period, box2.y_period)
+                && approx(box1.z_span, box2.z_span)
+                && box1.particle_count == box2.particle_count;
+        }
+    }
+
     // neighbor_list is a data structure for efficiently keeping track of
     // neighbor pairs in a slowly moving particle system.
+    template<typename Box>
     class neighbor_list
     {
         using iterator = std::vector<std::pair<md::index, md::index>>::const_iterator;
 
     public:
-        // update rebuilds the neighbor list if necessary.
-        void update(md::array_view<md::point const> points, md::scalar dcut)
+        neighbor_list()
+            : searcher_{prev_box_, prev_verlet_radius_} // FIXME: Poor default
         {
-            if (!check_consistency(points, dcut)) {
-                rebuild(points, dcut);
+        }
+
+        template<typename R>
+        void set_targets(R const& targets)
+        {
+            targets_.assign(std::begin(targets), std::end(targets));
+        }
+
+        // Rebuilds the neighbor list if necessary.
+        void update(md::array_view<md::point const> points, md::scalar dcut, Box box)
+        {
+            if (!check_consistency(points, dcut, box)) {
+                rebuild(points, dcut, box);
             }
         }
 
@@ -49,49 +96,147 @@ namespace md
         }
 
     private:
-        // check_consistency checks if the cached neighbor list is still usable
-        // with given points and cutoff distance.
-        bool check_consistency(md::array_view<md::point const> points, md::scalar dcut) const
+        // Checks if the previously created neighbor list is still usable with
+        // the given configuration.
+        bool check_consistency(
+            md::array_view<md::point const> points, md::scalar dcut, Box box
+        ) const
         {
-            if (points.size() != cached_points_.size()) {
+            // List has not been constructed yet.
+            if (prev_points_.empty()) {
                 return false;
+            }
+
+            // Geometry has changed.
+            bool const box_changed = !detail::approx(box, prev_box_);
+            bool const dcut_changed = !detail::approx(dcut, prev_dcut_);
+            if (box_changed || dcut_changed) {
+                return false;
+            }
+
+            // Number of points changed.
+            if (targets_.empty()) { // FIXME: ad-hoc if
+                if (points.size() != prev_points_.size()) {
+                    return false;
+                }
+            } else {
+                md::index const max_target = targets_.back();
+                if (max_target >= points.size()) {
+                    return false;
+                }
             }
 
             // False negatives (unlisted point pairs that fall actually within
             // dcut) won't arise if the displacement from previous rebuild is
             // less than or equal to this threshold.
-            md::scalar const threshold = (verlet_radius_ - dcut) / 2;
+            md::scalar const threshold = (prev_verlet_radius_ - dcut) / 2;
 
             if (threshold <= 0) {
                 return false;
             }
 
-            for (md::index i = 0; i < points.size(); i++) {
-                if (md::squared_distance(points[i], cached_points_[i]) > threshold * threshold) {
-                    return false;
+            if (targets_.empty()) { // FIXME: ad-hoc if
+                for (md::index i = 0; i < points.size(); i++) {
+                    md::vector const disp = box.shortest_displacement(
+                        points[i], prev_points_[i]
+                    );
+                    if (disp.squared_norm() > threshold * threshold) {
+                        return false;
+                    }
+                }
+            } else {
+                for (md::index i = 0; i < prev_points_.size(); i++) {
+                    md::vector const disp = box.shortest_displacement(
+                        points[targets_[i]], prev_points_[i]
+                    );
+                    if (disp.squared_norm() > threshold * threshold) {
+                        return false;
+                    }
                 }
             }
 
             return true;
         }
 
-        // rebuild completely rebuilds the neighbor list.
-        void rebuild(md::array_view<md::point const> points, md::scalar dcut)
+        // Rebuilds the neighbor list.
+        void rebuild(
+            md::array_view<md::point const> points, md::scalar dcut, Box box
+        )
         {
-            verlet_radius_ = detail::determine_verlet_radius(dcut);
-            cached_points_.assign(points.begin(), points.end());
-            pairs_.clear();
+            if (targets_.empty()) { // FIXME: ad-hoc if
+                prev_points_.assign(points.begin(), points.end());
+            } else {
+                prev_points_.clear();
+                prev_points_.reserve(targets_.size());
+                for (md::index const i : targets_) {
+                    prev_points_.push_back(points[i]);
+                }
+            }
 
-            md::linear_hash hash = detail::determine_hash(points, dcut);
-            md::neighbor_searcher searcher{verlet_radius_, hash};
-            searcher.set_points(cached_points_);
-            searcher.search(std::back_inserter(pairs_));
+            detail::set_box_hints(box, prev_points_);
+
+            // Let v be the verlet factor. The cost of list construction scales
+            // with v^3, while the benefit of list reuse scales with (v-1). So
+            // the overall cost scales with v^3/(v-1). The minimum cost is then
+            // achieved when v = 1.5.
+            static constexpr md::scalar verlet_factor = 1.5;
+            md::scalar const verlet_radius = verlet_factor * dcut;
+
+            // Neighbor searcher is expensive to construct. Reuse previous one
+            // if possible.
+            bool const box_changed = !detail::approx(box, prev_box_);
+            bool const verlet_changed = !detail::approx(verlet_radius, prev_verlet_radius_);
+            if (box_changed || verlet_changed) {
+                searcher_ = md::neighbor_searcher<Box>{box, verlet_radius};
+            }
+
+            prev_box_ = box;
+            prev_verlet_radius_ = verlet_radius;
+            prev_dcut_ = dcut;
+
+            pairs_.clear();
+            searcher_.set_points(prev_points_);
+
+            if (targets_.empty()) { // FIXME: ad-hoc if
+                searcher_.search(std::back_inserter(pairs_));
+            } else {
+                struct index_mapper
+                {
+                    std::vector<md::index> const& map;
+                    std::vector<std::pair<md::index, md::index>>& output;
+
+                    index_mapper& operator++()
+                    {
+                        return *this;
+                    }
+
+                    index_mapper operator++(int)
+                    {
+                        return *this;
+                    }
+
+                    void operator=(std::pair<md::index, md::index> const& pair)
+                    {
+                        output.emplace_back(map[pair.first], map[pair.second]);
+                    }
+
+                    index_mapper& operator*()
+                    {
+                        return *this;
+                    }
+                };
+                searcher_.search(index_mapper { targets_, pairs_ });
+            }
         }
 
     private:
-        md::scalar verlet_radius_ = 0;
-        std::vector<md::point> cached_points_;
+        Box prev_box_;
+        md::scalar prev_verlet_radius_ = 1;
+        md::scalar prev_dcut_ = 1;
+        md::neighbor_searcher<Box> searcher_;
+        std::vector<md::point> prev_points_;
         std::vector<std::pair<md::index, md::index>> pairs_;
+        std::vector<md::index> targets_;
     };
 }
 

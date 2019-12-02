@@ -52,6 +52,5 @@
 #include "md/misc/linear_hash.hpp"
 #include "md/misc/math.hpp"
 #include "md/misc/neighbor_searcher.hpp"
-#include "md/misc/neighbor_searcher_v2.hpp"
 
 #endif

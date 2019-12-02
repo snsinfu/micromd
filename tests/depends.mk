@@ -10,21 +10,8 @@ forcefield/detail/test_neighbor_list.o: \
   ../include/md/misc/linear_hash.hpp \
   ../include/md/misc/neighbor_searcher.hpp \
   ../include/md/misc/nsearch_detail/math.hpp \
-  forcefield/detail/test_neighbor_list.cc
-forcefield/detail/test_neighbor_list_v2.o: \
-  ../include/md/basic_types.hpp \
-  ../include/md/basic_types/array_view.hpp \
-  ../include/md/basic_types/point.hpp \
-  ../include/md/basic_types/sfc.hpp \
-  ../include/md/basic_types/ziggurat.hpp \
-  ../include/md/forcefield/detail/neighbor_list_heuristics.hpp \
-  ../include/md/forcefield/detail/neighbor_list_v2.hpp \
-  ../include/md/misc/box.hpp \
-  ../include/md/misc/linear_hash.hpp \
-  ../include/md/misc/neighbor_searcher_v2.hpp \
-  ../include/md/misc/nsearch_detail/math.hpp \
   ../include/md/misc/nsearch_detail/search_grid.hpp \
-  forcefield/detail/test_neighbor_list_v2.cc
+  forcefield/detail/test_neighbor_list.cc
 forcefield/test_all_pair_forcefield.o: \
   ../include/md/basic_types.hpp \
   ../include/md/basic_types/array_view.hpp \
@@ -97,33 +84,6 @@ forcefield/test_neighbor_pair_forcefield.o: \
   ../include/md/misc/math.hpp \
   ../include/md/misc/neighbor_searcher.hpp \
   ../include/md/misc/nsearch_detail/math.hpp \
-  ../include/md/potential/harmonic_potential.hpp \
-  ../include/md/potential/softcore_potential.hpp \
-  ../include/md/system.hpp \
-  ../include/md/system/attribute.hpp \
-  ../include/md/system/detail/array_erasure.hpp \
-  ../include/md/system/detail/attribute_table.hpp \
-  ../include/md/system/detail/iterator_range.hpp \
-  ../include/md/system/detail/sum_forcefield.hpp \
-  ../include/md/system/detail/type_hash.hpp \
-  ../include/md/system/particle.hpp \
-  forcefield/test_neighbor_pair_forcefield.cc
-forcefield/test_neighbor_pair_forcefield_v2.o: \
-  ../include/md/basic_types.hpp \
-  ../include/md/basic_types/array_view.hpp \
-  ../include/md/basic_types/point.hpp \
-  ../include/md/basic_types/sfc.hpp \
-  ../include/md/basic_types/ziggurat.hpp \
-  ../include/md/forcefield.hpp \
-  ../include/md/forcefield/detail/neighbor_list_heuristics.hpp \
-  ../include/md/forcefield/detail/neighbor_list_v2.hpp \
-  ../include/md/forcefield/detail/pair_potfun.hpp \
-  ../include/md/forcefield/neighbor_pair_forcefield_v2.hpp \
-  ../include/md/misc/box.hpp \
-  ../include/md/misc/linear_hash.hpp \
-  ../include/md/misc/math.hpp \
-  ../include/md/misc/neighbor_searcher_v2.hpp \
-  ../include/md/misc/nsearch_detail/math.hpp \
   ../include/md/misc/nsearch_detail/search_grid.hpp \
   ../include/md/potential/harmonic_potential.hpp \
   ../include/md/potential/softcore_potential.hpp \
@@ -135,7 +95,7 @@ forcefield/test_neighbor_pair_forcefield_v2.o: \
   ../include/md/system/detail/sum_forcefield.hpp \
   ../include/md/system/detail/type_hash.hpp \
   ../include/md/system/particle.hpp \
-  forcefield/test_neighbor_pair_forcefield_v2.cc
+  forcefield/test_neighbor_pair_forcefield.cc
 forcefield/test_plane_surface_forcefield.o: \
   ../include/md/basic_types.hpp \
   ../include/md/basic_types/array_view.hpp \
@@ -336,21 +296,12 @@ misc/test_neighbor_searcher.o: \
   ../include/md/basic_types/point.hpp \
   ../include/md/basic_types/sfc.hpp \
   ../include/md/basic_types/ziggurat.hpp \
-  ../include/md/misc/linear_hash.hpp \
-  ../include/md/misc/neighbor_searcher.hpp \
-  misc/test_neighbor_searcher.cc
-misc/test_neighbor_searcher_v2.o: \
-  ../include/md/basic_types.hpp \
-  ../include/md/basic_types/array_view.hpp \
-  ../include/md/basic_types/point.hpp \
-  ../include/md/basic_types/sfc.hpp \
-  ../include/md/basic_types/ziggurat.hpp \
   ../include/md/misc/box.hpp \
   ../include/md/misc/linear_hash.hpp \
-  ../include/md/misc/neighbor_searcher_v2.hpp \
+  ../include/md/misc/neighbor_searcher.hpp \
   ../include/md/misc/nsearch_detail/math.hpp \
   ../include/md/misc/nsearch_detail/search_grid.hpp \
-  misc/test_neighbor_searcher_v2.cc
+  misc/test_neighbor_searcher.cc
 potential/test_constant_potential.o: \
   ../include/md/basic_types.hpp \
   ../include/md/basic_types/array_view.hpp \

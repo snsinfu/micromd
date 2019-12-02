@@ -6,7 +6,7 @@
 
 
 class particle_forcefield : public md::composite_forcefield<
-    md::neighbor_pair_forcefield<particle_forcefield>,
+    md::neighbor_pair_forcefield<md::open_box, particle_forcefield>,
     md::sphere_surface_forcefield<particle_forcefield>
 >
 {
@@ -18,9 +18,9 @@ public:
 
     auto neighbor_pair_potential(md::system const&, md::index, md::index) const
     {
-        return md::softcore_potential<4> {
-            .overlap_energy = 5.0,
-            .cutoff_distance = 0.1
+        return md::softcore_potential<2, 3> {
+            .energy = 5.0,
+            .diameter = 0.1
         };
     }
 

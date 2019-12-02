@@ -1,17 +1,19 @@
 #include <algorithm>
+#include <iterator>
 #include <random>
 #include <set>
 #include <utility>
 #include <vector>
 
 #include <md/forcefield/detail/neighbor_list.hpp>
+#include <md/misc/box.hpp>
 
 #include <catch.hpp>
 
 
 TEST_CASE("neighbor_list - is valid and empty by default")
 {
-    md::neighbor_list list;
+    md::neighbor_list<md::open_box> list;
 
     CHECK(list.begin() == list.end());
 }
@@ -20,289 +22,104 @@ TEST_CASE("neighbor_list - is valid and empty after updated by zero points")
 {
     std::vector<md::point> points;
 
-    md::neighbor_list list;
-    list.update(points, 1);
+    md::neighbor_list<md::open_box> list;
+    list.update(points, 1, md::open_box{});
 
     CHECK(list.begin() == list.end());
 }
 
-TEST_CASE("neighbor_list - contains all neighbors in a small example")
+TEST_CASE("neighbor_list - finds correct neighbor pairs")
 {
-    md::scalar const cutoff_distance = 1.0;
+    md::scalar const cutoff_distance = 0.1;
+    md::index const point_count = 1000;
+
+    std::vector<md::point> points;
+    std::mt19937 random;
+    std::generate_n(std::back_inserter(points), point_count, [&] {
+        std::uniform_real_distribution<md::scalar> coord;
+        return md::point{coord(random), coord(random), coord(random)};
+    });
+
+    auto test_on_box = [&](auto box) {
+        // Expect: brute-force.
+        std::set<std::pair<md::index, md::index>> expect;
+
+        for (md::index i = 0; i < points.size(); i++) {
+            for (md::index j = i + 1; j < points.size(); j++) {
+                if (md::distance(points[i], points[j]) < cutoff_distance) {
+                    expect.emplace(i, j);
+                }
+            }
+        }
+
+        // Actual: neighbor_list.
+        std::set<std::pair<md::index, md::index>> actual;
+
+        using box_type = decltype(box);
+        md::neighbor_list<box_type> list;
+        list.update(points, cutoff_distance, box);
+        for (auto pair : list) {
+            actual.insert(pair);
+        }
+
+        // The list may contain false positives (for efficient list reuse), but
+        // it should never contain any false-negatives. So test actual ⊇ expect.
+        CHECK(std::includes(
+            actual.begin(), actual.end(), expect.begin(), expect.end()
+        ));
+    };
+
+    SECTION("in open_box")
+    {
+        md::open_box box;
+        test_on_box(box);
+    }
+
+    SECTION("in periodic_box")
+    {
+        md::periodic_box box;
+        box.x_period = 0.9;
+        box.y_period = 1.0;
+        box.z_period = 1.1;
+        test_on_box(box);
+    }
+
+    SECTION("in xy_periodic_box")
+    {
+        md::xy_periodic_box box;
+        box.x_period = 0.9;
+        box.y_period = 1.0;
+        test_on_box(box);
+    }
+}
+
+TEST_CASE("neighbor_list::set_targets - limits list to specified targets")
+{
+    md::scalar const cutoff_distance = 0.1;
 
     std::vector<md::point> const points = {
-        { 0.6, -0.5,  0.4},
-        { 0.9, -1.0, -0.2},
-        {-0.5, -1.0,  0.0},
-        {-0.3, -0.5,  0.1},
-        {-0.7,  0.1,  0.0},
-        { 0.7,  0.0, -0.2},
-        { 0.5, -0.5, -0.5},
-        {-0.4,  0.8, -0.7},
-        {-0.5, -0.6,  0.4},
-        { 0.9,  0.5, -0.8},
+        {0.1, 0.1, 0.1},
+        {0.1, 0.1, 0.1},
+        {0.1, 0.1, 0.1}, // 2
+        {0.1, 0.1, 0.1}, // 3
+        {0.1, 0.1, 0.1},
+        {0.0, 0.0, 0.0}, // 5
+        {0.0, 0.0, 0.0},
+        {0.0, 0.0, 0.0}, // 7
+        {0.0, 0.0, 0.0},
+        {0.0, 0.0, 0.0}
     };
 
-    std::multiset<std::pair<md::index, md::index>> const expected_pairs = {
-        {0, 1},
-        {0, 3},
-        {0, 5},
-        {0, 6},
-        {1, 6},
-        {2, 3},
-        {2, 8},
-        {3, 4},
-        {3, 6},
-        {3, 8},
-        {4, 8},
-        {5, 6},
-        {5, 9},
+    std::set<md::index> const targets = {
+        2, 3, 5, 7
     };
 
-    md::neighbor_list list;
-    list.update(points, cutoff_distance);
-    std::multiset<std::pair<md::index, md::index>> pairs(list.begin(), list.end());
+    md::neighbor_list<md::open_box> list;
+    list.set_targets(targets);
+    list.update(points, cutoff_distance, {});
 
-    // The list may contain false positives but NO false-negative.
-    CHECK(std::includes(
-        pairs.begin(),
-        pairs.end(),
-        expected_pairs.begin(),
-        expected_pairs.end()
-    ));
-}
-
-TEST_CASE("neighbor_list - contains all neighbors on a 3D grid")
-{
-    md::scalar const cutoff_distance = 0.1;
-    md::scalar const spacing = 0.07;
-
-    // Generate a 3D grid points
-    std::vector<md::point> points;
-
-    for (int x = -2; x <= 2; x++) {
-        for (int y = -2; y <= 2; y++) {
-            for (int z = -2; z <= 2; z++) {
-                points.push_back({
-                    spacing * x,
-                    spacing * y,
-                    spacing * z
-                });
-            }
-        }
+    for (std::pair<md::index, md::index> const& pair : list) {
+        CHECK(targets.find(pair.first) != targets.end());
+        CHECK(targets.find(pair.second) != targets.end());
     }
-
-    // Brute-force compute neighbor pairs
-    std::multiset<std::pair<md::index, md::index>> expected_pairs;
-
-    for (md::index j = 0; j < points.size(); j++) {
-        for (md::index i = 0; i < j; i++) {
-            if (md::distance(points[i], points[j]) < cutoff_distance) {
-                expected_pairs.emplace(i, j);
-            }
-        }
-    }
-
-    // Test
-    md::neighbor_list list;
-    list.update(points, cutoff_distance);
-    std::multiset<std::pair<md::index, md::index>> pairs(list.begin(), list.end());
-
-    CHECK(std::includes(
-        pairs.begin(),
-        pairs.end(),
-        expected_pairs.begin(),
-        expected_pairs.end()
-    ));
-}
-
-TEST_CASE("neighbor_list - correctly updates after small movement")
-{
-    int const step_count = 10;
-    md::scalar const cutoff_distance = 0.1;
-    md::scalar const movement = 0.002;
-    md::index const point_count = 50;
-
-    // Generate points
-    std::vector<md::point> points;
-    std::mt19937 random;
-    std::normal_distribution<md::scalar> normal;
-
-    std::generate_n(std::back_inserter(points), point_count, [&] {
-        return md::point{normal(random), normal(random), normal(random)};
-    });
-
-    md::neighbor_list list;
-    list.update(points, cutoff_distance);
-
-    for (int step = 0; step < step_count; step++) {
-        // Move points
-        for (md::point& pt : points) {
-            md::vector delta = {
-                normal(random),
-                normal(random),
-                normal(random)
-            };
-            delta *= movement / (delta.norm() + movement / 100);
-
-            pt += delta;
-        }
-
-        // Brute-force compute neighbor pairs
-        std::multiset<std::pair<md::index, md::index>> expected_pairs;
-
-        for (md::index j = 0; j < points.size(); j++) {
-            for (md::index i = 0; i < j; i++) {
-                if (md::distance(points[i], points[j]) < cutoff_distance) {
-                    expected_pairs.emplace(i, j);
-                }
-            }
-        }
-
-        // Test on-line update
-        list.update(points, cutoff_distance);
-        std::multiset<std::pair<md::index, md::index>> pairs(list.begin(), list.end());
-
-        CHECK(std::includes(
-            pairs.begin(),
-            pairs.end(),
-            expected_pairs.begin(),
-            expected_pairs.end()
-        ));
-    }
-}
-
-TEST_CASE("neighbor_list - correctly updates after large movement")
-{
-    int const step_count = 10;
-    md::scalar const cutoff_distance = 0.1;
-    md::scalar const movement = 0.1;
-    md::index const point_count = 50;
-
-    // Generate points
-    std::vector<md::point> points;
-    std::mt19937 random;
-    std::normal_distribution<md::scalar> normal;
-
-    std::generate_n(std::back_inserter(points), point_count, [&] {
-        return md::point{normal(random), normal(random), normal(random)};
-    });
-
-    md::neighbor_list list;
-    list.update(points, cutoff_distance);
-
-    for (int step = 0; step < step_count; step++) {
-        // Move points
-        for (md::point& pt : points) {
-            md::vector delta = {
-                normal(random),
-                normal(random),
-                normal(random)
-            };
-            delta *= movement / (delta.norm() + movement / 100);
-
-            pt += delta;
-        }
-
-        // Brute-force compute neighbor pairs
-        std::multiset<std::pair<md::index, md::index>> expected_pairs;
-
-        for (md::index j = 0; j < points.size(); j++) {
-            for (md::index i = 0; i < j; i++) {
-                if (md::distance(points[i], points[j]) < cutoff_distance) {
-                    expected_pairs.emplace(i, j);
-                }
-            }
-        }
-
-        // Test on-line update
-        list.update(points, cutoff_distance);
-        std::multiset<std::pair<md::index, md::index>> pairs(list.begin(), list.end());
-
-        CHECK(std::includes(
-            pairs.begin(),
-            pairs.end(),
-            expected_pairs.begin(),
-            expected_pairs.end()
-        ));
-    }
-}
-
-TEST_CASE("neighbor_list - correctly updates after particle count changes")
-{
-    int const step_count = 5;
-    md::index const batch_size = 10;
-    md::scalar const cutoff_distance = 0.5;
-
-    md::neighbor_list list;
-    std::vector<md::point> points;
-
-    std::mt19937 random;
-    std::normal_distribution<md::scalar> normal;
-
-    for (int step = 0; step < step_count; step++) {
-        // Generate additional points
-        std::generate_n(std::back_inserter(points), batch_size, [&] {
-            return md::point{normal(random), normal(random), normal(random)};
-        });
-
-        // Brute-force compute neighbor pairs
-        std::multiset<std::pair<md::index, md::index>> expected_pairs;
-
-        for (md::index j = 0; j < points.size(); j++) {
-            for (md::index i = 0; i < j; i++) {
-                if (md::distance(points[i], points[j]) < cutoff_distance) {
-                    expected_pairs.emplace(i, j);
-                }
-            }
-        }
-
-        // Test on-line update
-        list.update(points, cutoff_distance);
-        std::multiset<std::pair<md::index, md::index>> pairs(list.begin(), list.end());
-
-        CHECK(std::includes(
-            pairs.begin(),
-            pairs.end(),
-            expected_pairs.begin(),
-            expected_pairs.end()
-        ));
-    }
-}
-
-TEST_CASE("neighbor_list - contains all neighbors in a large cloud", "[.][slow]")
-{
-    // Generate point cloud
-    md::index const point_count = 10000;
-    md::scalar const cutoff_distance = 0.1;
-
-    std::mt19937 random;
-    std::normal_distribution<md::scalar> normal;
-
-    std::vector<md::point> points;
-    std::generate_n(std::back_inserter(points), point_count, [&] {
-        return md::point{normal(random), normal(random), normal(random)};
-    });
-
-    // Brute-force compute neighbor pairs
-    std::multiset<std::pair<md::index, md::index>> expected_pairs;
-    for (md::index j = 0; j < points.size(); j++) {
-        for (md::index i = 0; i < j; i++) {
-            if (md::distance(points[i], points[j]) < cutoff_distance) {
-                expected_pairs.emplace(i, j);
-            }
-        }
-    }
-
-    // Test neighbor_list output
-    md::neighbor_list list;
-    list.update(points, cutoff_distance);
-    std::multiset<std::pair<md::index, md::index>> pairs(list.begin(), list.end());
-
-    CHECK(std::includes(
-        pairs.begin(),
-        pairs.end(),
-        expected_pairs.begin(),
-        expected_pairs.end()
-    ));
 }

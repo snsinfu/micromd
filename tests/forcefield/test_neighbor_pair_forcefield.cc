@@ -36,144 +36,224 @@ namespace
 
 TEST_CASE("neighbor_pair_forcefield - computes correct forcefield")
 {
-    class test_forcefield : public md::neighbor_pair_forcefield<test_forcefield>
-    {
-    public:
-        md::scalar neighbor_distance(md::system const&)
-        {
-            return 1;
-        }
+    md::scalar const cutoff_distance = 0.3;
+    md::index const point_count = 1000;
 
-        md::softcore_potential<2, 2> neighbor_pair_potential(md::system const&, md::index, md::index)
-        {
-            return md::softcore_potential<2, 2>{1, 1};
+    md::periodic_box box;
+    box.x_period = 0.9;
+    box.y_period = 1.0;
+    box.z_period = 1.1;
+
+    // Random points in a box. Coordinate values are deliberately overdispersed
+    // compared to the periods to test handling of periodic boundary conditions.
+    md::system system;
+    std::mt19937 random;
+    std::uniform_real_distribution<md::scalar> coord{-3, 3};
+    for (md::index i = 0; i < point_count; i++) {
+        auto part = system.add_particle();
+        part.position = { coord(random), coord(random), coord(random) };
+    }
+
+    // Short-range interactions.
+    md::softcore_potential<2, 3> potential;
+    potential.energy = 1.0;
+    potential.diameter = cutoff_distance;
+
+    auto forcefield = md::make_neighbor_pair_forcefield<md::periodic_box>(
+        [&](md::index, md::index) {
+            return potential;
         }
+    )
+    .set_box(box)
+    .set_neighbor_distance(cutoff_distance);
+
+    // Test forcefield.
+    std::vector<md::vector> actual_forces(system.particle_count());
+    std::vector<md::vector> expect_forces(system.particle_count());
+    forcefield.compute_force(system, actual_forces);
+
+    md::scalar actual_energy = forcefield.compute_energy(system);
+    md::scalar expect_energy = 0;
+
+    // Ground truth by brute-force loop.
+    md::array_view<md::point const> positions = system.view_positions();
+
+    for (md::index i = 0; i < positions.size(); i++) {
+        for (md::index j = i + 1; j < positions.size(); j++) {
+            md::vector const r = box.shortest_displacement(positions[i], positions[j]);
+            md::vector const force = potential.evaluate_force(r);
+            md::scalar const energy = potential.evaluate_energy(r);
+            expect_forces[i] += force;
+            expect_forces[j] -= force;
+            expect_energy += energy;
+        }
+    }
+
+    CHECK(actual_energy == Approx(expect_energy));
+    CHECK(max_difference(actual_forces, expect_forces) == Approx(0).margin(0.001));
+}
+
+TEST_CASE("neighbor_pair_forcefield::set_targets - limits search targets")
+{
+    md::scalar const cutoff_distance = 0.1;
+
+    md::periodic_box box;
+    box.x_period = 0.9;
+    box.y_period = 1.0;
+    box.z_period = 1.1;
+
+    std::set<md::index> const targets = {
+        2, 3, 5, 7
     };
 
-    // Particles on a 5x5x5 grid
+    // Most particles are within the cutoff distance.
     md::system system;
 
-    for (int x = -2; x <= 2; x++) {
-        for (int y = -2; y <= 2; y++) {
-            for (int z = -2; z <= 2; z++) {
-                md::basic_particle_data data;
+    system.add_particle().position = {0.1, 0.1, 0.1};
+    system.add_particle().position = {0.1, 0.1, 0.1};
+    system.add_particle().position = {0.1, 0.1, 0.1}; // 2
+    system.add_particle().position = {0.1, 0.1, 0.1}; // 3
+    system.add_particle().position = {0.1, 0.1, 0.1};
+    system.add_particle().position = {0.0, 0.0, 0.0}; // 5
+    system.add_particle().position = {0.0, 0.0, 0.0};
+    system.add_particle().position = {0.0, 0.0, 0.0}; // 7
+    system.add_particle().position = {0.0, 0.0, 0.0};
+    system.add_particle().position = {0.0, 0.0, 0.0};
 
-                data.position = {
-                    x * 0.5,
-                    y * 0.5,
-                    z * 0.5
-                };
+    // Short-range interactions.
+    md::softcore_potential<2, 3> potential;
+    potential.energy = 1.0;
+    potential.diameter = cutoff_distance;
 
-                system.add_particle(data);
+    auto forcefield = md::make_neighbor_pair_forcefield<md::periodic_box>(
+        potential
+    )
+    .set_targets(targets)
+    .set_box(box)
+    .set_neighbor_distance(cutoff_distance);
+
+    md::array_view<md::point const> positions = system.view_positions();
+    md::scalar actual_energy = forcefield.compute_energy(system);
+    md::scalar expect_energy = 0;
+
+    for (md::index const i : targets) {
+        for (md::index const j : targets) {
+            if (i >= j) {
+                continue;
+            }
+            md::vector const r = box.shortest_displacement(positions[i], positions[j]);
+            if (r.norm() < cutoff_distance) {
+                expect_energy += potential.evaluate_energy(r);
             }
         }
     }
 
-    test_forcefield forcefield;
-    md::softcore_potential<2, 2> potential;
+    CHECK(actual_energy == Approx(expect_energy));
+}
 
-    std::vector<md::vector> actual_forces(system.particle_count());
-    std::vector<md::vector> expected_forces(system.particle_count());
+TEST_CASE("neighbor_pair_forcefield::set_box - changes box")
+{
+    md::scalar const cutoff_distance = 0.1;
 
-    forcefield.compute_force(system, actual_forces);
+    md::periodic_box box_1;
+    box_1.x_period = 1;
+    box_1.y_period = 1;
+    box_1.z_period = 1;
 
-    md::scalar actual_energy = forcefield.compute_energy(system);
-    md::scalar expected_energy = 0;
+    md::periodic_box box_2;
+    box_2.x_period = 0.6;
+    box_2.y_period = 0.6;
+    box_2.z_period = 0.6;
+
+    md::system system;
+    system.add_particle().position = {1.0, 1.0, 1.0};
+    system.add_particle().position = {0.6, 0.6, 0.6};
+    system.add_particle().position = {0.0, 0.0, 0.0};
+
+    // Reference brute-force computation.
+    md::softcore_potential<2, 3> potential;
+    potential.energy = 1.0;
+    potential.diameter = cutoff_distance;
 
     md::array_view<md::point const> positions = system.view_positions();
+    md::scalar expect_energy_1 = 0;
+    md::scalar expect_energy_2 = 0;
 
-    for (md::index i = 0; i < positions.size(); i++) {
-        for (md::index j = 0; j < i; j++) {
-            md::vector const r = positions[i] - positions[j];
-            md::vector const force = potential.evaluate_force(r);
-            md::scalar const energy = potential.evaluate_energy(r);
+    for (md::index i = 0; i < system.particle_count(); i++) {
+        for (md::index j = i + 1; j < system.particle_count(); j++) {
+            md::vector const r_1 = box_1.shortest_displacement(positions[i], positions[j]);
+            md::vector const r_2 = box_2.shortest_displacement(positions[i], positions[j]);
 
-            expected_forces[i] += force;
-            expected_forces[j] -= force;
-
-            expected_energy += energy;
+            if (r_1.norm() < cutoff_distance) {
+                expect_energy_1 += potential.evaluate_energy(r_1);
+            }
+            if (r_2.norm() < cutoff_distance) {
+                expect_energy_2 += potential.evaluate_energy(r_2);
+            }
         }
     }
 
-    CHECK(actual_energy == Approx(expected_energy));
-    CHECK(max_difference(actual_forces, expected_forces) < 1e-6);
+    // Test neighbor_pair_forcefield implementation.
+    auto forcefield =
+        md::make_neighbor_pair_forcefield<md::periodic_box>(
+            potential
+        )
+        .set_neighbor_distance(cutoff_distance);
+
+    forcefield.set_box(box_1);
+    md::scalar const actual_energy_1 = forcefield.compute_energy(system);
+
+    forcefield.set_box(box_2);
+    md::scalar const actual_energy_2 = forcefield.compute_energy(system);
+
+    CHECK(actual_energy_1 == Approx(expect_energy_1));
+    CHECK(actual_energy_2 == Approx(expect_energy_2));
 }
 
-TEST_CASE("neighbor_pair_forcefield::compute_force - adds force to array")
+TEST_CASE("neighbor_pair_forcefield::set_neighbor_distance - changes neighbor distance")
 {
-    class test_forcefield : public md::neighbor_pair_forcefield<test_forcefield>
-    {
-    public:
-        md::scalar neighbor_distance(md::system const&)
-        {
-            return 1;
+    md::scalar const dcut_1 = 0.15;
+    md::scalar const dcut_2 = 0.25;
+
+    md::system system;
+    system.add_particle().position = {0.0, 0.0, 0.0};
+    system.add_particle().position = {0.1, 0.0, 0.0};
+    system.add_particle().position = {0.2, 0.0, 0.0};
+
+    // Reference brute-force computation.
+    md::softcore_potential<2, 3> potential;
+    potential.energy = 1.0;
+    potential.diameter = 0.2;
+
+    md::array_view<md::point const> positions = system.view_positions();
+    md::scalar expect_energy_1 = 0;
+    md::scalar expect_energy_2 = 0;
+
+    for (md::index i = 0; i < system.particle_count(); i++) {
+        for (md::index j = i + 1; j < system.particle_count(); j++) {
+            md::vector const r = positions[i] - positions[j];
+
+            if (r.norm() < dcut_1) {
+                expect_energy_1 += potential.evaluate_energy(r);
+            }
+            if (r.norm() < dcut_2) {
+                expect_energy_2 += potential.evaluate_energy(r);
+            }
         }
+    }
 
-        md::softcore_potential<2, 2> neighbor_pair_potential(md::system const&, md::index, md::index)
-        {
-            return md::softcore_potential<2, 2>{1, 1};
-        }
-    };
+    // Test neighbor_pair_forcefield implementation.
+    auto forcefield =
+        md::make_neighbor_pair_forcefield<md::open_box>(
+            potential
+        );
 
-    md::system system;
+    forcefield.set_neighbor_distance(dcut_1);
+    md::scalar const actual_energy_1 = forcefield.compute_energy(system);
 
-    system.add_particle().position = {0.5, 0, 0};
-    system.add_particle().position = {0, 0.5, 0};
+    forcefield.set_neighbor_distance(dcut_2);
+    md::scalar const actual_energy_2 = forcefield.compute_energy(system);
 
-    test_forcefield ff;
-
-    // compute_force does not clear existing force
-    std::vector<md::vector> forces = {
-        {1, 2, 3},
-        {4, 5, 6}
-    };
-    ff.compute_force(system, forces);
-
-    CHECK(forces[0].x == Approx(1 + 2 * 0.5));
-    CHECK(forces[0].y == Approx(2 - 2 * 0.5));
-    CHECK(forces[0].z == Approx(3));
-    CHECK(forces[1].x == Approx(4 - 2 * 0.5));
-    CHECK(forces[1].y == Approx(5 + 2 * 0.5));
-    CHECK(forces[1].z == Approx(6));
-}
-
-TEST_CASE("make_neighbor_pair_forcefield - creates a neighbor_pair_forcefield")
-{
-    md::system system;
-
-    auto ff = md::make_neighbor_pair_forcefield(md::softcore_potential<2, 2>{1.23, 4.56});
-    ff.set_neighbor_distance(4.56);
-
-    auto ndist = ff.neighbor_distance(system);
-    auto pot = ff.neighbor_pair_potential(system, 0, 1);
-
-    using ff_type = decltype(ff);
-    using pot_type = decltype(pot);
-
-    CHECK(std::is_base_of<md::neighbor_pair_forcefield<ff_type>, ff_type>::value);
-    CHECK(std::is_same<pot_type, md::softcore_potential<2, 2>>::value);
-    CHECK(pot.energy == 1.23);
-    CHECK(pot.diameter == 4.56);
-    CHECK(ndist == 4.56);
-}
-
-TEST_CASE("neighbor_pair_forcefield::get_neighbor_list - returns neighbor list")
-{
-    md::system system;
-    system.add_particle().position = {0, 0, 0};
-    system.add_particle().position = {0, 0, 1};
-    system.add_particle().position = {0, 0, 2};
-    system.add_particle().position = {0, 0, 3};
-
-    auto ff = md::make_neighbor_pair_forcefield(md::softcore_potential<2, 2>{});
-    ff.set_neighbor_distance(1.5);
-
-    md::neighbor_list const& nlist = ff.get_neighbor_list(system);
-    std::multiset<std::pair<md::index, md::index>> pairs;
-    std::copy(nlist.begin(), nlist.end(), std::inserter(pairs, pairs.end()));
-
-    std::multiset<std::pair<md::index, md::index>> expected = {
-        {0, 1}, {1, 2}, {2, 3}
-    };
-    CHECK(pairs == expected);
+    CHECK(actual_energy_1 == Approx(expect_energy_1));
+    CHECK(actual_energy_2 == Approx(expect_energy_2));
 }

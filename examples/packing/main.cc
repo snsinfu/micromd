@@ -24,7 +24,7 @@ namespace
     }
 
     class packing_forcefield : public md::composite_forcefield<
-        md::neighbor_pair_forcefield<packing_forcefield>,
+        md::neighbor_pair_forcefield<md::open_box, packing_forcefield>,
         md::ellipsoid_surface_forcefield<packing_forcefield>
     >
     {
@@ -36,9 +36,9 @@ namespace
 
         auto neighbor_pair_potential(md::system const&, md::index, md::index) const
         {
-            md::softcore_potential<4> pot;
-            pot.overlap_energy = 6.0;
-            pot.cutoff_distance = 0.1;
+            md::softcore_potential<2, 4> pot;
+            pot.energy = 6.0;
+            pot.diameter = 0.1;
             return pot;
         }
 
