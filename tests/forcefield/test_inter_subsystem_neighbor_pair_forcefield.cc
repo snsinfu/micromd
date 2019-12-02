@@ -44,11 +44,11 @@ TEST_CASE("inter_subsystem_neighbor_pair_forcefield - computes correct forcefiel
             return 1;
         }
 
-        md::softcore_potential<2> inter_subsystem_neighbor_pair_potential(
+        md::softcore_potential<2, 2> inter_subsystem_neighbor_pair_potential(
             md::system const&, md::index, md::index
         )
         {
-            return md::softcore_potential<2>{1, 1};
+            return md::softcore_potential<2, 2>{1, 1};
         }
     };
 
@@ -93,7 +93,7 @@ TEST_CASE("inter_subsystem_neighbor_pair_forcefield - computes correct forcefiel
     md::scalar expected_energy = 0;
     std::vector<md::vector> expected_forces(system.particle_count());
 
-    md::softcore_potential<2> potential;
+    md::softcore_potential<2, 2> potential;
     md::array_view<md::point const> positions = system.view_positions();
 
     for (md::index i : reds) {
@@ -128,11 +128,11 @@ TEST_CASE("inter_subsystem_neighbor_pair_forcefield::compute_force - adds force 
             return 1;
         }
 
-        md::softcore_potential<2> inter_subsystem_neighbor_pair_potential(
+        md::softcore_potential<2, 2> inter_subsystem_neighbor_pair_potential(
             md::system const&, md::index, md::index
         )
         {
-            return md::softcore_potential<2>{1, 1};
+            return md::softcore_potential<2, 2>{1, 1};
         }
     };
 
@@ -171,7 +171,7 @@ TEST_CASE("make_inter_subsystem_neighbor_pair_forcefield - creates an inter_subs
     md::system system;
 
     auto ff = md::make_inter_subsystem_neighbor_pair_forcefield(
-        md::softcore_potential<2>{1.23, 4.56}
+        md::softcore_potential<2, 2>{1.23, 4.56}
     );
     ff.set_neighbor_distance(4.56);
 
@@ -182,8 +182,8 @@ TEST_CASE("make_inter_subsystem_neighbor_pair_forcefield - creates an inter_subs
     using pot_type = decltype(pot);
 
     CHECK(std::is_base_of<md::inter_subsystem_neighbor_pair_forcefield<ff_type>, ff_type>::value);
-    CHECK(std::is_same<pot_type, md::softcore_potential<2>>::value);
-    CHECK(pot.overlap_energy == 1.23);
-    CHECK(pot.cutoff_distance == 4.56);
+    CHECK(std::is_same<pot_type, md::softcore_potential<2, 2>>::value);
+    CHECK(pot.energy == 1.23);
+    CHECK(pot.diameter == 4.56);
     CHECK(ndist == 4.56);
 }

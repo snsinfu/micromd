@@ -55,9 +55,9 @@ TEST_CASE("neighbor_pair_forcefield_v2 - computes correct forcefield")
     }
 
     // Short-range interactions.
-    md::softcore_potential<3> potential;
-    potential.overlap_energy = 1.0;
-    potential.cutoff_distance = cutoff_distance;
+    md::softcore_potential<2, 3> potential;
+    potential.energy = 1.0;
+    potential.diameter = cutoff_distance;
 
     auto forcefield = md::make_neighbor_pair_forcefield_v2<md::periodic_box>(
         [&](md::index, md::index) {
@@ -121,9 +121,9 @@ TEST_CASE("neighbor_pair_forcefield_v2::set_targets - limits search targets")
     system.add_particle().position = {0.0, 0.0, 0.0};
 
     // Short-range interactions.
-    md::softcore_potential<3> potential;
-    potential.overlap_energy = 1.0;
-    potential.cutoff_distance = cutoff_distance;
+    md::softcore_potential<2, 3> potential;
+    potential.energy = 1.0;
+    potential.diameter = cutoff_distance;
 
     auto forcefield = md::make_neighbor_pair_forcefield_v2<md::periodic_box>(
         potential
@@ -171,9 +171,9 @@ TEST_CASE("neighbor_pair_forcefield_v2::set_box - changes box")
     system.add_particle().position = {0.0, 0.0, 0.0};
 
     // Reference brute-force computation.
-    md::softcore_potential<3> potential;
-    potential.overlap_energy = 1.0;
-    potential.cutoff_distance = cutoff_distance;
+    md::softcore_potential<2, 3> potential;
+    potential.energy = 1.0;
+    potential.diameter = cutoff_distance;
 
     md::array_view<md::point const> positions = system.view_positions();
     md::scalar expect_energy_1 = 0;
@@ -221,9 +221,9 @@ TEST_CASE("neighbor_pair_forcefield_v2::set_neighbor_distance - changes neighbor
     system.add_particle().position = {0.2, 0.0, 0.0};
 
     // Reference brute-force computation.
-    md::softcore_potential<3> potential;
-    potential.overlap_energy = 1.0;
-    potential.cutoff_distance = 0.2;
+    md::softcore_potential<2, 3> potential;
+    potential.energy = 1.0;
+    potential.diameter = 0.2;
 
     md::array_view<md::point const> positions = system.view_positions();
     md::scalar expect_energy_1 = 0;

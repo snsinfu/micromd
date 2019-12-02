@@ -496,15 +496,6 @@ potential/test_lennard_jones_potential.o: \
   ../include/md/basic_types/ziggurat.hpp \
   ../include/md/potential/lennard_jones_potential.hpp \
   potential/test_lennard_jones_potential.cc
-potential/test_polybell_potential.o: \
-  ../include/md/basic_types.hpp \
-  ../include/md/basic_types/array_view.hpp \
-  ../include/md/basic_types/point.hpp \
-  ../include/md/basic_types/sfc.hpp \
-  ../include/md/basic_types/ziggurat.hpp \
-  ../include/md/misc/math.hpp \
-  ../include/md/potential/polybell_potential.hpp \
-  potential/test_polybell_potential.cc
 potential/test_scaled_potential.o: \
   ../include/md/basic_types.hpp \
   ../include/md/basic_types/array_view.hpp \

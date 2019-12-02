@@ -5,20 +5,20 @@
 #include <catch.hpp>
 
 
-TEST_CASE("softcore_potential - uses defined default parameters")
+TEST_CASE("softcore_potential - uses sane default parameters")
 {
-    md::softcore_potential<3> pot;
+    md::softcore_potential<4, 4> pot;
 
-    CHECK(pot.overlap_energy == 1);
-    CHECK(pot.cutoff_distance == 1);
+    CHECK(pot.energy == 1);
+    CHECK(pot.diameter == 1);
 }
 
 TEST_CASE("softcore_potential - takes maximnum energy at zero")
 {
-    md::softcore_potential<3> pot;
+    md::softcore_potential<4, 4> pot;
 
-    pot.overlap_energy = 1.23;
-    pot.cutoff_distance = 1;
+    pot.energy = 1.23;
+    pot.diameter = 1;
 
     md::vector const zero = {};
     CHECK(pot.evaluate_energy(zero) == Approx(1.23));
@@ -27,14 +27,14 @@ TEST_CASE("softcore_potential - takes maximnum energy at zero")
     CHECK(pot.evaluate_force(zero).z == Approx(0));
 }
 
-TEST_CASE("softcore_potential - uses specified cutoff distance")
+TEST_CASE("softcore_potential - goes to zero at the cutoff distance")
 {
-    md::softcore_potential<3> pot;
+    md::softcore_potential<4, 4> pot;
 
-    pot.overlap_energy = 1.23;
-    pot.cutoff_distance = 4.56;
+    pot.energy = 1.23;
+    pot.diameter = 4.56;
 
-    md::vector const r = {pot.cutoff_distance, 0, 0};
+    md::vector const r = {pot.diameter, 0, 0};
 
     CHECK(pot.evaluate_energy(r) == Approx(0));
     CHECK(pot.evaluate_force(r).x == Approx(0));
@@ -52,25 +52,25 @@ TEST_CASE("softcore_potential - uses specified cutoff distance")
     CHECK(pot.evaluate_force(10 * r).z == 0);
 }
 
-TEST_CASE("softcore_potential - supports arbitrary positive exponent")
+TEST_CASE("softcore_potential - computes correct potential")
 {
-    md::softcore_potential<1> pl1;
-    md::softcore_potential<2> pl2;
-    md::softcore_potential<3> pl3;
-    md::softcore_potential<4> pl4;
-    md::softcore_potential<5> pl5;
+    md::softcore_potential<2, 1> pb1;
+    md::softcore_potential<2, 2> pb2;
+    md::softcore_potential<3, 3> pb3;
+    md::softcore_potential<4, 4> pb4;
+    md::softcore_potential<5, 5> pb5;
 
     md::vector const r = {0.5, 0, 0};
 
-    CHECK(pl1.evaluate_energy(r) == Approx(0.75));
-    CHECK(pl2.evaluate_energy(r) == Approx(0.5625));
-    CHECK(pl3.evaluate_energy(r) == Approx(0.421875));
-    CHECK(pl4.evaluate_energy(r) == Approx(0.31640625));
-    CHECK(pl5.evaluate_energy(r) == Approx(0.2373046875));
+    CHECK(pb1.evaluate_energy(r) == Approx(0.75));
+    CHECK(pb2.evaluate_energy(r) == Approx(0.5625));
+    CHECK(pb3.evaluate_energy(r) == Approx(0.669921875));
+    CHECK(pb4.evaluate_energy(r) == Approx(0.7724761962890625));
+    CHECK(pb5.evaluate_energy(r) == Approx(0.8532151877880096));
 
-    CHECK(pl1.evaluate_force(r).x == Approx(1));
-    CHECK(pl2.evaluate_force(r).x == Approx(1.5));
-    CHECK(pl3.evaluate_force(r).x == Approx(1.6875));
-    CHECK(pl4.evaluate_force(r).x == Approx(1.6875));
-    CHECK(pl5.evaluate_force(r).x == Approx(1.58203125));
+    CHECK(pb1.evaluate_force(r).x == Approx(1.0));
+    CHECK(pb2.evaluate_force(r).x == Approx(1.5));
+    CHECK(pb3.evaluate_force(r).x == Approx(1.72265625));
+    CHECK(pb4.evaluate_force(r).x == Approx(1.64794921875));
+    CHECK(pb5.evaluate_force(r).x == Approx(1.3761535286903381));
 }

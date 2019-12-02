@@ -44,9 +44,9 @@ TEST_CASE("neighbor_pair_forcefield - computes correct forcefield")
             return 1;
         }
 
-        md::softcore_potential<2> neighbor_pair_potential(md::system const&, md::index, md::index)
+        md::softcore_potential<2, 2> neighbor_pair_potential(md::system const&, md::index, md::index)
         {
-            return md::softcore_potential<2>{1, 1};
+            return md::softcore_potential<2, 2>{1, 1};
         }
     };
 
@@ -70,7 +70,7 @@ TEST_CASE("neighbor_pair_forcefield - computes correct forcefield")
     }
 
     test_forcefield forcefield;
-    md::softcore_potential<2> potential;
+    md::softcore_potential<2, 2> potential;
 
     std::vector<md::vector> actual_forces(system.particle_count());
     std::vector<md::vector> expected_forces(system.particle_count());
@@ -109,9 +109,9 @@ TEST_CASE("neighbor_pair_forcefield::compute_force - adds force to array")
             return 1;
         }
 
-        md::softcore_potential<2> neighbor_pair_potential(md::system const&, md::index, md::index)
+        md::softcore_potential<2, 2> neighbor_pair_potential(md::system const&, md::index, md::index)
         {
-            return md::softcore_potential<2>{1, 1};
+            return md::softcore_potential<2, 2>{1, 1};
         }
     };
 
@@ -141,7 +141,7 @@ TEST_CASE("make_neighbor_pair_forcefield - creates a neighbor_pair_forcefield")
 {
     md::system system;
 
-    auto ff = md::make_neighbor_pair_forcefield(md::softcore_potential<2>{1.23, 4.56});
+    auto ff = md::make_neighbor_pair_forcefield(md::softcore_potential<2, 2>{1.23, 4.56});
     ff.set_neighbor_distance(4.56);
 
     auto ndist = ff.neighbor_distance(system);
@@ -151,9 +151,9 @@ TEST_CASE("make_neighbor_pair_forcefield - creates a neighbor_pair_forcefield")
     using pot_type = decltype(pot);
 
     CHECK(std::is_base_of<md::neighbor_pair_forcefield<ff_type>, ff_type>::value);
-    CHECK(std::is_same<pot_type, md::softcore_potential<2>>::value);
-    CHECK(pot.overlap_energy == 1.23);
-    CHECK(pot.cutoff_distance == 4.56);
+    CHECK(std::is_same<pot_type, md::softcore_potential<2, 2>>::value);
+    CHECK(pot.energy == 1.23);
+    CHECK(pot.diameter == 4.56);
     CHECK(ndist == 4.56);
 }
 
@@ -165,7 +165,7 @@ TEST_CASE("neighbor_pair_forcefield::get_neighbor_list - returns neighbor list")
     system.add_particle().position = {0, 0, 2};
     system.add_particle().position = {0, 0, 3};
 
-    auto ff = md::make_neighbor_pair_forcefield(md::softcore_potential<2>{});
+    auto ff = md::make_neighbor_pair_forcefield(md::softcore_potential<2, 2>{});
     ff.set_neighbor_distance(1.5);
 
     md::neighbor_list const& nlist = ff.get_neighbor_list(system);
