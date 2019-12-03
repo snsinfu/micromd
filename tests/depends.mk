@@ -346,15 +346,6 @@ potential/test_soft_wca_potential.o: \
   ../include/md/basic_types/ziggurat.hpp \
   ../include/md/potential/soft_wca_potential.hpp \
   potential/test_soft_wca_potential.cc
-potential/test_soft_well_potential.o: \
-  ../include/md/basic_types.hpp \
-  ../include/md/basic_types/array_view.hpp \
-  ../include/md/basic_types/point.hpp \
-  ../include/md/basic_types/sfc.hpp \
-  ../include/md/basic_types/ziggurat.hpp \
-  ../include/md/misc/math.hpp \
-  ../include/md/potential/soft_well_potential.hpp \
-  potential/test_soft_well_potential.cc
 potential/test_softcore_potential.o: \
   ../include/md/basic_types.hpp \
   ../include/md/basic_types/array_view.hpp \
@@ -364,6 +355,15 @@ potential/test_softcore_potential.o: \
   ../include/md/misc/math.hpp \
   ../include/md/potential/softcore_potential.hpp \
   potential/test_softcore_potential.cc
+potential/test_softwell_potential.o: \
+  ../include/md/basic_types.hpp \
+  ../include/md/basic_types/array_view.hpp \
+  ../include/md/basic_types/point.hpp \
+  ../include/md/basic_types/sfc.hpp \
+  ../include/md/basic_types/ziggurat.hpp \
+  ../include/md/misc/math.hpp \
+  ../include/md/potential/softwell_potential.hpp \
+  potential/test_softwell_potential.cc
 potential/test_spring_potential.o: \
   ../include/md/basic_types.hpp \
   ../include/md/basic_types/array_view.hpp \

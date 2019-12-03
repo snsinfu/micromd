@@ -1,20 +1,20 @@
 #include <md/basic_types.hpp>
-#include <md/potential/soft_well_potential.hpp>
+#include <md/potential/softwell_potential.hpp>
 
 #include <catch.hpp>
 
 
-TEST_CASE("soft_well_potential - uses sane default paramters")
+TEST_CASE("softwell_potential - uses sane default paramters")
 {
-    md::soft_well_potential<2> pot;
+    md::softwell_potential<2> pot;
 
     CHECK(pot.energy == 1);
     CHECK(pot.decay_distance == 1);
 }
 
-TEST_CASE("soft_well_potential - is minimum at zero distance")
+TEST_CASE("softwell_potential - is minimum at zero distance")
 {
-    md::soft_well_potential<2> pot;
+    md::softwell_potential<2> pot;
     pot.energy = 1.23;
     pot.decay_distance = 4.56;
 
@@ -26,9 +26,9 @@ TEST_CASE("soft_well_potential - is minimum at zero distance")
     CHECK(force.norm() == Approx(0));
 }
 
-TEST_CASE("soft_well_potential - decays to zero")
+TEST_CASE("softwell_potential - decays to zero")
 {
-    md::soft_well_potential<2> pot;
+    md::softwell_potential<2> pot;
     pot.energy = 1.23;
     pot.decay_distance = 4.56;
 
@@ -43,9 +43,9 @@ TEST_CASE("soft_well_potential - decays to zero")
     CHECK(force.norm() == Approx(0).margin(0.01));
 }
 
-TEST_CASE("soft_well_potential - halves at decay_distance")
+TEST_CASE("softwell_potential - halves at decay_distance")
 {
-    md::soft_well_potential<2> pot;
+    md::softwell_potential<2> pot;
     pot.energy = 1.23;
     pot.decay_distance = 4.56;
 
@@ -53,11 +53,11 @@ TEST_CASE("soft_well_potential - halves at decay_distance")
     CHECK(energy == Approx(-pot.energy / 2));
 }
 
-TEST_CASE("soft_well_potential - computes correct values")
+TEST_CASE("softwell_potential - computes correct values")
 {
     SECTION("2nd order")
     {
-        md::soft_well_potential<2> pot;
+        md::softwell_potential<2> pot;
         pot.energy = 1.23;
         pot.decay_distance = 4.56;
 
@@ -73,7 +73,7 @@ TEST_CASE("soft_well_potential - computes correct values")
 
     SECTION("6th order")
     {
-        md::soft_well_potential<6> pot;
+        md::softwell_potential<6> pot;
         pot.energy = 1.23;
         pot.decay_distance = 4.56;
 

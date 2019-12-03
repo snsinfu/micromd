@@ -2,8 +2,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef MD_POTENTIAL_SOFT_WELL_POTENTIAL_HPP
-#define MD_POTENTIAL_SOFT_WELL_POTENTIAL_HPP
+#ifndef MD_POTENTIAL_SOFTWELL_POTENTIAL_HPP
+#define MD_POTENTIAL_SOFTWELL_POTENTIAL_HPP
 
 // This module provides a long-range well potential.
 
@@ -13,7 +13,7 @@
 
 namespace md
 {
-    // `soft_well_potential` is a bounded, long-range, attractive pairwise
+    // `softwell_potential` is a bounded, long-range, attractive pairwise
     // potential:
     //
     //     u(r) = -e / (1 + (r/s)^p) .
@@ -23,7 +23,7 @@ namespace md
     // distance `r` gets large.
     //
     template<int P = 2>
-    struct soft_well_potential
+    struct softwell_potential
     {
         static_assert(P >= 2, "P must be >= 2");
 
