@@ -35,6 +35,13 @@ TEST_CASE("sphere_surface_forcefield - computes inward forcefield")
         {
             return md::harmonic_potential{};
         }
+
+        md::sphere sphere_surface(md::system const&) const
+        {
+            return sphere;
+        }
+
+        md::sphere sphere;
     };
 
     md::system system;
@@ -62,7 +69,7 @@ TEST_CASE("sphere_surface_forcefield - computes inward forcefield")
     md::scalar const xh = sphere.center.x + sphere.radius;
 
     inward_forcefield inward;
-    inward.set_sphere(sphere);
+    inward.sphere = sphere;
 
     // Energy
     md::scalar const e2 = 0.5 * (x2 - xl) * (x2 - xl);
@@ -97,6 +104,13 @@ TEST_CASE("sphere_surface_forcefield - computes outward forcefield")
         {
             return md::harmonic_potential{};
         }
+
+        md::sphere sphere_surface(md::system const&) const
+        {
+            return sphere;
+        }
+
+        md::sphere sphere;
     };
 
     md::system system;
@@ -125,7 +139,7 @@ TEST_CASE("sphere_surface_forcefield - computes outward forcefield")
     md::scalar const xh = sphere.center.x + sphere.radius;
 
     outward_forcefield outward;
-    outward.set_sphere(sphere);
+    outward.sphere = sphere;
 
     // Energy
     md::scalar const e0 = 0.5 * (x0 - xl) * (x0 - xl);
@@ -149,23 +163,6 @@ TEST_CASE("sphere_surface_forcefield - computes outward forcefield")
     CHECK(forces[7].x == Approx(xh - x7));
 }
 
-TEST_CASE("sphere_surface_forcefield::set_sphere - returns self")
-{
-    class test_forcefield : public md::sphere_surface_forcefield<test_forcefield>
-    {
-    public:
-        md::harmonic_potential sphere_outward_potential(md::system const&, md::index)
-        {
-            return md::harmonic_potential{};
-        }
-    };
-
-    test_forcefield test;
-    test_forcefield& ref = test.set_sphere(md::sphere{});
-
-    CHECK(&ref == &test);
-}
-
 TEST_CASE("sphere_surface_forcefield::compute_force - adds force to array")
 {
     class outward_forcefield : public md::sphere_surface_forcefield<outward_forcefield>
@@ -175,6 +172,13 @@ TEST_CASE("sphere_surface_forcefield::compute_force - adds force to array")
         {
             return md::harmonic_potential{};
         }
+
+        md::sphere sphere_surface(md::system const&) const
+        {
+            return sphere;
+        }
+
+        md::sphere sphere;
     };
 
     md::system system;
@@ -187,7 +191,7 @@ TEST_CASE("sphere_surface_forcefield::compute_force - adds force to array")
     sphere.radius = 1;
 
     outward_forcefield outward;
-    outward.set_sphere(sphere);
+    outward.sphere = sphere;
 
     // compute_force does not clear existing force
     std::vector<md::vector> forces = {
@@ -214,6 +218,13 @@ TEST_CASE("sphere_surface_forcefield::compute_force - collects normal force stat
         {
             return md::harmonic_potential{};
         }
+
+        md::sphere sphere_surface(md::system const&) const
+        {
+            return sphere;
+        }
+
+        md::sphere sphere;
     };
 
     SECTION("outward force")
@@ -228,7 +239,7 @@ TEST_CASE("sphere_surface_forcefield::compute_force - collects normal force stat
         sphere.radius = 1;
 
         surface_forcefield ff;
-        ff.set_sphere(sphere);
+        ff.sphere = sphere;
 
         std::vector<md::vector> forces(system.particle_count());
         ff.compute_force(system, forces);
@@ -249,7 +260,7 @@ TEST_CASE("sphere_surface_forcefield::compute_force - collects normal force stat
         sphere.radius = 1;
 
         surface_forcefield ff;
-        ff.set_sphere(sphere);
+        ff.sphere = sphere;
 
         std::vector<md::vector> forces(system.particle_count());
         ff.compute_force(system, forces);
@@ -263,8 +274,11 @@ TEST_CASE("make_sphere_inward_forcefield - creates a sphere_surface_forcefield")
 {
     SECTION("fixed potential")
     {
-        auto ff = md::make_sphere_inward_forcefield(md::harmonic_potential{1.23});
-        ff.set_sphere(md::sphere{});
+        auto ff =
+            md::make_sphere_inward_forcefield(
+                md::harmonic_potential{1.23}
+            )
+            .set_sphere_surface(md::sphere{});
 
         md::system system;
         md::harmonic_potential pot = ff.sphere_inward_potential(system, 0);
@@ -276,10 +290,11 @@ TEST_CASE("make_sphere_inward_forcefield - creates a sphere_surface_forcefield")
 
     SECTION("lambda potential")
     {
-        auto ff = md::make_sphere_inward_forcefield([](md::index i) {
-            return md::harmonic_potential{i * 1.0};
-        });
-        ff.set_sphere(md::sphere{});
+        auto ff =
+            md::make_sphere_inward_forcefield([](md::index i) {
+                return md::harmonic_potential{i * 1.0};
+            })
+            .set_sphere_surface(md::sphere{});
 
         md::system system;
         md::harmonic_potential pot1 = ff.sphere_inward_potential(system, 1);
@@ -290,14 +305,36 @@ TEST_CASE("make_sphere_inward_forcefield - creates a sphere_surface_forcefield")
         using ff_type = decltype(ff);
         CHECK(std::is_base_of<md::sphere_surface_forcefield<ff_type>, ff_type>::value);
     }
+
+    SECTION("lambda sphere")
+    {
+        auto ff =
+            md::make_sphere_inward_forcefield(
+                md::harmonic_potential{1.23}
+            )
+            .set_sphere_surface([&] {
+                return md::sphere{md::point{1, 2, 3}, 4.5};
+            });
+
+        md::system system;
+        md::sphere sphere = ff.sphere_surface(system);
+
+        CHECK(sphere.center.x == Approx(1));
+        CHECK(sphere.center.y == Approx(2));
+        CHECK(sphere.center.z == Approx(3));
+        CHECK(sphere.radius == Approx(4.5));
+    }
 }
 
 TEST_CASE("make_sphere_outward_forcefield - creates a sphere_surface_forcefield")
 {
     SECTION("fixed potential")
     {
-        auto ff = md::make_sphere_outward_forcefield(md::harmonic_potential{1.23});
-        ff.set_sphere(md::sphere{});
+        auto ff =
+            md::make_sphere_outward_forcefield(
+                md::harmonic_potential{1.23}
+            )
+            .set_sphere_surface(md::sphere{});
 
         md::system system;
         md::harmonic_potential pot = ff.sphere_outward_potential(system, 0);
@@ -309,10 +346,11 @@ TEST_CASE("make_sphere_outward_forcefield - creates a sphere_surface_forcefield"
 
     SECTION("lambda potential")
     {
-        auto ff = md::make_sphere_outward_forcefield([](md::index i) {
-            return md::harmonic_potential{i * 1.0};
-        });
-        ff.set_sphere(md::sphere{});
+        auto ff =
+            md::make_sphere_outward_forcefield([](md::index i) {
+                return md::harmonic_potential{i * 1.0};
+            })
+            .set_sphere_surface(md::sphere{});
 
         md::system system;
         md::harmonic_potential pot1 = ff.sphere_outward_potential(system, 1);
@@ -322,5 +360,24 @@ TEST_CASE("make_sphere_outward_forcefield - creates a sphere_surface_forcefield"
 
         using ff_type = decltype(ff);
         CHECK(std::is_base_of<md::sphere_surface_forcefield<ff_type>, ff_type>::value);
+    }
+
+    SECTION("lambda sphere")
+    {
+        auto ff =
+            md::make_sphere_outward_forcefield(
+                md::harmonic_potential{1.23}
+            )
+            .set_sphere_surface([&] {
+                return md::sphere{md::point{1, 2, 3}, 4.5};
+            });
+
+        md::system system;
+        md::sphere sphere = ff.sphere_surface(system);
+
+        CHECK(sphere.center.x == Approx(1));
+        CHECK(sphere.center.y == Approx(2));
+        CHECK(sphere.center.z == Approx(3));
+        CHECK(sphere.radius == Approx(4.5));
     }
 }

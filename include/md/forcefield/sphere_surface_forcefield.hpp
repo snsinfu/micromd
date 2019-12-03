@@ -69,19 +69,12 @@ namespace md
         };
         statistics stats;
 
-        // set_ellipsoid changes the ellipsoid to given one. Default is the unit
-        // sphere placed at the origin.
-        Derived& set_sphere(md::sphere sphere)
-        {
-            sphere_ = sphere;
-            return derived();
-        }
-
         // compute_energy implements md::forcefield.
         md::scalar compute_energy(md::system const& system) override
         {
-            md::point const center = sphere_.center;
-            md::scalar const radius = sphere_.radius;
+            md::sphere const sphere = derived().sphere_surface(system);
+            md::point const center = sphere.center;
+            md::scalar const radius = sphere.radius;
             md::scalar const radius2 = radius * radius;
 
             md::array_view<md::point const> positions = system.view_positions();
@@ -114,8 +107,9 @@ namespace md
         // compute_force implements md::forcefield.
         void compute_force(md::system const& system, md::array_view<md::vector> forces) override
         {
-            md::point const center = sphere_.center;
-            md::scalar const radius = sphere_.radius;
+            md::sphere const sphere = derived().sphere_surface(system);
+            md::point const center = sphere.center;
+            md::scalar const radius = sphere.radius;
             md::scalar const radius2 = radius * radius;
 
             md::array_view<md::point const> positions = system.view_positions();
@@ -151,6 +145,10 @@ namespace md
             }
         }
 
+        //
+        // CRTP default implementations
+        //
+
         // sphere_inward_potential by default returns a zero potential.
         md::constant_potential sphere_inward_potential(md::system const&, md::index) const
         {
@@ -163,14 +161,18 @@ namespace md
             return md::constant_potential{0};
         }
 
+        // sphere_surface by default returns a unit sphere centered at the origin.
+        md::sphere sphere_surface(md::system const&) const
+        {
+            return {};
+        }
+
     private:
         // derived returns a reference to this as the CRTP derived class.
         Derived& derived()
         {
             return static_cast<Derived&>(*this);
         }
-
-        md::sphere sphere_;
     };
 
     template<typename PotFun>
@@ -181,6 +183,18 @@ namespace md
         explicit basic_sphere_inward_forcefield(PotFun potfun)
             : potfun_{potfun}
         {
+            sphere_callback_ = [] { return md::sphere{}; };
+        }
+
+        basic_sphere_inward_forcefield& set_sphere_surface(md::sphere sphere)
+        {
+            return set_sphere_surface([=] { return sphere; });
+        }
+
+        basic_sphere_inward_forcefield& set_sphere_surface(std::function<md::sphere()> sphere_cb)
+        {
+            sphere_callback_ = sphere_cb;
+            return *this;
         }
 
         auto sphere_inward_potential(md::system const&, md::index i) const
@@ -188,8 +202,14 @@ namespace md
             return potfun_(i);
         }
 
+        md::sphere sphere_surface(md::system const&) const
+        {
+            return sphere_callback_();
+        }
+
     private:
         PotFun potfun_;
+        std::function<md::sphere()> sphere_callback_;
     };
 
     template<typename PotFun>
@@ -200,6 +220,18 @@ namespace md
         explicit basic_sphere_outward_forcefield(PotFun potfun)
             : potfun_{potfun}
         {
+            sphere_callback_ = [] { return md::sphere{}; };
+        }
+
+        basic_sphere_outward_forcefield& set_sphere_surface(md::sphere sphere)
+        {
+            return set_sphere_surface([=] { return sphere; });
+        }
+
+        basic_sphere_outward_forcefield& set_sphere_surface(std::function<md::sphere()> sphere_cb)
+        {
+            sphere_callback_ = sphere_cb;
+            return *this;
         }
 
         auto sphere_outward_potential(md::system const&, md::index i) const
@@ -207,8 +239,14 @@ namespace md
             return potfun_(i);
         }
 
+        md::sphere sphere_surface(md::system const&) const
+        {
+            return sphere_callback_();
+        }
+
     private:
         PotFun potfun_;
+        std::function<md::sphere()> sphere_callback_;
     };
 
     // make_sphere_inward_forcefield implements md::sphere_surface_forcefield
