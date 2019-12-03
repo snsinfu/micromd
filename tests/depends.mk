@@ -31,6 +31,25 @@ forcefield/test_all_pair_forcefield.o: \
   ../include/md/system/detail/type_hash.hpp \
   ../include/md/system/particle.hpp \
   forcefield/test_all_pair_forcefield.cc
+forcefield/test_bonded_pairwise_forcefield.o: \
+  ../include/md/basic_types.hpp \
+  ../include/md/basic_types/array_view.hpp \
+  ../include/md/basic_types/point.hpp \
+  ../include/md/basic_types/sfc.hpp \
+  ../include/md/basic_types/ziggurat.hpp \
+  ../include/md/forcefield.hpp \
+  ../include/md/forcefield/bonded_pairwise_forcefield.hpp \
+  ../include/md/forcefield/detail/pair_potfun.hpp \
+  ../include/md/potential/harmonic_potential.hpp \
+  ../include/md/system.hpp \
+  ../include/md/system/attribute.hpp \
+  ../include/md/system/detail/array_erasure.hpp \
+  ../include/md/system/detail/attribute_table.hpp \
+  ../include/md/system/detail/iterator_range.hpp \
+  ../include/md/system/detail/sum_forcefield.hpp \
+  ../include/md/system/detail/type_hash.hpp \
+  ../include/md/system/particle.hpp \
+  forcefield/test_bonded_pairwise_forcefield.cc
 forcefield/test_composite_forcefield.o: \
   ../include/md/basic_types.hpp \
   ../include/md/basic_types/array_view.hpp \
@@ -135,25 +154,6 @@ forcefield/test_point_source_forcefield.o: \
   ../include/md/system/detail/type_hash.hpp \
   ../include/md/system/particle.hpp \
   forcefield/test_point_source_forcefield.cc
-forcefield/test_selected_pair_forcefield.o: \
-  ../include/md/basic_types.hpp \
-  ../include/md/basic_types/array_view.hpp \
-  ../include/md/basic_types/point.hpp \
-  ../include/md/basic_types/sfc.hpp \
-  ../include/md/basic_types/ziggurat.hpp \
-  ../include/md/forcefield.hpp \
-  ../include/md/forcefield/detail/pair_potfun.hpp \
-  ../include/md/forcefield/selected_pair_forcefield.hpp \
-  ../include/md/potential/harmonic_potential.hpp \
-  ../include/md/system.hpp \
-  ../include/md/system/attribute.hpp \
-  ../include/md/system/detail/array_erasure.hpp \
-  ../include/md/system/detail/attribute_table.hpp \
-  ../include/md/system/detail/iterator_range.hpp \
-  ../include/md/system/detail/sum_forcefield.hpp \
-  ../include/md/system/detail/type_hash.hpp \
-  ../include/md/system/particle.hpp \
-  forcefield/test_selected_pair_forcefield.cc
 forcefield/test_sphere_surface_forcefield.o: \
   ../include/md/basic_types.hpp \
   ../include/md/basic_types/array_view.hpp \

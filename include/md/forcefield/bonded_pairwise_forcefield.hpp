@@ -2,8 +2,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef MD_FORCEFIELD_SELECTED_PAIR_FORCEFIELD_HPP
-#define MD_FORCEFIELD_SELECTED_PAIR_FORCEFIELD_HPP
+#ifndef MD_FORCEFIELD_BONDED_PAIRWISE_FORCEFIELD_HPP
+#define MD_FORCEFIELD_BONDED_PAIRWISE_FORCEFIELD_HPP
 
 // This module provides a template forcefield implementation that computes
 // interactions between selected particle pairs.
@@ -20,12 +20,12 @@
 
 namespace md
 {
-    // selected_pair_forcefield implements md::forcefield. It computes
+    // bonded_pairwise_forcefield implements md::forcefield. It computes
     // interactions between selected pairs of particles.
     //
     // This is a CRTP base class. Derived class must define a callback:
     //
-    //     auto selected_pair_potential(
+    //     auto bonded_pairwise_potential(
     //         md::system const& system,
     //         md::index i,
     //         md::index j
@@ -33,11 +33,11 @@ namespace md
     //     Returns the potential object for (i,j) pair.
     //
     template<typename Derived>
-    class selected_pair_forcefield : public virtual md::forcefield
+    class bonded_pairwise_forcefield : public virtual md::forcefield
     {
     public:
-        // add_pair selects given pair.
-        Derived& add_pair(md::index first, md::index last)
+        // add_bonded_pair selects given pair as interacting.
+        Derived& add_bonded_pair(md::index first, md::index last)
         {
             pairs_.emplace_back(first, last);
             return derived();
@@ -55,7 +55,7 @@ namespace md
                 md::index const j = pair.second;
                 md::vector const r = positions[i] - positions[j];
 
-                auto const pot = derived().selected_pair_potential(system, i, j);
+                auto const pot = derived().bonded_pairwise_potential(system, i, j);
                 md::scalar const energy = pot.evaluate_energy(r);
 
                 sum += energy;
@@ -74,7 +74,7 @@ namespace md
                 md::index const j = pair.second;
                 md::vector const r = positions[i] - positions[j];
 
-                auto const pot = derived().selected_pair_potential(system, i, j);
+                auto const pot = derived().bonded_pairwise_potential(system, i, j);
                 md::vector const force = pot.evaluate_force(r);
 
                 forces[i] += force;
@@ -93,16 +93,16 @@ namespace md
     };
 
     template<typename PotFun>
-    class basic_selected_pair_forcefield
-        : public md::selected_pair_forcefield<basic_selected_pair_forcefield<PotFun>>
+    class basic_bonded_pairwise_forcefield
+        : public md::bonded_pairwise_forcefield<basic_bonded_pairwise_forcefield<PotFun>>
     {
     public:
-        explicit basic_selected_pair_forcefield(PotFun potfun)
+        explicit basic_bonded_pairwise_forcefield(PotFun potfun)
             : potfun_{potfun}
         {
         }
 
-        auto selected_pair_potential(md::system const&, md::index i, md::index j) const
+        auto bonded_pairwise_potential(md::system const&, md::index i, md::index j) const
         {
             return potfun_(i, j);
         }
@@ -111,14 +111,14 @@ namespace md
         PotFun potfun_;
     };
 
-    // make_selected_pair_forcefield implements md::selected_pair_forcefield
+    // make_bonded_pairwise_forcefield implements md::bonded_pairwise_forcefield
     // with given potential object or lambda returning a potential object.
     template<typename P>
-    auto make_selected_pair_forcefield(P pot)
+    auto make_bonded_pairwise_forcefield(P pot)
     {
         auto potfun = detail::make_pair_potfun(pot);
         using potfun_type = decltype(potfun);
-        return md::basic_selected_pair_forcefield<potfun_type>{potfun};
+        return md::basic_bonded_pairwise_forcefield<potfun_type>{potfun};
     }
 }
 

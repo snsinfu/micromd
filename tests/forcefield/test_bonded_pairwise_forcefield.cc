@@ -5,17 +5,17 @@
 #include <md/system.hpp>
 #include <md/potential/harmonic_potential.hpp>
 
-#include <md/forcefield/selected_pair_forcefield.hpp>
+#include <md/forcefield/bonded_pairwise_forcefield.hpp>
 
 #include <catch.hpp>
 
 
-TEST_CASE("selected_pair_forcefield - computes bond interactions")
+TEST_CASE("bonded_pairwise_forcefield - computes bond interactions")
 {
-    class bond_forcefield : public md::selected_pair_forcefield<bond_forcefield>
+    class bond_forcefield : public md::bonded_pairwise_forcefield<bond_forcefield>
     {
     public:
-        auto selected_pair_potential(md::system const&, md::index, md::index)
+        auto bonded_pairwise_potential(md::system const&, md::index, md::index)
         {
             return md::harmonic_potential{};
         }
@@ -53,7 +53,7 @@ TEST_CASE("selected_pair_forcefield - computes bond interactions")
         md::scalar const expected_energy = 0.5 * (x1 - x2) * (x1 - x2);
 
         bond_forcefield bond;
-        bond.add_pair(1, 2);
+        bond.add_bonded_pair(1, 2);
 
         // Energy
         CHECK(bond.compute_energy(system) == Approx(expected_energy));
@@ -73,9 +73,9 @@ TEST_CASE("selected_pair_forcefield - computes bond interactions")
     {
         // Particle pairs 0:1, 1:2 and 3:4 are bonded.
         bond_forcefield bond;
-        bond.add_pair(0, 1);
-        bond.add_pair(1, 2);
-        bond.add_pair(3, 4);
+        bond.add_bonded_pair(0, 1);
+        bond.add_bonded_pair(1, 2);
+        bond.add_bonded_pair(3, 4);
 
         // Energy
         md::scalar const e01 = 0.5 * (x0 - x1) * (x0 - x1);
@@ -97,29 +97,29 @@ TEST_CASE("selected_pair_forcefield - computes bond interactions")
     }
 }
 
-TEST_CASE("selected_pair_forcefield::add_pair - returns self")
+TEST_CASE("bonded_pairwise_forcefield::add_bonded_pair - returns self")
 {
-    class test_forcefield : public md::selected_pair_forcefield<test_forcefield>
+    class test_forcefield : public md::bonded_pairwise_forcefield<test_forcefield>
     {
     public:
-        md::harmonic_potential selected_pair_potential(md::system const&, md::index, md::index)
+        md::harmonic_potential bonded_pairwise_potential(md::system const&, md::index, md::index)
         {
             return md::harmonic_potential{};
         }
     };
 
     test_forcefield test;
-    test_forcefield& ref = test.add_pair(0, 1);
+    test_forcefield& ref = test.add_bonded_pair(0, 1);
 
     CHECK(&ref == &test);
 }
 
-TEST_CASE("selected_pair_forcefield::compute_force - adds force to array")
+TEST_CASE("bonded_pairwise_forcefield::compute_force - adds force to array")
 {
-    class test_forcefield : public md::selected_pair_forcefield<test_forcefield>
+    class test_forcefield : public md::bonded_pairwise_forcefield<test_forcefield>
     {
     public:
-        md::harmonic_potential selected_pair_potential(md::system const&, md::index, md::index)
+        md::harmonic_potential bonded_pairwise_potential(md::system const&, md::index, md::index)
         {
             return md::harmonic_potential{};
         }
@@ -131,7 +131,7 @@ TEST_CASE("selected_pair_forcefield::compute_force - adds force to array")
     system.add_particle().position = {0, 1, 0};
 
     test_forcefield ff;
-    ff.add_pair(0, 1);
+    ff.add_bonded_pair(0, 1);
 
     // compute_force does not clear existing force
     std::vector<md::vector> forces = {
@@ -148,17 +148,17 @@ TEST_CASE("selected_pair_forcefield::compute_force - adds force to array")
     CHECK(forces[1].z == Approx(6));
 }
 
-TEST_CASE("make_selected_pair_forcefield - creates a selected_pair_forcefield")
+TEST_CASE("make_bonded_pairwise_forcefield - creates a bonded_pairwise_forcefield")
 {
     md::system system;
 
-    auto ff = md::make_selected_pair_forcefield(md::harmonic_potential{1.23});
-    auto pot = ff.selected_pair_potential(system, 0, 1);
+    auto ff = md::make_bonded_pairwise_forcefield(md::harmonic_potential{1.23});
+    auto pot = ff.bonded_pairwise_potential(system, 0, 1);
 
     using ff_type = decltype(ff);
     using pot_type = decltype(pot);
 
-    CHECK(std::is_base_of<md::selected_pair_forcefield<ff_type>, ff_type>::value);
+    CHECK(std::is_base_of<md::bonded_pairwise_forcefield<ff_type>, ff_type>::value);
     CHECK(std::is_same<pot_type, md::harmonic_potential>::value);
     CHECK(pot.spring_constant == 1.23);
 }
