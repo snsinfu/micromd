@@ -2,8 +2,8 @@
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef MD_FORCEFIELD_NEIGHBOR_PAIR_FORCEFIELD_HPP
-#define MD_FORCEFIELD_NEIGHBOR_PAIR_FORCEFIELD_HPP
+#ifndef MD_FORCEFIELD_NEIGHBOR_PAIRWISE_FORCEFIELD_HPP
+#define MD_FORCEFIELD_NEIGHBOR_PAIRWISE_FORCEFIELD_HPP
 
 // This module provides a template forcefield implementation that quickly
 // computes short-range pairwise interactions in open and periodic systems.
@@ -18,9 +18,9 @@
 
 namespace md
 {
-    // neighbor_pair_forcefield implements md::forcefield. It computes short-
-    // range interactions between every pair of particles that are close within
-    // a given cutoff distance.
+    // neighbor_pairwise_forcefield implements md::forcefield. It computes
+    // short- range interactions between every pair of particles that are close
+    // within a given cutoff distance.
     //
     // This is a CRTP base class. Derived class must define three callbacks:
     //
@@ -30,7 +30,7 @@ namespace md
     //     md::scalar neighbor_distance(md::system const& system)
     //     Returns the cutoff distance.
     //
-    //     auto neighbor_pair_potential(
+    //     auto neighbor_pairwise_potential(
     //         md::system const& system,
     //         md::index i,
     //         md::index j
@@ -40,7 +40,7 @@ namespace md
     // TODO: Reconsider the name of the box() callback.
     //
     template<typename Box, typename Derived>
-    class neighbor_pair_forcefield : public virtual md::forcefield
+    class neighbor_pairwise_forcefield : public virtual md::forcefield
     {
     public:
         // compute_energy implements md::forcefield.
@@ -54,7 +54,7 @@ namespace md
                 md::index const i = pair.first;
                 md::index const j = pair.second;
 
-                auto const pot = derived().neighbor_pair_potential(system, i, j);
+                auto const pot = derived().neighbor_pairwise_potential(system, i, j);
                 auto const r = box.shortest_displacement(positions[i], positions[j]);
 
                 sum += pot.evaluate_energy(r);
@@ -73,7 +73,7 @@ namespace md
                 md::index const i = pair.first;
                 md::index const j = pair.second;
 
-                auto const pot = derived().neighbor_pair_potential(system, i, j);
+                auto const pot = derived().neighbor_pairwise_potential(system, i, j);
                 auto const r = box.shortest_displacement(positions[i], positions[j]);
 
                 auto const force = pot.evaluate_force(r);
@@ -111,27 +111,27 @@ namespace md
         md::neighbor_list<Box> neighbor_list_;
     };
 
-    // Implements md::neighbor_pair_forcefield. See the factory function
-    // make_neighbor_pair_forcefield.
+    // Implements md::neighbor_pairwise_forcefield. See the factory function
+    // make_neighbor_pairwise_forcefield.
     template<typename Box, typename PotFun>
-    class basic_neighbor_pair_forcefield
-        : public md::neighbor_pair_forcefield<
-            Box, basic_neighbor_pair_forcefield<Box, PotFun>
+    class basic_neighbor_pairwise_forcefield
+        : public md::neighbor_pairwise_forcefield<
+            Box, basic_neighbor_pairwise_forcefield<Box, PotFun>
         >
     {
     public:
-        explicit basic_neighbor_pair_forcefield(PotFun potfun)
+        explicit basic_neighbor_pairwise_forcefield(PotFun potfun)
             : potfun_{potfun}
         {
         }
 
-        basic_neighbor_pair_forcefield& set_box(Box box)
+        basic_neighbor_pairwise_forcefield& set_box(Box box)
         {
             box_ = box;
             return *this;
         }
 
-        basic_neighbor_pair_forcefield& set_neighbor_distance(md::scalar ndist)
+        basic_neighbor_pairwise_forcefield& set_neighbor_distance(md::scalar ndist)
         {
             ndist_ = ndist;
             return *this;
@@ -147,7 +147,7 @@ namespace md
             return ndist_;
         }
 
-        auto neighbor_pair_potential(md::system const&, md::index i, md::index j) const
+        auto neighbor_pairwise_potential(md::system const&, md::index i, md::index j) const
         {
             return potfun_(i, j);
         }
@@ -158,14 +158,14 @@ namespace md
         md::scalar ndist_ = 0;
     };
 
-    // make_neighbor_pair_forcefield implements md::neighbor_pair_forcefield
+    // make_neighbor_pairwise_forcefield implements md::neighbor_pairwise_forcefield
     // with given potential object or lambda returning a potential object.
     template<typename Box = md::open_box, typename P>
-    auto make_neighbor_pair_forcefield(P pot)
+    auto make_neighbor_pairwise_forcefield(P pot)
     {
         auto potfun = detail::make_pair_potfun(pot);
         using potfun_type = decltype(potfun);
-        return md::basic_neighbor_pair_forcefield<Box, potfun_type>{potfun};
+        return md::basic_neighbor_pairwise_forcefield<Box, potfun_type>{potfun};
     }
 }
 

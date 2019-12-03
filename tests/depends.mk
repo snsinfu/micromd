@@ -105,7 +105,7 @@ forcefield/test_ellipsoid_surface_forcefield.o: \
   ../include/md/system/detail/type_hash.hpp \
   ../include/md/system/particle.hpp \
   forcefield/test_ellipsoid_surface_forcefield.cc
-forcefield/test_neighbor_pair_forcefield.o: \
+forcefield/test_neighbor_pairwise_forcefield.o: \
   ../include/md/basic_types.hpp \
   ../include/md/basic_types/array_view.hpp \
   ../include/md/basic_types/point.hpp \
@@ -115,7 +115,7 @@ forcefield/test_neighbor_pair_forcefield.o: \
   ../include/md/forcefield/detail/neighbor_list.hpp \
   ../include/md/forcefield/detail/neighbor_list_heuristics.hpp \
   ../include/md/forcefield/detail/pair_potfun.hpp \
-  ../include/md/forcefield/neighbor_pair_forcefield.hpp \
+  ../include/md/forcefield/neighbor_pairwise_forcefield.hpp \
   ../include/md/misc/box.hpp \
   ../include/md/misc/linear_hash.hpp \
   ../include/md/misc/math.hpp \
@@ -132,7 +132,7 @@ forcefield/test_neighbor_pair_forcefield.o: \
   ../include/md/system/detail/sum_forcefield.hpp \
   ../include/md/system/detail/type_hash.hpp \
   ../include/md/system/particle.hpp \
-  forcefield/test_neighbor_pair_forcefield.cc
+  forcefield/test_neighbor_pairwise_forcefield.cc
 forcefield/test_plane_surface_forcefield.o: \
   ../include/md/basic_types.hpp \
   ../include/md/basic_types/array_view.hpp \

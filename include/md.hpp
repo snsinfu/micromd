@@ -34,7 +34,7 @@
 #include "md/forcefield/bruteforce_pairwise_forcefield.hpp"
 #include "md/forcefield/composite_forcefield.hpp"
 #include "md/forcefield/ellipsoid_surface_forcefield.hpp"
-#include "md/forcefield/neighbor_pair_forcefield.hpp"
+#include "md/forcefield/neighbor_pairwise_forcefield.hpp"
 #include "md/forcefield/plane_surface_forcefield.hpp"
 #include "md/forcefield/point_source_forcefield.hpp"
 #include "md/forcefield/bonded_pairwise_forcefield.hpp"

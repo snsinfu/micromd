@@ -11,7 +11,7 @@
 #include <md/potential/harmonic_potential.hpp>
 #include <md/potential/softcore_potential.hpp>
 
-#include <md/forcefield/neighbor_pair_forcefield.hpp>
+#include <md/forcefield/neighbor_pairwise_forcefield.hpp>
 
 #include <catch.hpp>
 
@@ -34,7 +34,7 @@ namespace
     }
 }
 
-TEST_CASE("neighbor_pair_forcefield - computes correct forcefield")
+TEST_CASE("neighbor_pairwise_forcefield - computes correct forcefield")
 {
     md::scalar const cutoff_distance = 0.3;
     md::index const point_count = 1000;
@@ -59,7 +59,7 @@ TEST_CASE("neighbor_pair_forcefield - computes correct forcefield")
     potential.energy = 1.0;
     potential.diameter = cutoff_distance;
 
-    auto forcefield = md::make_neighbor_pair_forcefield<md::periodic_box>(
+    auto forcefield = md::make_neighbor_pairwise_forcefield<md::periodic_box>(
         [&](md::index, md::index) {
             return potential;
         }
@@ -93,7 +93,7 @@ TEST_CASE("neighbor_pair_forcefield - computes correct forcefield")
     CHECK(max_difference(actual_forces, expect_forces) == Approx(0).margin(0.001));
 }
 
-TEST_CASE("neighbor_pair_forcefield::set_targets - limits search targets")
+TEST_CASE("neighbor_pairwise_forcefield::set_targets - limits search targets")
 {
     md::scalar const cutoff_distance = 0.1;
 
@@ -125,7 +125,7 @@ TEST_CASE("neighbor_pair_forcefield::set_targets - limits search targets")
     potential.energy = 1.0;
     potential.diameter = cutoff_distance;
 
-    auto forcefield = md::make_neighbor_pair_forcefield<md::periodic_box>(
+    auto forcefield = md::make_neighbor_pairwise_forcefield<md::periodic_box>(
         potential
     )
     .set_targets(targets)
@@ -151,7 +151,7 @@ TEST_CASE("neighbor_pair_forcefield::set_targets - limits search targets")
     CHECK(actual_energy == Approx(expect_energy));
 }
 
-TEST_CASE("neighbor_pair_forcefield::set_box - changes box")
+TEST_CASE("neighbor_pairwise_forcefield::set_box - changes box")
 {
     md::scalar const cutoff_distance = 0.1;
 
@@ -193,9 +193,9 @@ TEST_CASE("neighbor_pair_forcefield::set_box - changes box")
         }
     }
 
-    // Test neighbor_pair_forcefield implementation.
+    // Test neighbor_pairwise_forcefield implementation.
     auto forcefield =
-        md::make_neighbor_pair_forcefield<md::periodic_box>(
+        md::make_neighbor_pairwise_forcefield<md::periodic_box>(
             potential
         )
         .set_neighbor_distance(cutoff_distance);
@@ -210,7 +210,7 @@ TEST_CASE("neighbor_pair_forcefield::set_box - changes box")
     CHECK(actual_energy_2 == Approx(expect_energy_2));
 }
 
-TEST_CASE("neighbor_pair_forcefield::set_neighbor_distance - changes neighbor distance")
+TEST_CASE("neighbor_pairwise_forcefield::set_neighbor_distance - changes neighbor distance")
 {
     md::scalar const dcut_1 = 0.15;
     md::scalar const dcut_2 = 0.25;
@@ -242,9 +242,9 @@ TEST_CASE("neighbor_pair_forcefield::set_neighbor_distance - changes neighbor di
         }
     }
 
-    // Test neighbor_pair_forcefield implementation.
+    // Test neighbor_pairwise_forcefield implementation.
     auto forcefield =
-        md::make_neighbor_pair_forcefield<md::open_box>(
+        md::make_neighbor_pairwise_forcefield<md::open_box>(
             potential
         );
 
