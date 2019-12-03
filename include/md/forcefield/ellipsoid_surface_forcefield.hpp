@@ -1,4 +1,4 @@
-// Copyright snsinfu 2018.
+// Copyright snsinfu 2018-2019.
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -129,22 +129,16 @@ namespace md
         };
         statistics stats;
 
-        // set_ellipsoid changes the ellipsoid to given one.
-        Derived& set_ellipsoid(md::ellipsoid ellip)
-        {
-            ellipsoid_ = ellip;
-            return derived();
-        }
-
         // compute_energy implements md::forcefield.
         md::scalar compute_energy(md::system const& system) override
         {
+            md::ellipsoid const ellipsoid = derived().ellipsoid_surface(system);
             md::array_view<md::point const> positions = system.view_positions();
 
             md::scalar sum = 0;
 
             for (md::index i = 0; i < system.particle_count(); i++) {
-                detail::ellipsoid_eval const ev = detail::evaluate_point(ellipsoid_, positions[i]);
+                detail::ellipsoid_eval const ev = detail::evaluate_point(ellipsoid, positions[i]);
 
                 if (ev.undefined) {
                     continue;
@@ -167,12 +161,13 @@ namespace md
         // compute_force implements md::forcefield.
         void compute_force(md::system const& system, md::array_view<md::vector> forces) override
         {
+            md::ellipsoid const ellipsoid = derived().ellipsoid_surface(system);
             md::array_view<md::point const> positions = system.view_positions();
 
             stats.reaction_force = 0;
 
             for (md::index i = 0; i < system.particle_count(); i++) {
-                detail::ellipsoid_eval const ev = detail::evaluate_point(ellipsoid_, positions[i]);
+                detail::ellipsoid_eval const ev = detail::evaluate_point(ellipsoid, positions[i]);
 
                 if (ev.undefined) {
                     continue;
@@ -205,6 +200,10 @@ namespace md
             }
         }
 
+        //
+        // CRTP default implementations
+        //
+
         // ellipsoid_inward_potential by default returns a zero potential.
         md::constant_potential ellipsoid_inward_potential(md::system const&, md::index) const
         {
@@ -217,14 +216,18 @@ namespace md
             return md::constant_potential{0};
         }
 
+        // ellipsoid_surface by default returns a unit sphere centered at the origin.
+        md::ellipsoid ellipsoid_surface(md::system const&) const
+        {
+            return {};
+        }
+
     private:
         // derived returns a reference to this object as the CRTP derived class.
         Derived& derived()
         {
             return static_cast<Derived&>(*this);
         }
-
-        md::ellipsoid ellipsoid_;
     };
 
     template<typename PotFun>
@@ -237,13 +240,32 @@ namespace md
         {
         }
 
+        basic_ellipsoid_inward_forcefield& set_ellipsoid_surface(md::ellipsoid el)
+        {
+            return set_ellipsoid_surface([=] { return el; });
+        }
+
+        basic_ellipsoid_inward_forcefield& set_ellipsoid_surface(
+            std::function<md::ellipsoid()> el_cb
+        )
+        {
+            ellipsoid_callback_ = el_cb;
+            return *this;
+        }
+
         auto ellipsoid_inward_potential(md::system const&, md::index i) const
         {
             return potfun_(i);
         }
 
+        md::ellipsoid ellipsoid_surface(md::system const&) const
+        {
+            return ellipsoid_callback_();
+        }
+
     private:
         PotFun potfun_;
+        std::function<md::ellipsoid()> ellipsoid_callback_;
     };
 
     template<typename PotFun>
@@ -256,13 +278,32 @@ namespace md
         {
         }
 
+        basic_ellipsoid_outward_forcefield& set_ellipsoid_surface(md::ellipsoid el)
+        {
+            return set_ellipsoid_surface([=] { return el; });
+        }
+
+        basic_ellipsoid_outward_forcefield& set_ellipsoid_surface(
+            std::function<md::ellipsoid()> el_cb
+        )
+        {
+            ellipsoid_callback_ = el_cb;
+            return *this;
+        }
+
         auto ellipsoid_outward_potential(md::system const&, md::index i) const
         {
             return potfun_(i);
         }
 
+        md::ellipsoid ellipsoid_surface(md::system const&) const
+        {
+            return ellipsoid_callback_();
+        }
+
     private:
         PotFun potfun_;
+        std::function<md::ellipsoid()> ellipsoid_callback_;
     };
 
     // make_ellipsoid_inward_forcefield implements

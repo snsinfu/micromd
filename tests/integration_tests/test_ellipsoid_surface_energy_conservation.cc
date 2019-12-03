@@ -19,6 +19,13 @@ TEST_CASE("Energy conservation of particles in a ellipsoid")
             harmonic.spring_constant = 1000;
             return harmonic;
         }
+
+        md::ellipsoid ellipsoid_surface(md::system const&)
+        {
+            return ellipsoid;
+        }
+
+        md::ellipsoid ellipsoid;
     };
 
     md::system system;
@@ -34,7 +41,7 @@ TEST_CASE("Energy conservation of particles in a ellipsoid")
     part.velocity = {1, 2, 3};
 
     ellipsoid_packing_forcefield forcefield;
-    forcefield.set_ellipsoid(ellipsoid);
+    forcefield.ellipsoid = ellipsoid;
     system.add_forcefield(forcefield);
 
     md::newtonian_dynamics_config config;
