@@ -9,6 +9,7 @@ Renamed classes and functions for better consistency.
 
 - Forcefield templates:
   - Added `bonded_triplewise_forcefield`: Forcefield on selected triples.
+  - Setters like `set_neighbor_distance` now accept lambda.
 
 ### Removal
 
