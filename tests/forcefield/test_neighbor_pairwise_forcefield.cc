@@ -93,7 +93,7 @@ TEST_CASE("neighbor_pairwise_forcefield - computes correct forcefield")
     CHECK(max_difference(actual_forces, expect_forces) == Approx(0).margin(0.001));
 }
 
-TEST_CASE("neighbor_pairwise_forcefield::set_targets - limits search targets")
+TEST_CASE("neighbor_pairwise_forcefield::set_neighbor_targets - limits search targets")
 {
     md::scalar const cutoff_distance = 0.1;
 
@@ -129,7 +129,7 @@ TEST_CASE("neighbor_pairwise_forcefield::set_targets - limits search targets")
         md::make_neighbor_pairwise_forcefield<md::periodic_box>(
             potential
         )
-        .set_targets(targets)
+        .set_neighbor_targets(targets)
         .set_unit_cell(box)
         .set_neighbor_distance(cutoff_distance);
 
@@ -257,4 +257,87 @@ TEST_CASE("neighbor_pairwise_forcefield::set_neighbor_distance - changes neighbo
 
     CHECK(actual_energy_1 == Approx(expect_energy_1));
     CHECK(actual_energy_2 == Approx(expect_energy_2));
+}
+
+TEST_CASE("neighbor_pairwise_forcefield::set_neighbor_distance - accepts lambda")
+{
+    md::scalar const dcut = 0.15;
+
+    md::system system;
+    system.add_particle().position = {0.0, 0.0, 0.0};
+    system.add_particle().position = {0.1, 0.0, 0.0};
+    system.add_particle().position = {0.2, 0.0, 0.0};
+
+    // Reference brute-force computation.
+    md::softcore_potential<2, 3> potential;
+    potential.energy = 1.0;
+    potential.diameter = dcut;
+
+    md::array_view<md::point const> positions = system.view_positions();
+    md::scalar expect_energy = 0;
+
+    for (md::index i = 0; i < system.particle_count(); i++) {
+        for (md::index j = i + 1; j < system.particle_count(); j++) {
+            md::vector const r = positions[i] - positions[j];
+
+            if (r.norm() < dcut) {
+                expect_energy += potential.evaluate_energy(r);
+            }
+        }
+    }
+
+    // Test neighbor_pairwise_forcefield implementation.
+    auto forcefield =
+        md::make_neighbor_pairwise_forcefield(potential)
+        .set_neighbor_distance([&] {
+            return dcut;
+        });
+    md::scalar const actual_energy = forcefield.compute_energy(system);
+
+    CHECK(actual_energy == Approx(expect_energy));
+}
+
+TEST_CASE("neighbor_pairwise_forcefield::set_unit_cell - accepts lambda")
+{
+    md::scalar const dcut = 0.15;
+    md::periodic_box box;
+    box.x_period = 0.6;
+    box.y_period = 0.6;
+    box.z_period = 0.6;
+
+    md::system system;
+    system.add_particle().position = {1.0, 1.0, 1.0};
+    system.add_particle().position = {0.6, 0.6, 0.6};
+    system.add_particle().position = {0.0, 0.0, 0.0};
+
+    // Reference brute-force computation.
+    md::softcore_potential<2, 3> potential;
+    potential.energy = 1.0;
+    potential.diameter = dcut;
+
+    md::array_view<md::point const> positions = system.view_positions();
+    md::scalar expect_energy = 0;
+
+    for (md::index i = 0; i < system.particle_count(); i++) {
+        for (md::index j = i + 1; j < system.particle_count(); j++) {
+            md::vector const r = box.shortest_displacement(positions[i], positions[j]);
+
+            if (r.norm() < dcut) {
+                expect_energy += potential.evaluate_energy(r);
+            }
+        }
+    }
+
+    // Test neighbor_pairwise_forcefield implementation.
+    auto forcefield =
+        md::make_neighbor_pairwise_forcefield<md::periodic_box>(
+            potential
+        )
+        .set_unit_cell([&] {
+            return box;
+        })
+        .set_neighbor_distance(dcut);
+    md::scalar const actual_energy = forcefield.compute_energy(system);
+
+    CHECK(actual_energy == Approx(expect_energy));
 }

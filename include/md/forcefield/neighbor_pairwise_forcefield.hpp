@@ -8,9 +8,12 @@
 // This module provides a template forcefield implementation that quickly
 // computes short-range pairwise interactions in open and periodic systems.
 
+#include <functional>
+
 #include "../basic_types.hpp"
 #include "../forcefield.hpp"
 #include "../system.hpp"
+#include "../misc/index_range.hpp"
 
 #include "detail/neighbor_list.hpp"
 #include "detail/pair_potfun.hpp"
@@ -90,13 +93,13 @@ namespace md
         }
 
         //
-        // Setter
+        // Setter (FIXME: Move to basic_neighbor_pairwise_forcefield)
         //
 
         template<typename R>
-        Derived& set_targets(R const& targets)
+        Derived& set_neighbor_targets(R const& indices)
         {
-            neighbor_list_.set_targets(targets);
+            neighbor_list_.set_targets(indices);
             return derived();
         }
 
@@ -134,39 +137,52 @@ namespace md
         explicit basic_neighbor_pairwise_forcefield(PotFun potfun)
             : potfun_{potfun}
         {
+            box_callback_ = []() -> Box { return {}; };
+            ndist_callback_ = []() -> md::scalar { return 1e-6; };
         }
 
         basic_neighbor_pairwise_forcefield& set_unit_cell(Box box)
         {
-            box_ = box;
+            return set_unit_cell([=] { return box; });
+        }
+
+        basic_neighbor_pairwise_forcefield& set_unit_cell(std::function<Box()> box_cb)
+        {
+            box_callback_ = box_cb;
             return *this;
         }
 
         basic_neighbor_pairwise_forcefield& set_neighbor_distance(md::scalar ndist)
         {
-            ndist_ = ndist;
+            return set_neighbor_distance([=] { return ndist; });
+        }
+
+        basic_neighbor_pairwise_forcefield& set_neighbor_distance(std::function<md::scalar()> ndist_cb)
+        {
+            ndist_callback_ = ndist_cb;
             return *this;
         }
 
         Box unit_cell(md::system const&) const
         {
-            return box_;
+            return box_callback_();
         }
 
         md::scalar neighbor_distance(md::system const&) const
         {
-            return ndist_;
+            return ndist_callback_();
         }
 
+        inline
         auto neighbor_pairwise_potential(md::system const&, md::index i, md::index j) const
         {
             return potfun_(i, j);
         }
 
     private:
-        Box box_;
         PotFun potfun_;
-        md::scalar ndist_ = 0;
+        std::function<Box()> box_callback_;
+        std::function<md::scalar()> ndist_callback_;
     };
 
     // make_neighbor_pairwise_forcefield implements md::neighbor_pairwise_forcefield
