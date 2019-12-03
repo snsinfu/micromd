@@ -21,10 +21,23 @@
 
 namespace md
 {
+    // Plane in the three-dimensional space.
+    struct plane
+    {
+        // The normal vector.
+        md::vector normal = {0, 0, 1};
+
+        // An arbitrary point laying on the plane.
+        md::point reference;
+    };
+
     // plane_surface_forcefield computes field interaction of particles and a
     // plane.
     //
     // This is a CRTP base class. Callbacks are:
+    //
+    //     plane plane_surface(md::system const& system)
+    //     Returns a plane used as the surface.
     //
     //     auto plane_inward_potential(
     //         md::system const& system,
@@ -52,24 +65,18 @@ namespace md
         };
         statistics stats;
 
-        // set_plane changes the plane. Default is the xy plane.
-        Derived& set_plane(md::point reference, md::vector normal)
-        {
-            reference_ = reference;
-            normal_ = normal;
-            return derived();
-        }
-
         // compute_energy implements md::forcefield.
         md::scalar compute_energy(md::system const& system) override
         {
             md::array_view<md::point const> positions = system.view_positions();
             md::scalar sum = 0;
 
-            for (md::index i = 0; i < system.particle_count(); i++) {
-                md::vector const r = (positions[i] - reference_).project(normal_);
+            md::plane const plane = derived().plane_surface(system);
 
-                if (r.dot(normal_) < 0) {
+            for (md::index i = 0; i < system.particle_count(); i++) {
+                md::vector const r = (positions[i] - plane.reference).project(plane.normal);
+
+                if (r.dot(plane.normal) < 0) {
                     auto const pot = derived().plane_inward_potential(system, i);
                     sum += pot.evaluate_energy(r);
                 } else {
@@ -85,10 +92,12 @@ namespace md
         {
             md::array_view<md::point const> positions = system.view_positions();
 
-            for (md::index i = 0; i < system.particle_count(); i++) {
-                md::vector const r = (positions[i] - reference_).project(normal_);
+            md::plane const plane = derived().plane_surface(system);
 
-                if (r.dot(normal_) < 0) {
+            for (md::index i = 0; i < system.particle_count(); i++) {
+                md::vector const r = (positions[i] - plane.reference).project(plane.normal);
+
+                if (r.dot(plane.normal) < 0) {
                     auto const pot = derived().plane_inward_potential(system, i);
                     forces[i] += pot.evaluate_force(r);
                 } else {
@@ -97,6 +106,10 @@ namespace md
                 }
             }
         }
+
+        //
+        // CRTP default implementations
+        //
 
         // plane_inward_potential by default returns a zero potential.
         md::constant_potential plane_inward_potential(md::system const&, md::index) const
@@ -110,15 +123,18 @@ namespace md
             return md::constant_potential{0};
         }
 
+        // plane_surface by default returns the xy-plane.
+        md::plane plane_surface(md::system const&) const
+        {
+            return {};
+        }
+
     private:
         // derived returns a reference to this as the CRTP derived class.
         Derived& derived()
         {
             return static_cast<Derived&>(*this);
         }
-
-        md::point reference_ = {0, 0, 0};
-        md::vector normal_ = {0, 0, 1};
     };
 
     template<typename PotFun>
@@ -129,8 +145,26 @@ namespace md
         explicit basic_plane_inward_forcefield(PotFun potfun)
             : potfun_{potfun}
         {
+            plane_callback_ = [] { return md::plane{}; };
         }
 
+        basic_plane_inward_forcefield& set_plane_surface(md::plane plane)
+        {
+            return set_plane_surface([=] { return plane; });
+        }
+
+        basic_plane_inward_forcefield& set_plane_surface(std::function<md::plane()> plane_cb)
+        {
+            plane_callback_ = plane_cb;
+            return *this;
+        }
+
+        auto plane_surface(md::system const&) const
+        {
+            return plane_callback_();
+        }
+
+        inline
         auto plane_inward_potential(md::system const&, md::index i) const
         {
             return potfun_(i);
@@ -138,6 +172,7 @@ namespace md
 
     private:
         PotFun potfun_;
+        std::function<md::plane()> plane_callback_;
     };
 
     template<typename PotFun>
@@ -148,8 +183,26 @@ namespace md
         explicit basic_plane_outward_forcefield(PotFun potfun)
             : potfun_{potfun}
         {
+            plane_callback_ = [] { return md::plane{}; };
         }
 
+        basic_plane_outward_forcefield& set_plane_surface(md::plane plane)
+        {
+            return set_plane_surface([=] { return plane; });
+        }
+
+        basic_plane_outward_forcefield& set_plane_surface(std::function<md::plane()> plane_cb)
+        {
+            plane_callback_ = plane_cb;
+            return *this;
+        }
+
+        auto plane_surface(md::system const&) const
+        {
+            return plane_callback_();
+        }
+
+        inline
         auto plane_outward_potential(md::system const&, md::index i) const
         {
             return potfun_(i);
@@ -157,6 +210,7 @@ namespace md
 
     private:
         PotFun potfun_;
+        std::function<md::plane()> plane_callback_;
     };
 
     // make_plane_inward_forcefield implements md::plane_surface_forcefield

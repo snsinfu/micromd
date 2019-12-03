@@ -14,9 +14,14 @@ TEST_CASE("plane_surface_forcefield - computes inward forcefield")
     class inward_forcefield : public md::plane_surface_forcefield<inward_forcefield>
     {
     public:
-        md::harmonic_potential plane_inward_potential(md::system const&, md::index)
+        md::harmonic_potential plane_inward_potential(md::system const&, md::index) const
         {
             return md::harmonic_potential{};
+        }
+
+        md::plane plane_surface(md::system const&) const
+        {
+            return md::plane{md::vector{1, 0, 0}, md::point{1, 0, 0}};
         }
     };
 
@@ -31,7 +36,6 @@ TEST_CASE("plane_surface_forcefield - computes inward forcefield")
     (void) x4;
 
     inward_forcefield inward;
-    inward.set_plane(md::point{1, 0, 0}, md::vector{1, 0, 0});
 
     // Energy
     md::scalar const e0 = 0.5 * (x0 - 1) * (x0 - 1);    // inward
@@ -59,9 +63,14 @@ TEST_CASE("plane_surface_forcefield - computes outward forcefield")
     class outward_forcefield : public md::plane_surface_forcefield<outward_forcefield>
     {
     public:
-        md::harmonic_potential plane_outward_potential(md::system const&, md::index)
+        md::harmonic_potential plane_outward_potential(md::system const&, md::index) const
         {
             return md::harmonic_potential{};
+        }
+
+        md::plane plane_surface(md::system const&) const
+        {
+            return md::plane{md::vector{1, 0, 0}, md::point{1, 0, 0}};
         }
     };
 
@@ -76,7 +85,6 @@ TEST_CASE("plane_surface_forcefield - computes outward forcefield")
     (void) x1;
 
     outward_forcefield outward;
-    outward.set_plane(md::point{1, 0, 0}, md::vector{1, 0, 0});
 
     // Energy
     md::scalar const e0 = 0;                            // inward
@@ -97,25 +105,6 @@ TEST_CASE("plane_surface_forcefield - computes outward forcefield")
     CHECK(forces[2].x == Approx(-(x2 - 1)));
     CHECK(forces[3].x == Approx(-(x3 - 1)));
     CHECK(forces[4].x == Approx(-(x4 - 1)));
-}
-
-TEST_CASE("plane_surface_forcefield::set_plane - returns self")
-{
-    class test_forcefield : public md::plane_surface_forcefield<test_forcefield>
-    {
-    public:
-        md::harmonic_potential plane_outward_potential(md::system const&, md::index)
-        {
-            return md::harmonic_potential{};
-        }
-    };
-
-    test_forcefield test;
-    test_forcefield& ref = test.set_plane(
-        md::point{0, 0, 0}, md::vector{ 0, 0, 1}
-    );
-
-    CHECK(&ref == &test);
 }
 
 TEST_CASE("plane_surface_forcefield::compute_force - adds force to array")
@@ -173,7 +162,6 @@ TEST_CASE("plane_surface_forcefield::compute_force - collects normal force stats
 
         // xy plane
         surface_forcefield ff;
-        ff.set_plane(md::point{0, 0, 0}, md::vector{0, 0, 1});
 
         std::vector<md::vector> forces(system.particle_count());
         ff.compute_force(system, forces);
@@ -191,7 +179,6 @@ TEST_CASE("plane_surface_forcefield::compute_force - collects normal force stats
 
         // xy plane
         surface_forcefield ff;
-        ff.set_plane(md::point{0, 0, 0}, md::vector{0, 0, 1});
 
         std::vector<md::vector> forces(system.particle_count());
         ff.compute_force(system, forces);
@@ -206,8 +193,11 @@ TEST_CASE("make_plane_inward_forcefield - creates a plane_surface_forcefield")
     SECTION("fixed potential")
     {
         md::harmonic_potential potential{1.23};
-        auto ff = md::make_plane_inward_forcefield(potential);
-        ff.set_plane(md::point{0, 0, 0}, md::vector{0, 0, 1});
+        auto ff =
+            md::make_plane_inward_forcefield(potential)
+            .set_plane_surface(
+                md::plane{md::vector{0, 0, 1}, md::point{0, 0, 0}}
+            );
 
         md::system system;
         md::harmonic_potential pot = ff.plane_inward_potential(system, 0);
@@ -219,10 +209,13 @@ TEST_CASE("make_plane_inward_forcefield - creates a plane_surface_forcefield")
 
     SECTION("lambda potential")
     {
-        auto ff = md::make_plane_inward_forcefield([](md::index i) {
-            return md::harmonic_potential{i * 1.0};
-        });
-        ff.set_plane(md::point{0, 0, 0}, md::vector{0, 0, 1});
+        auto ff =
+            md::make_plane_inward_forcefield([](md::index i) {
+                return md::harmonic_potential{i * 1.0};
+            })
+            .set_plane_surface(
+                md::plane{md::vector{0, 0, 1}, md::point{0, 0, 0}}
+            );
 
         md::system system;
         md::harmonic_potential pot1 = ff.plane_inward_potential(system, 1);
@@ -233,6 +226,27 @@ TEST_CASE("make_plane_inward_forcefield - creates a plane_surface_forcefield")
         using ff_type = decltype(ff);
         CHECK(std::is_base_of<md::plane_surface_forcefield<ff_type>, ff_type>::value);
     }
+
+    SECTION("lambda plane")
+    {
+        auto ff =
+            md::make_plane_outward_forcefield([](md::index i) {
+                return md::harmonic_potential{i * 1.0};
+            })
+            .set_plane_surface([&] {
+                return md::plane{md::vector{1, 2, 3}, md::point{4, 5, 6}};
+            });
+
+        md::system system;
+        md::plane plane = ff.plane_surface(system);
+
+        CHECK(plane.normal.x == Approx(1));
+        CHECK(plane.normal.y == Approx(2));
+        CHECK(plane.normal.z == Approx(3));
+        CHECK(plane.reference.x == Approx(4));
+        CHECK(plane.reference.y == Approx(5));
+        CHECK(plane.reference.z == Approx(6));
+    }
 }
 
 TEST_CASE("make_plane_outward_forcefield - creates a plane_surface_forcefield")
@@ -240,8 +254,11 @@ TEST_CASE("make_plane_outward_forcefield - creates a plane_surface_forcefield")
     SECTION("fixed potential")
     {
         md::harmonic_potential potential{1.23};
-        auto ff = md::make_plane_outward_forcefield(potential);
-        ff.set_plane(md::point{0, 0, 0}, md::vector{0, 0, 1});
+        auto ff =
+            md::make_plane_outward_forcefield(potential)
+            .set_plane_surface(
+                md::plane{md::vector{0, 0, 1}, md::point{0, 0, 0}}
+            );
 
         md::system system;
         md::harmonic_potential pot = ff.plane_outward_potential(system, 0);
@@ -253,10 +270,13 @@ TEST_CASE("make_plane_outward_forcefield - creates a plane_surface_forcefield")
 
     SECTION("lambda potential")
     {
-        auto ff = md::make_plane_outward_forcefield([](md::index i) {
-            return md::harmonic_potential{i * 1.0};
-        });
-        ff.set_plane(md::point{0, 0, 0}, md::vector{0, 0, 1});
+        auto ff =
+            md::make_plane_outward_forcefield([](md::index i) {
+                return md::harmonic_potential{i * 1.0};
+            })
+            .set_plane_surface(
+                md::plane{md::vector{0, 0, 1}, md::point{0, 0, 0}}
+            );
 
         md::system system;
         md::harmonic_potential pot1 = ff.plane_outward_potential(system, 1);
@@ -266,5 +286,26 @@ TEST_CASE("make_plane_outward_forcefield - creates a plane_surface_forcefield")
 
         using ff_type = decltype(ff);
         CHECK(std::is_base_of<md::plane_surface_forcefield<ff_type>, ff_type>::value);
+    }
+
+    SECTION("lambda plane")
+    {
+        auto ff =
+            md::make_plane_outward_forcefield([](md::index i) {
+                return md::harmonic_potential{i * 1.0};
+            })
+            .set_plane_surface([&] {
+                return md::plane{md::vector{1, 2, 3}, md::point{4, 5, 6}};
+            });
+
+        md::system system;
+        md::plane plane = ff.plane_surface(system);
+
+        CHECK(plane.normal.x == Approx(1));
+        CHECK(plane.normal.y == Approx(2));
+        CHECK(plane.normal.z == Approx(3));
+        CHECK(plane.reference.x == Approx(4));
+        CHECK(plane.reference.y == Approx(5));
+        CHECK(plane.reference.z == Approx(6));
     }
 }
