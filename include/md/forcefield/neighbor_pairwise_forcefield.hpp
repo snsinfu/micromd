@@ -24,8 +24,8 @@ namespace md
     //
     // This is a CRTP base class. Derived class must define three callbacks:
     //
-    //     Box box(md::system const& system)
-    //     Returns the box description.
+    //     Box unit_cell(md::system const& system)
+    //     Returns the unit cell of the system.
     //
     //     md::scalar neighbor_distance(md::system const& system)
     //     Returns the cutoff distance.
@@ -37,8 +37,6 @@ namespace md
     //     )
     //     Returns the potential object for (i,j) pair.
     //
-    // TODO: Reconsider the name of the box() callback.
-    //
     template<typename Derived, typename Box = md::open_box>
     class neighbor_pairwise_forcefield : public virtual md::forcefield
     {
@@ -46,7 +44,7 @@ namespace md
         // compute_energy implements md::forcefield.
         md::scalar compute_energy(md::system const& system) override
         {
-            Box const box = derived().box(system);
+            Box const box = derived().unit_cell(system);
             md::array_view<md::point const> positions = system.view_positions();
             md::scalar sum = 0;
 
@@ -66,7 +64,7 @@ namespace md
         // compute_force implements md::forcefield.
         void compute_force(md::system const& system, md::array_view<md::vector> forces) override
         {
-            Box const box = derived().box(system);
+            Box const box = derived().unit_cell(system);
             md::array_view<md::point const> positions = system.view_positions();
 
             for (auto const pair : get_neighbor_list(system)) {
@@ -82,10 +80,18 @@ namespace md
             }
         }
 
-        Box box(md::system const&) const
+        //
+        // CRTP default implementations
+        //
+
+        Box unit_cell(md::system const&) const
         {
             return {};
         }
+
+        //
+        // Setter
+        //
 
         template<typename R>
         Derived& set_targets(R const& targets)
@@ -102,7 +108,7 @@ namespace md
             neighbor_list_.update(
                 system.view_positions(),
                 derived().neighbor_distance(system),
-                derived().box(system)
+                derived().unit_cell(system)
             );
             return neighbor_list_;
         }
@@ -130,7 +136,7 @@ namespace md
         {
         }
 
-        basic_neighbor_pairwise_forcefield& set_box(Box box)
+        basic_neighbor_pairwise_forcefield& set_unit_cell(Box box)
         {
             box_ = box;
             return *this;
@@ -142,7 +148,7 @@ namespace md
             return *this;
         }
 
-        Box box(md::system const&) const
+        Box unit_cell(md::system const&) const
         {
             return box_;
         }

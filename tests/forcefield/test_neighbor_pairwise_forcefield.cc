@@ -64,7 +64,7 @@ TEST_CASE("neighbor_pairwise_forcefield - computes correct forcefield")
             return potential;
         }
     )
-    .set_box(box)
+    .set_unit_cell(box)
     .set_neighbor_distance(cutoff_distance);
 
     // Test forcefield.
@@ -125,12 +125,13 @@ TEST_CASE("neighbor_pairwise_forcefield::set_targets - limits search targets")
     potential.energy = 1.0;
     potential.diameter = cutoff_distance;
 
-    auto forcefield = md::make_neighbor_pairwise_forcefield<md::periodic_box>(
-        potential
-    )
-    .set_targets(targets)
-    .set_box(box)
-    .set_neighbor_distance(cutoff_distance);
+    auto forcefield =
+        md::make_neighbor_pairwise_forcefield<md::periodic_box>(
+            potential
+        )
+        .set_targets(targets)
+        .set_unit_cell(box)
+        .set_neighbor_distance(cutoff_distance);
 
     md::array_view<md::point const> positions = system.view_positions();
     md::scalar actual_energy = forcefield.compute_energy(system);
@@ -151,7 +152,7 @@ TEST_CASE("neighbor_pairwise_forcefield::set_targets - limits search targets")
     CHECK(actual_energy == Approx(expect_energy));
 }
 
-TEST_CASE("neighbor_pairwise_forcefield::set_box - changes box")
+TEST_CASE("neighbor_pairwise_forcefield::set_unit_cell - changes unit cell")
 {
     md::scalar const cutoff_distance = 0.1;
 
@@ -200,10 +201,10 @@ TEST_CASE("neighbor_pairwise_forcefield::set_box - changes box")
         )
         .set_neighbor_distance(cutoff_distance);
 
-    forcefield.set_box(box_1);
+    forcefield.set_unit_cell(box_1);
     md::scalar const actual_energy_1 = forcefield.compute_energy(system);
 
-    forcefield.set_box(box_2);
+    forcefield.set_unit_cell(box_2);
     md::scalar const actual_energy_2 = forcefield.compute_energy(system);
 
     CHECK(actual_energy_1 == Approx(expect_energy_1));
