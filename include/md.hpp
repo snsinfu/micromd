@@ -31,14 +31,14 @@
 #include "md/potential/wrapped_potential.hpp"
 
 // Forcefields
+#include "md/forcefield/bonded_pairwise_forcefield.hpp"
+#include "md/forcefield/bonded_triplewise_forcefield.hpp"
 #include "md/forcefield/bruteforce_pairwise_forcefield.hpp"
 #include "md/forcefield/composite_forcefield.hpp"
 #include "md/forcefield/ellipsoid_surface_forcefield.hpp"
 #include "md/forcefield/neighbor_pairwise_forcefield.hpp"
 #include "md/forcefield/plane_surface_forcefield.hpp"
 #include "md/forcefield/point_source_forcefield.hpp"
-#include "md/forcefield/bonded_pairwise_forcefield.hpp"
-#include "md/forcefield/bonded_triplewise_forcefield.hpp"
 #include "md/forcefield/sphere_surface_forcefield.hpp"
 
 // Simulations
