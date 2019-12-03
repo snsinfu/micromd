@@ -95,6 +95,31 @@ TEST_CASE("bonded_pairwise_forcefield - computes bond interactions")
         CHECK(forces[3].x == Approx(x4 - x3));
         CHECK(forces[4].x == Approx(x3 - x4));
     }
+
+    SECTION("selected ranges")
+    {
+        bond_forcefield bond;
+        bond.add_bonded_range(0, 2); // 0:1
+        bond.add_bonded_range(2, 5); // 2:3 3:4
+
+        // Energy
+        md::scalar const e01 = 0.5 * (x0 - x1) * (x0 - x1);
+        md::scalar const e23 = 0.5 * (x2 - x3) * (x2 - x3);
+        md::scalar const e34 = 0.5 * (x3 - x4) * (x3 - x4);
+        md::scalar const expected_energy = e01 + e23 + e34;
+
+        CHECK(bond.compute_energy(system) == expected_energy);
+
+        // Force
+        std::vector<md::vector> forces(system.particle_count());
+        bond.compute_force(system, forces);
+
+        CHECK(forces[0].x == Approx(x1 - x0));
+        CHECK(forces[1].x == Approx(x0 - x1));
+        CHECK(forces[2].x == Approx(x3 - x2));
+        CHECK(forces[3].x == Approx(x4 - x3 + x2 - x3));
+        CHECK(forces[4].x == Approx(x3 - x4));
+    }
 }
 
 TEST_CASE("bonded_pairwise_forcefield::add_bonded_pair - returns self")
@@ -110,6 +135,23 @@ TEST_CASE("bonded_pairwise_forcefield::add_bonded_pair - returns self")
 
     test_forcefield test;
     test_forcefield& ref = test.add_bonded_pair(0, 1);
+
+    CHECK(&ref == &test);
+}
+
+TEST_CASE("bonded_pairwise_forcefield::add_bonded_range - returns self")
+{
+    class test_forcefield : public md::bonded_pairwise_forcefield<test_forcefield>
+    {
+    public:
+        md::harmonic_potential bonded_pairwise_potential(md::system const&, md::index, md::index)
+        {
+            return md::harmonic_potential{};
+        }
+    };
+
+    test_forcefield test;
+    test_forcefield& ref = test.add_bonded_range(0, 100);
 
     CHECK(&ref == &test);
 }

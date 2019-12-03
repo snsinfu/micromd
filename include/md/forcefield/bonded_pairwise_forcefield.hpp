@@ -37,9 +37,19 @@ namespace md
     {
     public:
         // add_bonded_pair selects given pair as interacting.
-        Derived& add_bonded_pair(md::index first, md::index last)
+        Derived& add_bonded_pair(md::index i, md::index j)
         {
-            pairs_.emplace_back(first, last);
+            pairs_.emplace_back(i, j);
+            return derived();
+        }
+
+        // add_bonded_range selects all adjacent pairs in the range [start,end)
+        // as interacting.
+        Derived& add_bonded_range(md::index start, md::index end)
+        {
+            for (md::index i = start; i + 1 < end; i++) {
+                pairs_.emplace_back(i, i + 1);
+            }
             return derived();
         }
 
