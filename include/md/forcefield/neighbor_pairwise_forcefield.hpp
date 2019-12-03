@@ -39,7 +39,7 @@ namespace md
     //
     // TODO: Reconsider the name of the box() callback.
     //
-    template<typename Box, typename Derived>
+    template<typename Derived, typename Box = md::open_box>
     class neighbor_pairwise_forcefield : public virtual md::forcefield
     {
     public:
@@ -82,6 +82,11 @@ namespace md
             }
         }
 
+        Box box(md::system const&) const
+        {
+            return {};
+        }
+
         template<typename R>
         Derived& set_targets(R const& targets)
         {
@@ -116,7 +121,7 @@ namespace md
     template<typename Box, typename PotFun>
     class basic_neighbor_pairwise_forcefield
         : public md::neighbor_pairwise_forcefield<
-            Box, basic_neighbor_pairwise_forcefield<Box, PotFun>
+            basic_neighbor_pairwise_forcefield<Box, PotFun>, Box
         >
     {
     public:
