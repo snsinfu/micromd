@@ -1,17 +1,10 @@
+#if 0 // FIXME: Re-add pair and triple forcefield
+
 #include <cmath>
 #include <numeric>
 #include <vector>
 
-#include <md/basic_types.hpp>
-#include <md/system.hpp>
-#include <md/forcefield/all_pair_forcefield.hpp>
-#include <md/forcefield/sequential_pair_forcefield.hpp>
-#include <md/forcefield/sequential_triple_forcefield.hpp>
-#include <md/potential/cosine_bending_potential.hpp>
-#include <md/potential/softcore_potential.hpp>
-#include <md/potential/spring_potential.hpp>
-#include <md/simulation/brownian_dynamics.hpp>
-
+#include <md.hpp>
 #include <catch.hpp>
 
 
@@ -120,3 +113,5 @@ TEST_CASE("Persistence length of a polymer", "[.][slow]")
 
     CHECK(P == Approx(B / kT).epsilon(0.1));
 }
+
+#endif
