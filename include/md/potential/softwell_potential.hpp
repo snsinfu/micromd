@@ -22,7 +22,7 @@ namespace md
     // p-th order harmonic potential. The potential decays to zero as the
     // distance `r` gets large.
     //
-    template<int P = 2>
+    template<int P = 6>
     struct softwell_potential
     {
         static_assert(P >= 2, "P must be >= 2");
