@@ -2,6 +2,31 @@
 
 ## Unreleased
 
+Major overhaul on forcefields and potentials. Rarely used classes are removed.
+Renamed classes and functions for better consistency.
+
+### New features
+
+- Forcefield templates:
+  - Added `bonded_triplewise_forcefield`: Forcefield on selected triples.
+
+### Removal
+
+- Removed `sequential_pair_forcefield`. Use `bonded_pairwise_forcefield` instead.
+- Removed `sequential_triple_forcefield`. Use `bonded_triplewise_forcefield` instead.
+- Removed `intra/inter_subsystem` forcefields.
+
+## Changes
+
+- Renamed `all_pair_forcefield` to `bruteforce_pairwise_forcefield`.
+- Renamed `selected_pair_forcefield` to `bonded_pairwise_forcefield`.
+- Renamed `polybell_potential` to `softcore_potential`.
+- Renamed `soft_well_potential` to `softwell_potential`. The default exponent
+  also is changed from 2 to 6.
+
+
+## v0.5.0
+
 ### New features
 
 - Forcefield templates:
@@ -44,7 +69,9 @@
 - Potentials:
   - Binary potential functors now support linear arithmetics
 
+
 ## v0.3.1
+
 
 ## v0.3.0
 
@@ -56,6 +83,7 @@
   - `open_box`, `periodic_box`, `xy_periodic_box`
   - `neighbor_searcher_v2<Box>`
 
+
 ## v0.2.2
 
 ### Bug fixes
@@ -63,11 +91,13 @@
 - Worked around false-positive stack-buffer-overflow reports
 - `system::view` performance hit due to unnecessary virtual calls
 
+
 ## v0.2.1
 
 ### Bug fixes
 
 - `system::view(key)` is now almost zero-overhead
+
 
 ## v0.2.0
 
@@ -82,6 +112,7 @@
 ### Changes
 
 - Renamed `subsystem_pair_forcefield` to `intra_subsystem_pair_forcefield`
+
 
 ## v0.1.1
 
@@ -101,6 +132,7 @@
 
 - `sphere_surface_forcefield` overwrites force array
 
+
 ## v0.1.0
 
 ### New features
@@ -114,6 +146,7 @@
   - `spring_potential`
 - Misc:
   - `neighbor_searcher`
+
 
 ## v0.0.1
 
