@@ -8,7 +8,7 @@
 #include <md/system.hpp>
 #include <md/potential/harmonic_potential.hpp>
 
-#include <md/forcefield/all_pair_forcefield.hpp>
+#include <md/forcefield/bruteforce_pairwise_forcefield.hpp>
 
 #include <catch.hpp>
 
@@ -31,12 +31,12 @@ namespace
     }
 }
 
-TEST_CASE("all_pair_forcefield - computes correct forcefield")
+TEST_CASE("bruteforce_pairwise_forcefield - computes correct forcefield")
 {
-    class test_forcefield : public md::all_pair_forcefield<test_forcefield>
+    class test_forcefield : public md::bruteforce_pairwise_forcefield<test_forcefield>
     {
     public:
-        md::harmonic_potential all_pair_potential(md::system const&, md::index, md::index)
+        md::harmonic_potential bruteforce_pairwise_potential(md::system const&, md::index, md::index)
         {
             return md::harmonic_potential{};
         }
@@ -87,12 +87,12 @@ TEST_CASE("all_pair_forcefield - computes correct forcefield")
     CHECK(max_difference(actual_forces, expected_forces) < 1e-6);
 }
 
-TEST_CASE("all_pair_forcefield::compute_force - adds force to array")
+TEST_CASE("bruteforce_pairwise_forcefield::compute_force - adds force to array")
 {
-    class test_forcefield : public md::all_pair_forcefield<test_forcefield>
+    class test_forcefield : public md::bruteforce_pairwise_forcefield<test_forcefield>
     {
     public:
-        md::harmonic_potential all_pair_potential(md::system const&, md::index, md::index)
+        md::harmonic_potential bruteforce_pairwise_potential(md::system const&, md::index, md::index)
         {
             return md::harmonic_potential{};
         }
@@ -120,17 +120,17 @@ TEST_CASE("all_pair_forcefield::compute_force - adds force to array")
     CHECK(forces[1].z == Approx(6));
 }
 
-TEST_CASE("make_all_pair_forcefield - creates an all_pair_forcefield")
+TEST_CASE("make_bruteforce_pairwise_forcefield - creates an bruteforce_pairwise_forcefield")
 {
     md::system system;
 
-    auto ff = md::make_all_pair_forcefield(md::harmonic_potential{1.23});
-    auto pot = ff.all_pair_potential(system, 0, 1);
+    auto ff = md::make_bruteforce_pairwise_forcefield(md::harmonic_potential{1.23});
+    auto pot = ff.bruteforce_pairwise_potential(system, 0, 1);
 
     using ff_type = decltype(ff);
     using pot_type = decltype(pot);
 
-    CHECK(std::is_base_of<md::all_pair_forcefield<ff_type>, ff_type>::value);
+    CHECK(std::is_base_of<md::bruteforce_pairwise_forcefield<ff_type>, ff_type>::value);
     CHECK(std::is_same<pot_type, md::harmonic_potential>::value);
     CHECK(pot.spring_constant == 1.23);
 }

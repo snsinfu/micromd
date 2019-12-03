@@ -1,9 +1,9 @@
-// Copyright snsinfu 2018.
+// Copyright snsinfu 2018-2019.
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-#ifndef MD_FORCEFIELD_ALL_PAIR_FORCEFIELD_HPP
-#define MD_FORCEFIELD_ALL_PAIR_FORCEFIELD_HPP
+#ifndef MD_FORCEFIELD_BRUTEFORCE_PAIRWISE_FORCEFIELD_HPP
+#define MD_FORCEFIELD_BRUTEFORCE_PAIRWISE_FORCEFIELD_HPP
 
 // This module provides a template forcefield implementation that computes
 // interactions between all particle pairs.
@@ -17,12 +17,12 @@
 
 namespace md
 {
-    // all_pair_forcefield implements md::forcefield. It computes interactions
-    // between every pair of particles.
+    // bruteforce_pairwise_forcefield implements md::forcefield. It computes
+    // interactions between every pair of particles.
     //
     // This is a CRTP base class. Derived class must define a callback:
     //
-    //     auto all_pair_potential(
+    //     auto bruteforce_pairwise_potential(
     //         md::system const& system,
     //         md::index i,
     //         md::index j
@@ -30,7 +30,7 @@ namespace md
     //     Returns the potential object for (i,j) pair.
     //
     template<typename Derived>
-    class all_pair_forcefield : public virtual md::forcefield
+    class bruteforce_pairwise_forcefield : public virtual md::forcefield
     {
     public:
         // compute_energy implements md::forcefield.
@@ -41,7 +41,7 @@ namespace md
 
             for (md::index j = 0; j < positions.size(); j++) {
                 for (md::index i = 0; i < j; i++) {
-                    auto const pot = derived().all_pair_potential(system, i, j);
+                    auto const pot = derived().bruteforce_pairwise_potential(system, i, j);
                     auto const r = positions[i] - positions[j];
 
                     sum += pot.evaluate_energy(r);
@@ -58,7 +58,7 @@ namespace md
 
             for (md::index j = 0; j < positions.size(); j++) {
                 for (md::index i = 0; i < j; i++) {
-                    auto const pot = derived().all_pair_potential(system, i, j);
+                    auto const pot = derived().bruteforce_pairwise_potential(system, i, j);
                     auto const r = positions[i] - positions[j];
 
                     auto const force = pot.evaluate_force(r);
@@ -77,16 +77,16 @@ namespace md
     };
 
     template<typename PotFun>
-    class basic_all_pair_forcefield
-        : public md::all_pair_forcefield<basic_all_pair_forcefield<PotFun>>
+    class basic_bruteforce_pairwise_forcefield
+        : public md::bruteforce_pairwise_forcefield<basic_bruteforce_pairwise_forcefield<PotFun>>
     {
     public:
-        explicit basic_all_pair_forcefield(PotFun potfun)
+        explicit basic_bruteforce_pairwise_forcefield(PotFun potfun)
             : potfun_{potfun}
         {
         }
 
-        auto all_pair_potential(md::system const&, md::index i, md::index j) const
+        auto bruteforce_pairwise_potential(md::system const&, md::index i, md::index j) const
         {
             return potfun_(i, j);
         }
@@ -95,14 +95,15 @@ namespace md
         PotFun potfun_;
     };
 
-    // make_all_pair_forcefield implements md::all_pair_forcefield with given
-    // potential object or lambda returning a potential object.
+    // make_bruteforce_pairwise_forcefield implements
+    // md::bruteforce_pairwise_forcefield with given potential object or lambda
+    // returning a potential object.
     template<typename P>
-    auto make_all_pair_forcefield(P pot)
+    auto make_bruteforce_pairwise_forcefield(P pot)
     {
         auto potfun = detail::make_pair_potfun(pot);
         using potfun_type = decltype(potfun);
-        return md::basic_all_pair_forcefield<potfun_type>{potfun};
+        return md::basic_bruteforce_pairwise_forcefield<potfun_type>{potfun};
     }
 }
 

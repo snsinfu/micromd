@@ -31,7 +31,7 @@
 #include "md/potential/wrapped_potential.hpp"
 
 // Forcefields
-#include "md/forcefield/all_pair_forcefield.hpp"
+#include "md/forcefield/bruteforce_pairwise_forcefield.hpp"
 #include "md/forcefield/composite_forcefield.hpp"
 #include "md/forcefield/ellipsoid_surface_forcefield.hpp"
 #include "md/forcefield/neighbor_pair_forcefield.hpp"
