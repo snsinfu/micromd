@@ -72,7 +72,7 @@ namespace md
         // compute_energy implements md::forcefield.
         md::scalar compute_energy(md::system const& system) override
         {
-            md::sphere const sphere = derived().sphere_surface(system);
+            md::sphere const sphere = derived().sphere(system);
             md::point const center = sphere.center;
             md::scalar const radius = sphere.radius;
             md::scalar const radius2 = radius * radius;
@@ -107,7 +107,7 @@ namespace md
         // compute_force implements md::forcefield.
         void compute_force(md::system const& system, md::array_view<md::vector> forces) override
         {
-            md::sphere const sphere = derived().sphere_surface(system);
+            md::sphere const sphere = derived().sphere(system);
             md::point const center = sphere.center;
             md::scalar const radius = sphere.radius;
             md::scalar const radius2 = radius * radius;
@@ -162,7 +162,7 @@ namespace md
         }
 
         // sphere_surface by default returns a unit sphere centered at the origin.
-        md::sphere sphere_surface(md::system const&) const
+        md::sphere sphere(md::system const&) const
         {
             return {};
         }
@@ -175,26 +175,41 @@ namespace md
         }
     };
 
-    template<typename PotFun>
-    class basic_sphere_inward_forcefield
-        : public md::sphere_surface_forcefield<basic_sphere_inward_forcefield<PotFun>>
+
+    template<typename Derived>
+    class basic_sphere_surface_forcefield : public md::sphere_surface_forcefield<Derived>
     {
     public:
-        explicit basic_sphere_inward_forcefield(PotFun potfun)
-            : potfun_{potfun}
+        md::sphere sphere(md::system const&) const
         {
-            sphere_callback_ = [] { return md::sphere{}; };
+            return sphere_callback_();
         }
 
-        basic_sphere_inward_forcefield& set_sphere_surface(md::sphere sphere)
+        Derived& set_sphere(md::sphere sphere)
         {
-            return set_sphere_surface([=] { return sphere; });
+            return set_sphere([=] { return sphere; });
         }
 
-        basic_sphere_inward_forcefield& set_sphere_surface(std::function<md::sphere()> sphere_cb)
+        Derived& set_sphere(std::function<md::sphere()> sphere_cb)
         {
             sphere_callback_ = sphere_cb;
-            return *this;
+            return static_cast<Derived&>(*this);
+        }
+
+    private:
+        std::function<md::sphere()> sphere_callback_ = [] { return md::sphere{}; };
+    };
+
+
+
+    template<typename PotFun>
+    class basic_sphere_inward_forcefield_impl
+        : public md::basic_sphere_surface_forcefield<basic_sphere_inward_forcefield_impl<PotFun>>
+    {
+    public:
+        explicit basic_sphere_inward_forcefield_impl(PotFun const& potfun)
+            : potfun_{potfun}
+        {
         }
 
         auto sphere_inward_potential(md::system const&, md::index i) const
@@ -202,36 +217,19 @@ namespace md
             return potfun_(i);
         }
 
-        md::sphere sphere_surface(md::system const&) const
-        {
-            return sphere_callback_();
-        }
-
     private:
         PotFun potfun_;
-        std::function<md::sphere()> sphere_callback_;
     };
 
+
     template<typename PotFun>
-    class basic_sphere_outward_forcefield
-        : public md::sphere_surface_forcefield<basic_sphere_outward_forcefield<PotFun>>
+    class basic_sphere_outward_forcefield_impl
+        : public md::basic_sphere_surface_forcefield<basic_sphere_outward_forcefield_impl<PotFun>>
     {
     public:
-        explicit basic_sphere_outward_forcefield(PotFun potfun)
+        explicit basic_sphere_outward_forcefield_impl(PotFun const& potfun)
             : potfun_{potfun}
         {
-            sphere_callback_ = [] { return md::sphere{}; };
-        }
-
-        basic_sphere_outward_forcefield& set_sphere_surface(md::sphere sphere)
-        {
-            return set_sphere_surface([=] { return sphere; });
-        }
-
-        basic_sphere_outward_forcefield& set_sphere_surface(std::function<md::sphere()> sphere_cb)
-        {
-            sphere_callback_ = sphere_cb;
-            return *this;
         }
 
         auto sphere_outward_potential(md::system const&, md::index i) const
@@ -239,15 +237,10 @@ namespace md
             return potfun_(i);
         }
 
-        md::sphere sphere_surface(md::system const&) const
-        {
-            return sphere_callback_();
-        }
-
     private:
         PotFun potfun_;
-        std::function<md::sphere()> sphere_callback_;
     };
+
 
     // make_sphere_inward_forcefield implements md::sphere_surface_forcefield
     // with given potential object or lambda returning a potential object.
@@ -256,8 +249,9 @@ namespace md
     {
         auto potfun = detail::make_field_potfun(pot);
         using potfun_type = decltype(potfun);
-        return md::basic_sphere_inward_forcefield<potfun_type>{potfun};
+        return md::basic_sphere_inward_forcefield_impl<potfun_type>{potfun};
     }
+
 
     // make_sphere_outward_forcefield implements md::sphere_surface_forcefield
     // with given potential object or lambda returning a potential object.
@@ -266,7 +260,7 @@ namespace md
     {
         auto potfun = detail::make_field_potfun(pot);
         using potfun_type = decltype(potfun);
-        return md::basic_sphere_outward_forcefield<potfun_type>{potfun};
+        return md::basic_sphere_outward_forcefield_impl<potfun_type>{potfun};
     }
 }
 
