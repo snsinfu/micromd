@@ -1,5 +1,3 @@
-#if 0 // FIXME: Re-add pair and triple forcefield
-
 #include <cmath>
 #include <numeric>
 #include <vector>
@@ -58,23 +56,23 @@ TEST_CASE("Persistence length of a polymer", "[.][slow]")
     }
 
     system.add_forcefield(
-        md::make_all_pair_forcefield(
+        md::make_bruteforce_pairwise_forcefield(
             md::softcore_potential<4>{50, a}
         )
     );
 
     system.add_forcefield(
-        md::make_sequential_pair_forcefield(
+        md::make_bonded_pairwise_forcefield(
             md::spring_potential{400, a}
         )
-        .add_segment(0, system.particle_count() - 1)
+        .add_bonded_range(0, system.particle_count())
     );
 
     system.add_forcefield(
-        md::make_sequential_triple_forcefield(
+        md::make_bonded_triplewise_forcefield(
             md::cosine_bending_potential{B}
         )
-        .add_segment(0, system.particle_count() - 1)
+        .add_bonded_range(0, system.particle_count())
     );
 
     // Sampling
@@ -113,5 +111,3 @@ TEST_CASE("Persistence length of a polymer", "[.][slow]")
 
     CHECK(P == Approx(B / kT).epsilon(0.1));
 }
-
-#endif
