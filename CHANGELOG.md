@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.6.0
 
 Major overhaul on forcefields and potentials. Rarely used classes are removed.
 Renamed classes and functions for better consistency.
