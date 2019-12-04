@@ -83,22 +83,16 @@ namespace md
             }
         }
 
-        //
-        // CRTP default implementations
-        //
-
         Box unit_cell(md::system const&) const
         {
             return {};
         }
 
-        //
-        // Setter (FIXME: Move to basic_neighbor_pairwise_forcefield)
-        //
-
         template<typename R>
         Derived& set_neighbor_targets(R const& indices)
         {
+            // FIXME: Move to basic_neighbor_pairwise_forcefield. Need to re-
+            //        design neighbor_list.
             neighbor_list_.set_targets(indices);
             return derived();
         }
@@ -125,42 +119,34 @@ namespace md
         md::neighbor_list<Box> neighbor_list_;
     };
 
-    // Implements md::neighbor_pairwise_forcefield. See the factory function
-    // make_neighbor_pairwise_forcefield.
-    template<typename Box, typename PotFun>
+
+    // Intermediate CRTP layer providing basic implementation of the parameter
+    // callbacks of `md::neighbor_pairwise_forcefield`.
+    template<typename Derived, typename Box = md::open_box>
     class basic_neighbor_pairwise_forcefield
-        : public md::neighbor_pairwise_forcefield<
-            basic_neighbor_pairwise_forcefield<Box, PotFun>, Box
-        >
+        : public md::neighbor_pairwise_forcefield<Derived, Box>
     {
     public:
-        explicit basic_neighbor_pairwise_forcefield(PotFun potfun)
-            : potfun_{potfun}
-        {
-            box_callback_ = []() -> Box { return {}; };
-            ndist_callback_ = []() -> md::scalar { return 1e-6; };
-        }
-
-        basic_neighbor_pairwise_forcefield& set_unit_cell(Box box)
+        Derived& set_unit_cell(Box box)
         {
             return set_unit_cell([=] { return box; });
         }
 
-        basic_neighbor_pairwise_forcefield& set_unit_cell(std::function<Box()> box_cb)
+        Derived& set_unit_cell(std::function<Box()> box_cb)
         {
             box_callback_ = box_cb;
-            return *this;
+            return derived();
         }
 
-        basic_neighbor_pairwise_forcefield& set_neighbor_distance(md::scalar ndist)
+        Derived& set_neighbor_distance(md::scalar ndist)
         {
             return set_neighbor_distance([=] { return ndist; });
         }
 
-        basic_neighbor_pairwise_forcefield& set_neighbor_distance(std::function<md::scalar()> ndist_cb)
+        Derived& set_neighbor_distance(std::function<md::scalar()> ndist_cb)
         {
             ndist_callback_ = ndist_cb;
-            return *this;
+            return derived();
         }
 
         Box unit_cell(md::system const&) const
@@ -173,7 +159,30 @@ namespace md
             return ndist_callback_();
         }
 
-        inline
+    private:
+        Derived& derived()
+        {
+            return static_cast<Derived&>(*this);
+        }
+
+    private:
+        std::function<Box()> box_callback_ = [] { return Box(); };
+        std::function<md::scalar()> ndist_callback_ = [] { return 1e-6; };
+    };
+
+
+    template<typename PotFun, typename Box>
+    class basic_neighbor_pairwise_forcefield_impl
+        : public md::basic_neighbor_pairwise_forcefield<
+            basic_neighbor_pairwise_forcefield_impl<PotFun, Box>, Box
+        >
+    {
+    public:
+        explicit basic_neighbor_pairwise_forcefield_impl(PotFun const& potfun)
+            : potfun_{potfun}
+        {
+        }
+
         auto neighbor_pairwise_potential(md::system const&, md::index i, md::index j) const
         {
             return potfun_(i, j);
@@ -181,9 +190,8 @@ namespace md
 
     private:
         PotFun potfun_;
-        std::function<Box()> box_callback_;
-        std::function<md::scalar()> ndist_callback_;
     };
+
 
     // make_neighbor_pairwise_forcefield implements md::neighbor_pairwise_forcefield
     // with given potential object or lambda returning a potential object.
@@ -192,7 +200,7 @@ namespace md
     {
         auto potfun = detail::make_pair_potfun(pot);
         using potfun_type = decltype(potfun);
-        return md::basic_neighbor_pairwise_forcefield<Box, potfun_type>{potfun};
+        return md::basic_neighbor_pairwise_forcefield_impl<potfun_type, Box>{potfun};
     }
 }
 
