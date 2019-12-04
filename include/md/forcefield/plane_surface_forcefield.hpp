@@ -36,7 +36,7 @@ namespace md
     //
     // This is a CRTP base class. Callbacks are:
     //
-    //     plane plane_surface(md::system const& system)
+    //     plane plane(md::system const& system)
     //     Returns a plane used as the surface.
     //
     //     auto plane_inward_potential(
@@ -71,7 +71,7 @@ namespace md
             md::array_view<md::point const> positions = system.view_positions();
             md::scalar sum = 0;
 
-            md::plane const plane = derived().plane_surface(system);
+            md::plane const plane = derived().plane(system);
 
             for (md::index i = 0; i < system.particle_count(); i++) {
                 md::vector const r = (positions[i] - plane.reference).project(plane.normal);
@@ -92,7 +92,7 @@ namespace md
         {
             md::array_view<md::point const> positions = system.view_positions();
 
-            md::plane const plane = derived().plane_surface(system);
+            md::plane const plane = derived().plane(system);
 
             for (md::index i = 0; i < system.particle_count(); i++) {
                 md::vector const r = (positions[i] - plane.reference).project(plane.normal);
@@ -123,8 +123,8 @@ namespace md
             return md::constant_potential{0};
         }
 
-        // plane_surface by default returns the xy-plane.
-        md::plane plane_surface(md::system const&) const
+        // plane by default returns the xy-plane.
+        md::plane plane(md::system const&) const
         {
             return {};
         }
@@ -137,31 +137,41 @@ namespace md
         }
     };
 
-    template<typename PotFun>
-    class basic_plane_inward_forcefield
-        : public md::plane_surface_forcefield<basic_plane_inward_forcefield<PotFun>>
+
+    template<typename Derived>
+    class basic_plane_surface_forcefield
+        : public md::plane_surface_forcefield<Derived>
     {
     public:
-        explicit basic_plane_inward_forcefield(PotFun potfun)
-            : potfun_{potfun}
-        {
-            plane_callback_ = [] { return md::plane{}; };
-        }
-
-        basic_plane_inward_forcefield& set_plane_surface(md::plane plane)
-        {
-            return set_plane_surface([=] { return plane; });
-        }
-
-        basic_plane_inward_forcefield& set_plane_surface(std::function<md::plane()> plane_cb)
-        {
-            plane_callback_ = plane_cb;
-            return *this;
-        }
-
-        auto plane_surface(md::system const&) const
+        md::plane plane(md::system const&) const
         {
             return plane_callback_();
+        }
+
+        Derived& set_plane(md::plane plane)
+        {
+            return set_plane([=] { return plane; });
+        }
+
+        Derived& set_plane(std::function<md::plane()> plane_cb)
+        {
+            plane_callback_ = plane_cb;
+            return static_cast<Derived&>(*this);
+        }
+
+    private:
+        std::function<md::plane()> plane_callback_;
+    };
+
+
+    template<typename PotFun>
+    class basic_plane_inward_forcefield_impl
+        : public md::basic_plane_surface_forcefield<basic_plane_inward_forcefield_impl<PotFun>>
+    {
+    public:
+        explicit basic_plane_inward_forcefield_impl(PotFun potfun)
+            : potfun_{potfun}
+        {
         }
 
         inline
@@ -172,34 +182,17 @@ namespace md
 
     private:
         PotFun potfun_;
-        std::function<md::plane()> plane_callback_;
     };
 
+
     template<typename PotFun>
-    class basic_plane_outward_forcefield
-        : public md::plane_surface_forcefield<basic_plane_outward_forcefield<PotFun>>
+    class basic_plane_outward_forcefield_impl
+        : public md::basic_plane_surface_forcefield<basic_plane_outward_forcefield_impl<PotFun>>
     {
     public:
-        explicit basic_plane_outward_forcefield(PotFun potfun)
+        explicit basic_plane_outward_forcefield_impl(PotFun potfun)
             : potfun_{potfun}
         {
-            plane_callback_ = [] { return md::plane{}; };
-        }
-
-        basic_plane_outward_forcefield& set_plane_surface(md::plane plane)
-        {
-            return set_plane_surface([=] { return plane; });
-        }
-
-        basic_plane_outward_forcefield& set_plane_surface(std::function<md::plane()> plane_cb)
-        {
-            plane_callback_ = plane_cb;
-            return *this;
-        }
-
-        auto plane_surface(md::system const&) const
-        {
-            return plane_callback_();
         }
 
         inline
@@ -210,8 +203,8 @@ namespace md
 
     private:
         PotFun potfun_;
-        std::function<md::plane()> plane_callback_;
     };
+
 
     // make_plane_inward_forcefield implements md::plane_surface_forcefield
     // with given potential object or lambda returning a potential object.
@@ -220,8 +213,9 @@ namespace md
     {
         auto potfun = detail::make_field_potfun(pot);
         using potfun_type = decltype(potfun);
-        return md::basic_plane_inward_forcefield<potfun_type>{potfun};
+        return md::basic_plane_inward_forcefield_impl<potfun_type>{potfun};
     }
+
 
     // make_plane_outward_forcefield implements md::plane_surface_forcefield
     // with given potential object or lambda returning a potential object.
@@ -230,7 +224,7 @@ namespace md
     {
         auto potfun = detail::make_field_potfun(pot);
         using potfun_type = decltype(potfun);
-        return md::basic_plane_outward_forcefield<potfun_type>{potfun};
+        return md::basic_plane_outward_forcefield_impl<potfun_type>{potfun};
     }
 }
 

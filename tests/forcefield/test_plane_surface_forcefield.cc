@@ -11,17 +11,12 @@
 
 TEST_CASE("plane_surface_forcefield - computes inward forcefield")
 {
-    class inward_forcefield : public md::plane_surface_forcefield<inward_forcefield>
+    class inward_forcefield : public md::basic_plane_surface_forcefield<inward_forcefield>
     {
     public:
         md::harmonic_potential plane_inward_potential(md::system const&, md::index) const
         {
             return md::harmonic_potential{};
-        }
-
-        md::plane plane_surface(md::system const&) const
-        {
-            return md::plane{md::vector{1, 0, 0}, md::point{1, 0, 0}};
         }
     };
 
@@ -36,6 +31,7 @@ TEST_CASE("plane_surface_forcefield - computes inward forcefield")
     (void) x4;
 
     inward_forcefield inward;
+    inward.set_plane({ md::vector{1, 0, 0}, md::point{1, 0, 0} });
 
     // Energy
     md::scalar const e0 = 0.5 * (x0 - 1) * (x0 - 1);    // inward
@@ -60,17 +56,12 @@ TEST_CASE("plane_surface_forcefield - computes inward forcefield")
 
 TEST_CASE("plane_surface_forcefield - computes outward forcefield")
 {
-    class outward_forcefield : public md::plane_surface_forcefield<outward_forcefield>
+    class outward_forcefield : public md::basic_plane_surface_forcefield<outward_forcefield>
     {
     public:
         md::harmonic_potential plane_outward_potential(md::system const&, md::index) const
         {
             return md::harmonic_potential{};
-        }
-
-        md::plane plane_surface(md::system const&) const
-        {
-            return md::plane{md::vector{1, 0, 0}, md::point{1, 0, 0}};
         }
     };
 
@@ -85,6 +76,7 @@ TEST_CASE("plane_surface_forcefield - computes outward forcefield")
     (void) x1;
 
     outward_forcefield outward;
+    outward.set_plane({ md::vector{1, 0, 0}, md::point{1, 0, 0} });
 
     // Energy
     md::scalar const e0 = 0;                            // inward
@@ -109,7 +101,7 @@ TEST_CASE("plane_surface_forcefield - computes outward forcefield")
 
 TEST_CASE("plane_surface_forcefield::compute_force - adds force to array")
 {
-    class outward_forcefield : public md::plane_surface_forcefield<outward_forcefield>
+    class outward_forcefield : public md::basic_plane_surface_forcefield<outward_forcefield>
     {
     public:
         md::harmonic_potential plane_outward_potential(md::system const&, md::index)
@@ -120,6 +112,7 @@ TEST_CASE("plane_surface_forcefield::compute_force - adds force to array")
 
     md::system system;
     outward_forcefield outward;
+    outward.set_plane({ md::vector{0, 0, 1}, md::point{0, 0, 0} });
 
     // A particle near the xy plane.
     md::scalar const z0 = 0.1;
@@ -139,7 +132,7 @@ TEST_CASE("plane_surface_forcefield::compute_force - adds force to array")
 
 TEST_CASE("plane_surface_forcefield::compute_force - collects normal force stats")
 {
-    class surface_forcefield : public md::plane_surface_forcefield<surface_forcefield>
+    class surface_forcefield : public md::basic_plane_surface_forcefield<surface_forcefield>
     {
     public:
         md::harmonic_potential surface_inward_potential(md::system const&, md::index)
@@ -162,6 +155,7 @@ TEST_CASE("plane_surface_forcefield::compute_force - collects normal force stats
 
         // xy plane
         surface_forcefield ff;
+        ff.set_plane({ md::vector{0, 0, 1}, md::point{0, 0, 0} });
 
         std::vector<md::vector> forces(system.particle_count());
         ff.compute_force(system, forces);
@@ -179,6 +173,7 @@ TEST_CASE("plane_surface_forcefield::compute_force - collects normal force stats
 
         // xy plane
         surface_forcefield ff;
+        ff.set_plane({ md::vector{0, 0, 1}, md::point{0, 0, 0} });
 
         std::vector<md::vector> forces(system.particle_count());
         ff.compute_force(system, forces);
@@ -195,7 +190,7 @@ TEST_CASE("make_plane_inward_forcefield - creates a plane_surface_forcefield")
         md::harmonic_potential potential{1.23};
         auto ff =
             md::make_plane_inward_forcefield(potential)
-            .set_plane_surface(
+            .set_plane(
                 md::plane{md::vector{0, 0, 1}, md::point{0, 0, 0}}
             );
 
@@ -213,7 +208,7 @@ TEST_CASE("make_plane_inward_forcefield - creates a plane_surface_forcefield")
             md::make_plane_inward_forcefield([](md::index i) {
                 return md::harmonic_potential{i * 1.0};
             })
-            .set_plane_surface(
+            .set_plane(
                 md::plane{md::vector{0, 0, 1}, md::point{0, 0, 0}}
             );
 
@@ -233,12 +228,12 @@ TEST_CASE("make_plane_inward_forcefield - creates a plane_surface_forcefield")
             md::make_plane_outward_forcefield([](md::index i) {
                 return md::harmonic_potential{i * 1.0};
             })
-            .set_plane_surface([&] {
+            .set_plane([&] {
                 return md::plane{md::vector{1, 2, 3}, md::point{4, 5, 6}};
             });
 
         md::system system;
-        md::plane plane = ff.plane_surface(system);
+        md::plane plane = ff.plane(system);
 
         CHECK(plane.normal.x == Approx(1));
         CHECK(plane.normal.y == Approx(2));
@@ -256,7 +251,7 @@ TEST_CASE("make_plane_outward_forcefield - creates a plane_surface_forcefield")
         md::harmonic_potential potential{1.23};
         auto ff =
             md::make_plane_outward_forcefield(potential)
-            .set_plane_surface(
+            .set_plane(
                 md::plane{md::vector{0, 0, 1}, md::point{0, 0, 0}}
             );
 
@@ -274,7 +269,7 @@ TEST_CASE("make_plane_outward_forcefield - creates a plane_surface_forcefield")
             md::make_plane_outward_forcefield([](md::index i) {
                 return md::harmonic_potential{i * 1.0};
             })
-            .set_plane_surface(
+            .set_plane(
                 md::plane{md::vector{0, 0, 1}, md::point{0, 0, 0}}
             );
 
@@ -294,12 +289,12 @@ TEST_CASE("make_plane_outward_forcefield - creates a plane_surface_forcefield")
             md::make_plane_outward_forcefield([](md::index i) {
                 return md::harmonic_potential{i * 1.0};
             })
-            .set_plane_surface([&] {
+            .set_plane([&] {
                 return md::plane{md::vector{1, 2, 3}, md::point{4, 5, 6}};
             });
 
         md::system system;
-        md::plane plane = ff.plane_surface(system);
+        md::plane plane = ff.plane(system);
 
         CHECK(plane.normal.x == Approx(1));
         CHECK(plane.normal.y == Approx(2));
