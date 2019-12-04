@@ -10,7 +10,7 @@
 TEST_CASE("Energy conservation of particles in a ellipsoid")
 {
     class ellipsoid_packing_forcefield
-        : public md::ellipsoid_surface_forcefield<ellipsoid_packing_forcefield>
+        : public md::basic_ellipsoid_surface_forcefield<ellipsoid_packing_forcefield>
     {
     public:
         auto ellipsoid_outward_potential(md::system const&, md::index)
@@ -19,13 +19,6 @@ TEST_CASE("Energy conservation of particles in a ellipsoid")
             harmonic.spring_constant = 1000;
             return harmonic;
         }
-
-        md::ellipsoid ellipsoid_surface(md::system const&)
-        {
-            return ellipsoid;
-        }
-
-        md::ellipsoid ellipsoid;
     };
 
     md::system system;
@@ -41,7 +34,7 @@ TEST_CASE("Energy conservation of particles in a ellipsoid")
     part.velocity = {1, 2, 3};
 
     ellipsoid_packing_forcefield forcefield;
-    forcefield.ellipsoid = ellipsoid;
+    forcefield.set_ellipsoid(ellipsoid);
     system.add_forcefield(forcefield);
 
     md::newtonian_dynamics_config config;

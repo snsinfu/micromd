@@ -132,7 +132,7 @@ namespace md
         // compute_energy implements md::forcefield.
         md::scalar compute_energy(md::system const& system) override
         {
-            md::ellipsoid const ellipsoid = derived().ellipsoid_surface(system);
+            md::ellipsoid const ellipsoid = derived().ellipsoid(system);
             md::array_view<md::point const> positions = system.view_positions();
 
             md::scalar sum = 0;
@@ -161,7 +161,7 @@ namespace md
         // compute_force implements md::forcefield.
         void compute_force(md::system const& system, md::array_view<md::vector> forces) override
         {
-            md::ellipsoid const ellipsoid = derived().ellipsoid_surface(system);
+            md::ellipsoid const ellipsoid = derived().ellipsoid(system);
             md::array_view<md::point const> positions = system.view_positions();
 
             stats.reaction_force = 0;
@@ -216,8 +216,8 @@ namespace md
             return md::constant_potential{0};
         }
 
-        // ellipsoid_surface by default returns a unit sphere centered at the origin.
-        md::ellipsoid ellipsoid_surface(md::system const&) const
+        // ellipsoid by default returns a unit sphere centered at the origin.
+        md::ellipsoid ellipsoid(md::system const&) const
         {
             return {};
         }
@@ -230,27 +230,43 @@ namespace md
         }
     };
 
-    template<typename PotFun>
-    class basic_ellipsoid_inward_forcefield
-        : public md::ellipsoid_surface_forcefield<basic_ellipsoid_inward_forcefield<PotFun>>
+
+    template<typename Derived>
+    class basic_ellipsoid_surface_forcefield
+        : public md::ellipsoid_surface_forcefield<Derived>
     {
     public:
-        explicit basic_ellipsoid_inward_forcefield(PotFun potfun)
-            : potfun_{potfun}
+        md::ellipsoid ellipsoid(md::system const&) const
         {
+            return ellipsoid_callback_();
         }
 
-        basic_ellipsoid_inward_forcefield& set_ellipsoid_surface(md::ellipsoid el)
+        Derived& set_ellipsoid(md::ellipsoid el)
         {
-            return set_ellipsoid_surface([=] { return el; });
+            return set_ellipsoid([=] { return el; });
         }
 
-        basic_ellipsoid_inward_forcefield& set_ellipsoid_surface(
-            std::function<md::ellipsoid()> el_cb
-        )
+        Derived& set_ellipsoid(std::function<md::ellipsoid()> el_cb)
         {
             ellipsoid_callback_ = el_cb;
-            return *this;
+            return static_cast<Derived&>(*this);
+        }
+
+    private:
+        std::function<md::ellipsoid()> ellipsoid_callback_ = [] { return md::ellipsoid {}; };
+    };
+
+
+    template<typename PotFun>
+    class basic_ellipsoid_inward_forcefield_impl
+        : public md::basic_ellipsoid_surface_forcefield<
+            basic_ellipsoid_inward_forcefield_impl<PotFun>
+        >
+    {
+    public:
+        explicit basic_ellipsoid_inward_forcefield_impl(PotFun potfun)
+            : potfun_{potfun}
+        {
         }
 
         auto ellipsoid_inward_potential(md::system const&, md::index i) const
@@ -258,37 +274,19 @@ namespace md
             return potfun_(i);
         }
 
-        md::ellipsoid ellipsoid_surface(md::system const&) const
-        {
-            return ellipsoid_callback_();
-        }
-
     private:
         PotFun potfun_;
-        std::function<md::ellipsoid()> ellipsoid_callback_;
     };
 
+
     template<typename PotFun>
-    class basic_ellipsoid_outward_forcefield
-        : public md::ellipsoid_surface_forcefield<basic_ellipsoid_outward_forcefield<PotFun>>
+    class basic_ellipsoid_outward_forcefield_impl
+        : public md::basic_ellipsoid_surface_forcefield<basic_ellipsoid_outward_forcefield_impl<PotFun>>
     {
     public:
-        explicit basic_ellipsoid_outward_forcefield(PotFun potfun)
+        explicit basic_ellipsoid_outward_forcefield_impl(PotFun potfun)
             : potfun_{potfun}
         {
-        }
-
-        basic_ellipsoid_outward_forcefield& set_ellipsoid_surface(md::ellipsoid el)
-        {
-            return set_ellipsoid_surface([=] { return el; });
-        }
-
-        basic_ellipsoid_outward_forcefield& set_ellipsoid_surface(
-            std::function<md::ellipsoid()> el_cb
-        )
-        {
-            ellipsoid_callback_ = el_cb;
-            return *this;
         }
 
         auto ellipsoid_outward_potential(md::system const&, md::index i) const
@@ -296,15 +294,10 @@ namespace md
             return potfun_(i);
         }
 
-        md::ellipsoid ellipsoid_surface(md::system const&) const
-        {
-            return ellipsoid_callback_();
-        }
-
     private:
         PotFun potfun_;
-        std::function<md::ellipsoid()> ellipsoid_callback_;
     };
+
 
     // make_ellipsoid_inward_forcefield implements
     // md::ellipsoid_surface_forcefield with given potential object or lambda
@@ -314,8 +307,9 @@ namespace md
     {
         auto potfun = detail::make_field_potfun(pot);
         using potfun_type = decltype(potfun);
-        return md::basic_ellipsoid_inward_forcefield<potfun_type>{potfun};
+        return md::basic_ellipsoid_inward_forcefield_impl<potfun_type>{potfun};
     }
+
 
     // make_ellipsoid_outward_forcefield implements
     // md::ellipsoid_surface_forcefield with given potential object or lambda
@@ -325,7 +319,7 @@ namespace md
     {
         auto potfun = detail::make_field_potfun(pot);
         using potfun_type = decltype(potfun);
-        return md::basic_ellipsoid_outward_forcefield<potfun_type>{potfun};
+        return md::basic_ellipsoid_outward_forcefield_impl<potfun_type>{potfun};
     }
 }
 

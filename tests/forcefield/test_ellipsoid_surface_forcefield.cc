@@ -96,20 +96,13 @@ TEST_CASE("detail::evaluate_point - evaluates a point in an ellipsoid")
 
 TEST_CASE("ellipsoid_surface_forcefield - computes inward forcefield")
 {
-    class inward_forcefield : public md::ellipsoid_surface_forcefield<inward_forcefield>
+    class inward_forcefield : public md::basic_ellipsoid_surface_forcefield<inward_forcefield>
     {
     public:
         md::harmonic_potential ellipsoid_inward_potential(md::system const&, md::index)
         {
             return md::harmonic_potential{};
         }
-
-        md::ellipsoid ellipsoid_surface(md::system const&)
-        {
-            return ellipsoid;
-        }
-
-        md::ellipsoid ellipsoid;
     };
 
     md::ellipsoid ellipsoid;
@@ -133,7 +126,7 @@ TEST_CASE("ellipsoid_surface_forcefield - computes inward forcefield")
     (void) x4;
 
     inward_forcefield inward;
-    inward.ellipsoid = ellipsoid;
+    inward.set_ellipsoid(ellipsoid);
 
     // Energy
     md::scalar const e1 = 0.5 * (xl - x1) * (xl - x1);
@@ -159,20 +152,13 @@ TEST_CASE("ellipsoid_surface_forcefield - computes inward forcefield")
 
 TEST_CASE("ellipsoid_surface_forcefield - computes outward forcefield")
 {
-    class outward_forcefield : public md::ellipsoid_surface_forcefield<outward_forcefield>
+    class outward_forcefield : public md::basic_ellipsoid_surface_forcefield<outward_forcefield>
     {
     public:
         md::harmonic_potential ellipsoid_outward_potential(md::system const&, md::index)
         {
             return md::harmonic_potential{};
         }
-
-        md::ellipsoid ellipsoid_surface(md::system const&)
-        {
-            return ellipsoid;
-        }
-
-        md::ellipsoid ellipsoid;
     };
 
     md::ellipsoid ellipsoid;
@@ -196,7 +182,7 @@ TEST_CASE("ellipsoid_surface_forcefield - computes outward forcefield")
     (void) x3;
 
     outward_forcefield outward;
-    outward.ellipsoid = ellipsoid;
+    outward.set_ellipsoid(ellipsoid);
 
     // Energy
     md::scalar const e0 = 0.5 * (xl - x0) * (xl - x0);
@@ -222,20 +208,13 @@ TEST_CASE("ellipsoid_surface_forcefield - computes outward forcefield")
 
 TEST_CASE("ellipsoid_surface_forcefield::compute_force - adds force to array")
 {
-    class outward_forcefield : public md::ellipsoid_surface_forcefield<outward_forcefield>
+    class outward_forcefield : public md::basic_ellipsoid_surface_forcefield<outward_forcefield>
     {
     public:
         md::harmonic_potential ellipsoid_outward_potential(md::system const&, md::index)
         {
             return md::harmonic_potential{};
         }
-
-        md::ellipsoid ellipsoid_surface(md::system const&)
-        {
-            return ellipsoid;
-        }
-
-        md::ellipsoid ellipsoid;
     };
 
     md::system system;
@@ -250,7 +229,7 @@ TEST_CASE("ellipsoid_surface_forcefield::compute_force - adds force to array")
     ellip.semiaxis_z = 0.6;
 
     outward_forcefield outward;
-    outward.ellipsoid = ellip;
+    outward.set_ellipsoid(ellip);
 
     // compute_force does not clear existing force
     std::vector<md::vector> forces = {
@@ -265,7 +244,7 @@ TEST_CASE("ellipsoid_surface_forcefield::compute_force - adds force to array")
 
 TEST_CASE("ellipsoid_surface_forcefield::compute_force - collects normal force stats")
 {
-    class surface_forcefield : public md::ellipsoid_surface_forcefield<surface_forcefield>
+    class surface_forcefield : public md::basic_ellipsoid_surface_forcefield<surface_forcefield>
     {
     public:
         md::harmonic_potential ellipsoid_inward_potential(md::system const&, md::index)
@@ -277,13 +256,6 @@ TEST_CASE("ellipsoid_surface_forcefield::compute_force - collects normal force s
         {
             return md::harmonic_potential{};
         }
-
-        md::ellipsoid ellipsoid_surface(md::system const&)
-        {
-            return ellipsoid;
-        }
-
-        md::ellipsoid ellipsoid;
     };
 
     SECTION("outward force")
@@ -300,7 +272,7 @@ TEST_CASE("ellipsoid_surface_forcefield::compute_force - collects normal force s
         ellip.semiaxis_z = 0.6;
 
         surface_forcefield ff;
-        ff.ellipsoid = ellip;
+        ff.set_ellipsoid(ellip);
 
         std::vector<md::vector> forces(system.particle_count());
         ff.compute_force(system, forces);
@@ -323,7 +295,7 @@ TEST_CASE("ellipsoid_surface_forcefield::compute_force - collects normal force s
         ellip.semiaxis_z = 0.6;
 
         surface_forcefield ff;
-        ff.ellipsoid = ellip;
+        ff.set_ellipsoid(ellip);
 
         std::vector<md::vector> forces(system.particle_count());
         ff.compute_force(system, forces);
@@ -341,7 +313,7 @@ TEST_CASE("make_ellipsoid_inward_forcefield - creates a ellipsoid_surface_forcef
             md::make_ellipsoid_inward_forcefield(
                 md::harmonic_potential{1.23}
             )
-            .set_ellipsoid_surface(md::ellipsoid{});
+            .set_ellipsoid(md::ellipsoid{});
 
         md::system system;
         md::harmonic_potential pot = ff.ellipsoid_inward_potential(system, 0);
@@ -357,7 +329,7 @@ TEST_CASE("make_ellipsoid_inward_forcefield - creates a ellipsoid_surface_forcef
             md::make_ellipsoid_inward_forcefield([](md::index i) {
                 return md::harmonic_potential{i * 1.0};
             })
-            .set_ellipsoid_surface(md::ellipsoid{});
+            .set_ellipsoid(md::ellipsoid{});
 
         md::system system;
         md::harmonic_potential pot1 = ff.ellipsoid_inward_potential(system, 1);
@@ -378,7 +350,7 @@ TEST_CASE("make_ellipsoid_outward_forcefield - creates a ellipsoid_surface_force
             md::make_ellipsoid_outward_forcefield(
                 md::harmonic_potential{1.23}
             )
-            .set_ellipsoid_surface(md::ellipsoid{});
+            .set_ellipsoid(md::ellipsoid{});
 
         md::system system;
         md::harmonic_potential pot = ff.ellipsoid_outward_potential(system, 0);
@@ -394,7 +366,7 @@ TEST_CASE("make_ellipsoid_outward_forcefield - creates a ellipsoid_surface_force
             md::make_ellipsoid_outward_forcefield([](md::index i) {
                 return md::harmonic_potential{i * 1.0};
             })
-            .set_ellipsoid_surface(md::ellipsoid{});
+            .set_ellipsoid(md::ellipsoid{});
 
         md::system system;
         md::harmonic_potential pot1 = ff.ellipsoid_outward_potential(system, 1);
