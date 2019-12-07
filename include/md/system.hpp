@@ -200,6 +200,12 @@ namespace md
             return ffptr;
         }
 
+        // remove_forcefield removes a forcefield from the system.
+        void remove_forcefield(std::shared_ptr<md::forcefield> ff)
+        {
+            forcefield_.remove(ff);
+        }
+
         // compute_kinetic_energy returns the total kinetic energy of the
         // system. It uses mass and velocity particle attributes.
         md::scalar compute_kinetic_energy() const

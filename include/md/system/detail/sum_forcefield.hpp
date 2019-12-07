@@ -8,6 +8,7 @@
 // This class provides a forcefield implementation that combines one or more
 // forcefields into a simple summation of them.
 
+#include <algorithm>
 #include <cassert>
 #include <memory>
 #include <vector>
@@ -32,6 +33,15 @@ namespace md
             {
                 assert(ff);
                 components_.push_back(ff);
+            }
+
+            // remove removes a forcefield from the sum.
+            void remove(std::shared_ptr<md::forcefield> ff)
+            {
+                components_.erase(
+                    std::remove(components_.begin(), components_.end(), ff),
+                    components_.end()
+                );
             }
 
             // compute_energy implements md::forcefield.

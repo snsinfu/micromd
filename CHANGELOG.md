@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### New features
+
+- Added `system::remove_forcefield()`: A method for removing a forcefield added
+  with `add_forcefield`.
+
+
 ## v0.6.0
 
 Major overhaul on forcefields and potentials. Rarely used classes are removed.

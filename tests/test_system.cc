@@ -285,6 +285,42 @@ TEST_CASE("system::add_forcefield - accepts a shared_ptr of a forcefield")
     system.add_forcefield(std::make_shared<my_forcefield>());
 }
 
+TEST_CASE("system::remove_forcefield - removes a forcefield")
+{
+    class test_forcefield : public md::forcefield
+    {
+    public:
+        explicit test_forcefield(md::scalar energy)
+            : energy_{energy}
+        {
+        }
+
+        md::scalar compute_energy(md::system const&) override
+        {
+            return energy_;
+        }
+
+        void compute_force(md::system const&, md::array_view<md::vector>) override
+        {
+        }
+
+    private:
+        md::scalar energy_;
+    };
+
+    md::system system;
+
+    auto ff_2 = system.add_forcefield(test_forcefield{2});
+    auto ff_3 = system.add_forcefield(test_forcefield{3});
+    CHECK(system.compute_potential_energy() == 5);
+
+    system.remove_forcefield(ff_2);
+    CHECK(system.compute_potential_energy() == 3);
+
+    system.remove_forcefield(ff_3);
+    CHECK(system.compute_potential_energy() == 0);
+}
+
 TEST_CASE("system::compute_potential_energy - returns zero if no force field is added")
 {
     md::system system;
