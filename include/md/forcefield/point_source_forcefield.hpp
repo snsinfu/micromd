@@ -8,6 +8,9 @@
 // This module provides a template forcefield implementation that computes field
 // force from a point source.
 
+#include <iterator>
+#include <vector>
+
 #include "../basic_types.hpp"
 #include "../forcefield.hpp"
 #include "../system.hpp"
@@ -39,6 +42,14 @@ namespace md
             return derived();
         }
 
+        // set_point_source_targets sets the targeted particles.
+        template<typename R>
+        Derived& set_point_source_targets(R const& indices)
+        {
+            targets_.assign(std::begin(indices), std::end(indices));
+            return derived();
+        }
+
         // compute_energy implements md::forcefield.
         md::scalar compute_energy(md::system const& system) override
         {
@@ -46,12 +57,24 @@ namespace md
 
             md::scalar sum = 0;
 
-            for (md::index i = 0; i < system.particle_count(); i++) {
-                md::vector const r = positions[i] - source_;
+            // FIXME: Refactor the mess.
 
-                sum += derived()
-                    .point_source_potential(system, i)
-                    .evaluate_energy(r);
+            if (targets_.empty()) {
+                for (md::index i = 0; i < system.particle_count(); i++) {
+                    md::vector const r = positions[i] - source_;
+
+                    sum += derived()
+                        .point_source_potential(system, i)
+                        .evaluate_energy(r);
+                }
+            } else {
+                for (md::index const i : targets_) {
+                    md::vector const r = positions[i] - source_;
+
+                    sum += derived()
+                        .point_source_potential(system, i)
+                        .evaluate_energy(r);
+                }
             }
 
             return sum;
@@ -62,14 +85,26 @@ namespace md
         {
             md::array_view<md::point const> positions = system.view_positions();
 
-            for (md::index i = 0; i < system.particle_count(); i++) {
-                md::vector const r = positions[i] - source_;
+            // FIXME
 
-                forces[i] += derived()
-                    .point_source_potential(system, i)
-                    .evaluate_force(r);
+            if (targets_.empty()) {
+                for (md::index i = 0; i < system.particle_count(); i++) {
+                    md::vector const r = positions[i] - source_;
+
+                    forces[i] += derived()
+                        .point_source_potential(system, i)
+                        .evaluate_force(r);
+                }
+            } else {
+                for (md::index const i : targets_) {
+                    md::vector const r = positions[i] - source_;
+
+                    forces[i] += derived()
+                        .point_source_potential(system, i)
+                        .evaluate_force(r);
+                }
             }
-        }
+         }
 
     private:
         // derived returns a reference to this as the CRTP derived class.
@@ -79,6 +114,7 @@ namespace md
         }
 
         md::point source_;
+        std::vector<md::index> targets_;
     };
 
     template<typename PotFun>

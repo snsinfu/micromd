@@ -6,6 +6,8 @@
 
 - Added `system::remove_forcefield()`: A method for removing a forcefield added
   with `add_forcefield`.
+- Added `point_source_forcefield::set_point_source_targets()`: Selects particles
+  that interact with the point-source.
 
 
 ## v0.6.0

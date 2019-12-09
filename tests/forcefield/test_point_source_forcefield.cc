@@ -63,6 +63,24 @@ TEST_CASE("point_source_forcefield::set_point_source - returns self")
     CHECK(&ref == &test);
 }
 
+TEST_CASE("point_source_forcefield::set_point_source_targets - returns self")
+{
+    class test_forcefield : public md::point_source_forcefield<test_forcefield>
+    {
+    public:
+        md::harmonic_potential point_source_potential(md::system const&, md::index)
+        {
+            return md::harmonic_potential{};
+        }
+    };
+
+    std::vector<md::index> targets;
+    test_forcefield test;
+    test_forcefield& ref = test.set_point_source_targets(targets);
+
+    CHECK(&ref == &test);
+}
+
 TEST_CASE("point_source_forcefield::compute_force - adds force to array")
 {
     class test_forcefield : public md::point_source_forcefield<test_forcefield>
@@ -122,5 +140,56 @@ TEST_CASE("make_point_source_forcefield - creates a point_source_forcefield")
 
         using ff_type = decltype(ff);
         CHECK(std::is_base_of<md::point_source_forcefield<ff_type>, ff_type>::value);
+    }
+}
+
+TEST_CASE("point_source_forcefield::set_point_source_targets - selects forcefield targets")
+{
+    md::system system;
+    system.add_particle().position = {1, 2, 3};
+    system.add_particle().position = {4, 5, 6};
+    system.add_particle().position = {7, 8, 9};
+    system.add_particle().position = {0, 1, 2};
+    system.add_particle().position = {3, 4, 5};
+
+    md::point const source = {0, 0, 0};
+    std::vector<md::index> const targets = {1, 3, 4};
+
+    md::harmonic_potential potential;
+    system.add_forcefield(
+        md::make_point_source_forcefield(potential)
+        .set_point_source(source)
+        .set_point_source_targets(targets)
+    );
+
+    auto const positions = system.view_positions();
+
+    SECTION("energy")
+    {
+        md::scalar expected_energy = 0;
+        for (md::index const i : targets) {
+            expected_energy += potential.evaluate_energy(positions[i] - source);
+        }
+
+        md::scalar const actual_energy = system.compute_energy();
+
+        CHECK(actual_energy == Approx(expected_energy));
+    }
+
+    SECTION("force")
+    {
+        std::vector<md::vector> expected_forces(system.particle_count());
+        for (md::index const i : targets) {
+            expected_forces[i] = potential.evaluate_force(positions[i] - source);
+        }
+
+        std::vector<md::vector> actual_forces(system.particle_count());
+        system.compute_force(actual_forces);
+
+        CHECK((actual_forces[0] - expected_forces[0]).norm() == Approx(0));
+        CHECK((actual_forces[1] - expected_forces[1]).norm() == Approx(0));
+        CHECK((actual_forces[2] - expected_forces[2]).norm() == Approx(0));
+        CHECK((actual_forces[3] - expected_forces[3]).norm() == Approx(0));
+        CHECK((actual_forces[4] - expected_forces[4]).norm() == Approx(0));
     }
 }
