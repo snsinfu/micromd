@@ -14,6 +14,7 @@ CXXFLAGS = \
   -Wconversion \
   -Wsign-conversion \
   -Wshadow \
+  -Wno-c99-extensions \
   $(OPTFLAGS) \
   $(INCLUDES)
 
