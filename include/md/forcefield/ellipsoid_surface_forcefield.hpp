@@ -8,6 +8,8 @@
 // This module provides a template forcefield implementation that computes
 // field force acting on particles near an ellipsoidal surface.
 
+#include <functional>
+
 #include "../basic_types.hpp"
 #include "../forcefield.hpp"
 #include "../system.hpp"

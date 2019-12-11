@@ -9,6 +9,7 @@
 // field force acting on particles near a spherical surface.
 
 #include <cmath>
+#include <functional>
 
 #include "../basic_types.hpp"
 #include "../forcefield.hpp"
