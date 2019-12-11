@@ -70,3 +70,28 @@ TEST_CASE("spring_potential - computes correct interaction")
     CHECK(force.y == Approx(-k * (r.norm() - b) * r.y / r.norm()));
     CHECK(force.z == Approx(-k * (r.norm() - b) * r.z / r.norm()));
 }
+
+TEST_CASE("spring_potential::evaluate_force - is kept finite around zero")
+{
+    md::spring_potential pot;
+    pot.spring_constant = 1;
+    pot.equilibrium_distance = 0.1;
+
+    SECTION("force is zero at zero distance")
+    {
+        md::vector const r = {0, 0, 0};
+        md::vector const force = pot.evaluate_force(r);
+        CHECK(force.x == Approx(0));
+        CHECK(force.y == Approx(0));
+        CHECK(force.z == Approx(0));
+    }
+
+    SECTION("force is finite at very small distance")
+    {
+        md::vector const r = {1e-16, 2e-16, 3e-16};
+        md::vector const force = pot.evaluate_force(r);
+        CHECK(std::fabs(force.x) < 1);
+        CHECK(std::fabs(force.y) < 1);
+        CHECK(std::fabs(force.z) < 1);
+    }
+}
