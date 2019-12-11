@@ -9,6 +9,10 @@
 - Added `point_source_forcefield::set_point_source_targets()`: Selects particles
   that interact with the point-source.
 
+### Bug fixes
+
+- Fixed `semispring_potential::evaluate_force()` NaN at zero distance.
+
 
 ## v0.6.0
 

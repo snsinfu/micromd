@@ -28,7 +28,7 @@ namespace md
         md::scalar evaluate_energy(md::vector r) const
         {
             md::scalar const u = r.norm() - equilibrium_distance;
-            if (u < 0) {
+            if (u <= 0) {
                 return 0;
             }
             return 0.5 * spring_constant * u * u;
@@ -37,7 +37,7 @@ namespace md
         md::vector evaluate_force(md::vector r) const
         {
             md::scalar const r1 = r.norm();
-            if (r1 < equilibrium_distance) {
+            if (r1 <= equilibrium_distance) {
                 return md::vector{};
             }
             return (spring_constant * equilibrium_distance / r1 - spring_constant) * r;
