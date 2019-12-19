@@ -305,6 +305,89 @@ TEST_CASE("ellipsoid_surface_forcefield::compute_force - collects normal force s
     }
 }
 
+TEST_CASE("ellipsoid_surface_forcefield::compute_force - collects axial force stats")
+{
+    class surface_forcefield : public md::basic_ellipsoid_surface_forcefield<surface_forcefield>
+    {
+    public:
+        md::harmonic_potential ellipsoid_inward_potential(md::system const&, md::index)
+        {
+            return md::harmonic_potential{};
+        }
+
+        md::harmonic_potential ellipsoid_outward_potential(md::system const&, md::index)
+        {
+            return md::harmonic_potential{};
+        }
+    };
+
+    SECTION("octant (+,+,+)")
+    {
+        md::ellipsoid ellip;
+        ellip.center = {0, 0, 0};
+        ellip.semiaxis_x = 1;
+        ellip.semiaxis_y = 0.8;
+        ellip.semiaxis_z = 0.6;
+
+        // Near-surface points in the first octant (+,+,+)
+        md::system system;
+        system.add_particle().position = {0.42, 0.72, 0.00};
+        system.add_particle().position = {0.41, 0.05, 0.54};
+        system.add_particle().position = {0.71, 0.56, 0.01};
+
+        surface_forcefield ff;
+        ff.set_ellipsoid(ellip);
+
+        std::vector<md::vector> forces(system.particle_count());
+        ff.compute_force(system, forces);
+
+        md::vector sum;
+        for (auto const& force : forces) {
+            sum += force;
+        }
+
+        // In the (+,+,+)-octant surface normal and ellipsoid axes are directed
+        // to the same orientation. So the axial reaction is the single negation
+        // of the sum force.
+        CHECK(ff.stats.axial_reaction.x == Approx(-sum.x));
+        CHECK(ff.stats.axial_reaction.y == Approx(-sum.y));
+        CHECK(ff.stats.axial_reaction.z == Approx(-sum.z));
+    }
+
+    SECTION("octant (-,-,-)")
+    {
+        md::ellipsoid ellip;
+        ellip.center = {0, 0, 0};
+        ellip.semiaxis_x = 1;
+        ellip.semiaxis_y = 0.8;
+        ellip.semiaxis_z = 0.6;
+
+        // Near-surface points in the eighth octant (-,-,-)
+        md::system system;
+        system.add_particle().position = {-0.46, -0.58, -0.31};
+        system.add_particle().position = {-0.03, -0.69, -0.31};
+        system.add_particle().position = {-0.86, -0.07, -0.30};
+
+        surface_forcefield ff;
+        ff.set_ellipsoid(ellip);
+
+        std::vector<md::vector> forces(system.particle_count());
+        ff.compute_force(system, forces);
+
+        md::vector sum;
+        for (auto const& force : forces) {
+            sum += force;
+        }
+
+        // In the (-,-,-)-octant surface normal and ellipsoid axes are directed
+        // to the opposite orientation. So the axial reaction is the double
+        // negation of the sum force.
+        CHECK(ff.stats.axial_reaction.x == Approx(sum.x));
+        CHECK(ff.stats.axial_reaction.y == Approx(sum.y));
+        CHECK(ff.stats.axial_reaction.z == Approx(sum.z));
+    }
+}
+
 TEST_CASE("make_ellipsoid_inward_forcefield - creates a ellipsoid_surface_forcefield")
 {
     SECTION("fixed potential")

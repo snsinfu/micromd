@@ -128,6 +128,9 @@ namespace md
             // Sum of the normal reaction force acting on the surface calculated
             // in the previous call of compute_force().
             md::scalar reaction_force = 0;
+
+            // Sum of axis-projected reaction force acting on the surface.
+            md::vector axial_reaction;
         };
         statistics stats;
 
@@ -167,6 +170,7 @@ namespace md
             md::array_view<md::point const> positions = system.view_positions();
 
             stats.reaction_force = 0;
+            stats.axial_reaction = {};
 
             for (md::index i = 0; i < system.particle_count(); i++) {
                 detail::ellipsoid_eval const ev = detail::evaluate_point(ellipsoid, positions[i]);
@@ -194,11 +198,15 @@ namespace md
 
                 forces[i] += force;
 
-                if (ev.implicit < 0) {
-                    stats.reaction_force += force.dot(ev.delta) / ev.delta.norm();
-                } else {
-                    stats.reaction_force -= force.dot(ev.delta) / ev.delta.norm();
-                }
+                // Collect statistics.
+                md::vector const normal =
+                    (ev.implicit < 0 ? -1 : 1) * ev.delta.normalize();
+
+                stats.reaction_force -= force.dot(normal);
+
+                stats.axial_reaction.x -= (normal.x > 0 ? force.x : -force.x);
+                stats.axial_reaction.y -= (normal.y > 0 ? force.y : -force.y);
+                stats.axial_reaction.z -= (normal.z > 0 ? force.z : -force.z);
             }
         }
 
