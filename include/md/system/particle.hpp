@@ -27,6 +27,7 @@ namespace md
         md::index index;
 
         md::scalar& mass;
+        md::scalar& friction;
         md::scalar& mobility;
         md::point& position;
         md::vector& velocity;

@@ -5,8 +5,6 @@
 #include <catch.hpp>
 
 
-
-
 TEST_CASE("system::particle_count - returns zero on default state")
 {
     md::system system;
@@ -59,13 +57,14 @@ TEST_CASE("system::add_particle - can set basic attributes")
 
     md::basic_particle_data data;
     data.mass = 1.23;
+    data.friction = 4.54;
     data.mobility = 3.21;
     data.position = {4, 5, 6};
     data.velocity = {7, 8, 9};
     system.add_particle(data);
 
     CHECK(system.view_masses()[0] == data.mass);
-
+    CHECK(system.view_frictions()[0] == data.friction);
     CHECK(system.view_mobilities()[0] == data.mobility);
 
     CHECK(system.view_positions()[0].x == data.position.x);
@@ -83,12 +82,13 @@ TEST_CASE("system::add_particle - returns a particle reference")
 
     md::particle_ref part = system.add_particle();
     part.mass = 1.23;
+    part.friction = 3.21;
     part.mobility = 4.56;
     part.position = {7, 8, 9};
     part.velocity = {8, 7, 6};
 
     CHECK(system.view_masses()[0] == 1.23);
-
+    CHECK(system.view_frictions()[0] == 3.21);
     CHECK(system.view_mobilities()[0] == 4.56);
 
     CHECK(system.view_positions()[0].x == 7);
@@ -136,6 +136,35 @@ TEST_CASE("system::view_masses - returns mass attribute")
 
         md::array_view<md::scalar const> expected = const_system.view(md::mass_attribute);
         md::array_view<md::scalar const> actual = const_system.view_masses();
+
+        CHECK(actual.data() == expected.data());
+        CHECK(actual.size() == expected.size());
+    }
+}
+
+TEST_CASE("system::view_frictions - returns friction attribute")
+{
+    md::system system;
+
+    system.add_particle();
+    system.add_particle();
+    system.add_particle();
+
+    SECTION("mutable view")
+    {
+        md::array_view<md::scalar> expected = system.view(md::friction_attribute);
+        md::array_view<md::scalar> actual = system.view_frictions();
+
+        CHECK(actual.data() == expected.data());
+        CHECK(actual.size() == expected.size());
+    }
+
+    SECTION("const view")
+    {
+        md::system const& const_system = system;
+
+        md::array_view<md::scalar const> expected = const_system.view(md::friction_attribute);
+        md::array_view<md::scalar const> actual = const_system.view_frictions();
 
         CHECK(actual.data() == expected.data());
         CHECK(actual.size() == expected.size());
@@ -470,6 +499,17 @@ TEST_CASE("system - has 1-valued mass_attribute by default")
 
     CHECK(masses.size() == 1);
     CHECK(masses[0] == 1);
+}
+
+TEST_CASE("system - has 1-valued friction_attribute by default")
+{
+    md::system system;
+    system.add_particle();
+
+    md::array_view<md::scalar> frictions = system.view(md::friction_attribute);
+
+    CHECK(frictions.size() == 1);
+    CHECK(frictions[0] == 1);
 }
 
 TEST_CASE("system - has 0-valued position_attribute by default")
