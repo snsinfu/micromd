@@ -43,6 +43,7 @@
 
 // Simulations
 #include "md/simulation/brownian_dynamics.hpp"
+#include "md/simulation/langevin_dynamics.hpp"
 #include "md/simulation/newtonian_dynamics.hpp"
 
 // Misc.
