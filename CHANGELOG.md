@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### New features
+
+- System:
+  - Added built-in `friction_attribute` for Langevin dynamics simulation. Also
+    added `system::view_frictions()` etc. for quick access.
+
 ### Bug fixes
 
 - Fixed `system` copy constructor and copy assignment operator. Now, you can

@@ -31,6 +31,13 @@ namespace md
         return 1;
     }
 
+    // friction_attribute is an attribute key for particle friction coefficient.
+    // This is used in langevin dynamics simulations. The default value is 1.
+    inline constexpr md::scalar friction_attribute(struct tag_friction_attribute*)
+    {
+        return 1;
+    }
+
     // mobility_attribute is an attribute key for particle mobility. This is
     // used in brownian dynamics simulations. The default value is 1.
     inline constexpr md::scalar mobility_attribute(struct tag_mobility_attribute*)
@@ -58,6 +65,7 @@ namespace md
     {
         md::scalar mass = md::default_value(md::mass_attribute);
         md::scalar mobility = md::default_value(md::mobility_attribute);
+        md::scalar friction = md::default_value(md::friction_attribute);
         md::point position = md::default_value(md::position_attribute);
         md::vector velocity = md::default_value(md::velocity_attribute);
     };
@@ -69,6 +77,7 @@ namespace md
         system()
         {
             add_attribute(md::mass_attribute);
+            add_attribute(md::friction_attribute);
             add_attribute(md::mobility_attribute);
             add_attribute(md::position_attribute);
             add_attribute(md::velocity_attribute);
@@ -82,6 +91,7 @@ namespace md
             attributes_.resize(idx + 1);
 
             view_masses()[idx] = data.mass;
+            view_frictions()[idx] = data.friction;
             view_mobilities()[idx] = data.mobility;
             view_positions()[idx] = data.position;
             view_velocities()[idx] = data.velocity;
@@ -141,6 +151,17 @@ namespace md
         md::array_view<md::scalar const> view_masses() const noexcept
         {
             return attributes_.view(md::mass_attribute);
+        }
+
+        // view_frictions returns a view of built-in friction attributes.
+        md::array_view<md::scalar> view_frictions() noexcept
+        {
+            return attributes_.view(md::friction_attribute);
+        }
+
+        md::array_view<md::scalar const> view_frictions() const noexcept
+        {
+            return attributes_.view(md::friction_attribute);
         }
 
         // view_mobilities returns a view of built-in mobility attributes.
@@ -259,6 +280,7 @@ namespace md
         : system{system}
         , index{idx}
         , mass{system.view_masses()[idx]}
+        , friction{system.view_frictions()[idx]}
         , mobility{system.view_mobilities()[idx]}
         , position{system.view_positions()[idx]}
         , velocity{system.view_velocities()[idx]}
