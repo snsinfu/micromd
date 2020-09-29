@@ -7,6 +7,9 @@
 - System:
   - Added built-in `friction_attribute` for Langevin dynamics simulation. Also
     added `system::view_frictions()` etc. for quick access.
+- Simulation:
+  - Added `simulate_langevin_dynamics()`: A function that simulates Langevin
+    dynamics of a system.
 
 ### Bug fixes
 
