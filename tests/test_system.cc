@@ -5,6 +5,8 @@
 #include <catch.hpp>
 
 
+
+
 TEST_CASE("system::particle_count - returns zero on default state")
 {
     md::system system;
@@ -494,4 +496,42 @@ TEST_CASE("system - has 0-valued velocity_attribute by default")
     CHECK(velocities[0].x == 0);
     CHECK(velocities[0].y == 0);
     CHECK(velocities[0].z == 0);
+}
+
+TEST_CASE("system - is copy constructible")
+{
+    md::system system;
+    system.add_particle().position = {1, 2, 3};
+    system.add_particle().position = {4, 5, 6};
+
+    md::system snapshot = system;
+    CHECK(snapshot.particle_count() == 2);
+
+    md::array_view<md::point> positions = snapshot.view(md::position_attribute);
+    CHECK(positions[0].x == Approx(1));
+    CHECK(positions[0].y == Approx(2));
+    CHECK(positions[0].z == Approx(3));
+    CHECK(positions[1].x == Approx(4));
+    CHECK(positions[1].y == Approx(5));
+    CHECK(positions[1].z == Approx(6));
+}
+
+TEST_CASE("system - is copy assignable")
+{
+    md::system system;
+    md::system snapshot;
+
+    system.add_particle().position = {1, 2, 3};
+    system.add_particle().position = {4, 5, 6};
+
+    snapshot = system;
+    CHECK(snapshot.particle_count() == 2);
+
+    md::array_view<md::point> positions = snapshot.view(md::position_attribute);
+    CHECK(positions[0].x == Approx(1));
+    CHECK(positions[0].y == Approx(2));
+    CHECK(positions[0].z == Approx(3));
+    CHECK(positions[1].x == Approx(4));
+    CHECK(positions[1].y == Approx(5));
+    CHECK(positions[1].z == Approx(6));
 }

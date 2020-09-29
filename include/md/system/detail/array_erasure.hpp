@@ -26,6 +26,9 @@ namespace md
         public:
             virtual ~array_erasure() = default;
 
+            // clone creates a type-erased copy of this instance.
+            virtual std::unique_ptr<array_erasure> clone() = 0;
+
             // size returns the length of the array.
             virtual std::size_t size() const = 0;
 
@@ -73,6 +76,12 @@ namespace md
             std::size_t size() const final override
             {
                 return values_.size();
+            }
+
+            // clone creates a type-erased copy of this instance.
+            std::unique_ptr<array_erasure> clone() final override
+            {
+                return std::unique_ptr<array_erasure>{new instance(*this)};
             }
 
             // resize extends or shrinks the array to given length. New elements

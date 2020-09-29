@@ -8,7 +8,9 @@
 // This module defines attribute_table class: A data structure like a columnar
 // database (or a dataframe), keyed by attribute_keys.
 
+#include <cstddef>
 #include <memory>
+#include <utility>
 #include <vector>
 
 #include "../../basic_types.hpp"
@@ -30,6 +32,28 @@ namespace md
             attribute_table()
                 : arrays_(detail::type_hash::size())
             {
+            }
+
+            attribute_table(attribute_table&& other) = default;
+
+            attribute_table(attribute_table const& other)
+                : arrays_(detail::type_hash::size())
+            {
+                for (std::size_t i = 0; i < arrays_.size(); i++) {
+                    if (auto& array = other.arrays_[i]) {
+                        arrays_[i] = array->clone();
+                    }
+                }
+                size_ = other.size_;
+            }
+
+            attribute_table& operator=(attribute_table&& other) = default;
+
+            attribute_table& operator=(attribute_table const& other)
+            {
+                attribute_table copy(other);
+                *this = std::move(copy);
+                return *this;
             }
 
             // size returns the number of elements in the columns.

@@ -69,3 +69,15 @@ TEST_CASE("array_erasure::resize - extends array with default-valued new element
     CHECK(std::count(rec.data(), rec.data() + 10, 1) == 10);
     CHECK(std::count(rec.data() + 10, rec.data() + 20, -1) == 10);
 }
+
+TEST_CASE("array_erasure - is clonable")
+{
+    using md::detail::array_erasure;
+
+    std::unique_ptr<array_erasure> arr = array_erasure::make<int>(10, -1);
+    std::unique_ptr<array_erasure> clone = arr->clone();
+    array_erasure::instance<int>& rec = clone->recover<int>();
+
+    CHECK(rec.size() == 10);
+    CHECK(std::count(rec.data(), rec.data() + 10, -1) == 10);
+}

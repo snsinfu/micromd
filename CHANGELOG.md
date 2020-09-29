@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Bug fixes
+
+- Fixed `system` copy constructor and copy assignment operator. Now, you can
+  snapshot a system by just copying an object.
+
+
 ## v0.6.1
 
 ### New features
