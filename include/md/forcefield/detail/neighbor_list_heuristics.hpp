@@ -67,8 +67,7 @@ namespace md
             auto const var = mean_sq - mean.hadamard(mean);
             auto const std_x = std::sqrt(var.x);
             auto const std_y = std::sqrt(var.y);
-            auto const std_z = std::sqrt(var.z);
-            return {std_x, std_y, std_z};
+            return {std_x, std_y};
         }
 
         // set_box_hints updates hint fields (e.g., z_span) of box using some
@@ -89,27 +88,6 @@ namespace md
         )
         {
             box.particle_count = points.size();
-        }
-
-        template<>
-        inline void set_box_hints<md::xy_periodic_box>(
-            md::xy_periodic_box& box, md::array_view<md::point const> points
-        )
-        {
-            box.particle_count = points.size();
-
-            // The span of uniform distribution is about 3.5x the stddev. The
-            // real distribution is not necessarily uniform but it works well
-            // in practice.
-            constexpr md::scalar span_per_stddev = 3.5;
-            auto const stddev = stddev_points(points);
-            auto const span = span_per_stddev * stddev.z;
-
-            // Quantize to the multiple of a unit length to stabilize hint value
-            // response to similarly distributed points. This helps neighbor
-            // searcher reuse.
-            auto const unit = (box.x_period + box.y_period) / 20;
-            box.z_span = std::ceil(span / unit) * unit;
         }
     }
 }

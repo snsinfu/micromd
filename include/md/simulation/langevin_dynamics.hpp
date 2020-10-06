@@ -67,7 +67,7 @@ namespace md
                 md::scalar const agitation = 1 - damping * damping;
                 md::scalar const sigma = std::sqrt(temperature * agitation / masses[i]);
                 md::vector const normal_vector = {
-                    normal(random), normal(random), normal(random)
+                    normal(random), normal(random)
                 };
 
                 // B step

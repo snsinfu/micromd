@@ -44,16 +44,7 @@ namespace md
         inline bool approx(md::periodic_box box1, md::periodic_box box2)
         {
             return approx(box1.x_period, box2.x_period)
-                && approx(box1.y_period, box2.y_period)
-                && approx(box1.z_period, box2.z_period);
-        }
-
-        inline bool approx(md::xy_periodic_box box1, md::xy_periodic_box box2)
-        {
-            return approx(box1.x_period, box2.x_period)
-                && approx(box1.y_period, box2.y_period)
-                && approx(box1.z_span, box2.z_span)
-                && box1.particle_count == box2.particle_count;
+                && approx(box1.y_period, box2.y_period);
         }
     }
 

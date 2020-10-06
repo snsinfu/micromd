@@ -68,7 +68,6 @@ namespace md
         {
             nsearch_detail::bin_layout  x_bins;
             nsearch_detail::bin_layout  y_bins;
-            nsearch_detail::bin_layout  z_bins;
             std::vector<spatial_bucket> buckets;
 
             binned_search_grid(Box box, md::scalar spacing)
@@ -81,8 +80,7 @@ namespace md
             {
                 auto const x = nsearch_detail::locate_bin(x_bins, pt.x);
                 auto const y = nsearch_detail::locate_bin(y_bins, pt.y);
-                auto const z = nsearch_detail::locate_bin(z_bins, pt.z);
-                return do_locate_bucket(x, y, z);
+                return do_locate_bucket(x, y);
             }
 
         private:
@@ -91,45 +89,38 @@ namespace md
                 basic_binner<Box> binner{box, spacing};
                 x_bins = binner.x_bins;
                 y_bins = binner.y_bins;
-                z_bins = binner.z_bins;
             }
 
             void init_buckets()
             {
                 buckets.clear();
-                buckets.resize(x_bins.count * y_bins.count * z_bins.count);
+                buckets.resize(x_bins.count * y_bins.count);
 
-                for (uint32_t z = 0; z < z_bins.count; z++) {
-                    for (uint32_t y = 0; y < y_bins.count; y++) {
-                        for (uint32_t x = 0; x < x_bins.count; x++) {
-                            init_bucket_adjacents(x, y, z);
-                        }
+                for (uint32_t y = 0; y < y_bins.count; y++) {
+                    for (uint32_t x = 0; x < x_bins.count; x++) {
+                        init_bucket_adjacents(x, y);
                     }
                 }
             }
 
             // Initializes adjacent links of a bucket that covers (x,y,z) bin.
-            void init_bucket_adjacents(uint32_t x, uint32_t y, uint32_t z)
+            void init_bucket_adjacents(uint32_t x, uint32_t y)
             {
-                auto const bucket_index = do_locate_bucket(x, y, z);
+                auto const bucket_index = do_locate_bucket(x, y);
                 auto& bucket = buckets[bucket_index];
 
                 uint32_t const dx_values[] = {0, 1, x_bins.count - 1};
                 uint32_t const dy_values[] = {0, 1, y_bins.count - 1};
-                uint32_t const dz_values[] = {0, 1, z_bins.count - 1};
 
-                for (auto const dz : dz_values) {
-                    for (auto const dy : dy_values) {
-                        for (auto const dx : dx_values) {
-                            auto const adj_x = nsearch_detail::add_mod(x, dx, x_bins.count);
-                            auto const adj_y = nsearch_detail::add_mod(y, dy, y_bins.count);
-                            auto const adj_z = nsearch_detail::add_mod(z, dz, z_bins.count);
-                            auto const adj_index = do_locate_bucket(adj_x, adj_y, adj_z);
-                            if (adj_index <= bucket_index) {
-                                bucket.directed_neighbors.push_back(adj_index);
-                            }
-                            bucket.complete_neighbors.push_back(adj_index);
+                for (auto const dy : dy_values) {
+                    for (auto const dx : dx_values) {
+                        auto const adj_x = nsearch_detail::add_mod(x, dx, x_bins.count);
+                        auto const adj_y = nsearch_detail::add_mod(y, dy, y_bins.count);
+                        auto const adj_index = do_locate_bucket(adj_x, adj_y);
+                        if (adj_index <= bucket_index) {
+                            bucket.directed_neighbors.push_back(adj_index);
                         }
+                        bucket.complete_neighbors.push_back(adj_index);
                     }
                 }
 
@@ -137,9 +128,9 @@ namespace md
                 sort_unique(bucket.complete_neighbors);
             }
 
-            size_t do_locate_bucket(uint32_t x, uint32_t y, uint32_t z) const
+            size_t do_locate_bucket(uint32_t x, uint32_t y) const
             {
-                return x + x_bins.count * (y + y_bins.count * z);
+                return x + x_bins.count * y;
             }
         };
 
@@ -149,65 +140,16 @@ namespace md
         {
             bin_layout x_bins;
             bin_layout y_bins;
-            bin_layout z_bins;
 
             basic_binner(md::periodic_box box, md::scalar spacing)
             {
                 x_bins = nsearch_detail::define_bins(box.x_period, spacing);
                 y_bins = nsearch_detail::define_bins(box.y_period, spacing);
-                z_bins = nsearch_detail::define_bins(box.z_period, spacing);
             }
         };
 
         template<>
         struct search_grid<md::periodic_box> : binned_search_grid<md::periodic_box>
-        {
-            using binned_search_grid::binned_search_grid;
-        };
-
-        // xy-periodic system. We try to define the bins along the z direction
-        // so that the resulting buckets do not get too sparse.
-        template<>
-        struct basic_binner<md::xy_periodic_box>
-        {
-            nsearch_detail::bin_layout x_bins;
-            nsearch_detail::bin_layout y_bins;
-            nsearch_detail::bin_layout z_bins;
-
-            basic_binner(md::xy_periodic_box box, md::scalar spacing)
-            {
-                x_bins = nsearch_detail::define_bins(box.x_period, spacing);
-                y_bins = nsearch_detail::define_bins(box.y_period, spacing);
-                z_bins = estimate_z_bins(box, spacing);
-            }
-
-        private:
-            nsearch_detail::bin_layout estimate_z_bins(
-                md::xy_periodic_box box, md::scalar spacing
-            ) const
-            {
-                // Too low bucket occupancy makes neighbor search inefficient.
-                // This is a heuristic minimum.
-                constexpr md::scalar min_bin_occupancy = 4.0;
-
-                const auto volume = box.x_period * box.y_period * box.z_span;
-                const auto density = md::scalar(box.particle_count) / volume;
-                const auto bin_volume = x_bins.step * y_bins.step * spacing;
-                const auto bin_occupancy = density * bin_volume;
-
-                const auto target_occupancy = std::max(bin_occupancy, min_bin_occupancy);
-                const auto bucket_count = md::scalar(box.particle_count) / target_occupancy;
-                const auto z_mod = bucket_count / (x_bins.count * y_bins.count);
-
-                nsearch_detail::bin_layout bins;
-                bins.step = spacing;
-                bins.count = nsearch_detail::round_uint(z_mod < 1 ? 1 : z_mod);
-                return bins;
-            }
-        };
-
-        template<>
-        struct search_grid<md::xy_periodic_box> : binned_search_grid<md::xy_periodic_box>
         {
             using binned_search_grid::binned_search_grid;
         };
@@ -238,9 +180,8 @@ namespace md
                 auto const freq = 1 / spacing;
                 auto const x = uint32_t(offset + freq * pt.x);
                 auto const y = uint32_t(offset + freq * pt.y);
-                auto const z = uint32_t(offset + freq * pt.z);
 
-                return hash(x, y, z);
+                return hash(x, y);
             }
 
         private:
@@ -266,9 +207,7 @@ namespace md
 
                 for (auto const dx : coord_deltas) {
                     for (auto const dy : coord_deltas) {
-                        for (auto const dz : coord_deltas) {
-                            hash_deltas.push_back(hash(dx, dy, dz));
-                        }
+                        hash_deltas.push_back(hash(dx, dy));
                     }
                 }
 

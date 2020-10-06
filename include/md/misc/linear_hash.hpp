@@ -5,7 +5,7 @@
 #ifndef MD_MISC_LINEAR_HASH_HPP
 #define MD_MISC_LINEAR_HASH_HPP
 
-// This module provides a functor class to linearly hash integral triples. Used
+// This module provides a functor class to linearly hash integral pairs. Used
 // to implement neighbor_searcher.
 
 #include <cstdint>
@@ -13,10 +13,10 @@
 
 namespace md
 {
-    // linear_hash is a linear hash function for integral triples. The following
+    // linear_hash is a linear hash function for integral pairs. The following
     // equality holds for any linear_hash h:
     //
-    //     h(x+dx, y+dy, z+dz) = h(x,y,z) + h(dx,dy,dz) .
+    //     h(x+dx, y+dy) = h(x,y) + h(dx,dy) .
     //
     struct linear_hash
     {
@@ -25,10 +25,9 @@ namespace md
         // Hash coefficients. Default values are arbitrarily chosen primes.
         uint x_coeff = 3929498747;
         uint y_coeff = 1008281837;
-        uint z_coeff = 1832832077;
         uint modulus = 1021;
 
-        inline uint operator()(uint x, uint y, uint z) const
+        inline uint operator()(uint x, uint y) const
         {
             // Avoid 32-bit wraparound, which breaks linearity.
             using uint2x = std::uint64_t;
@@ -36,7 +35,6 @@ namespace md
             uint2x sum = 0;
             sum += uint2x{x_coeff} * x;
             sum += uint2x{y_coeff} * y;
-            sum += uint2x{z_coeff} * z;
 
             return uint(sum % modulus);
         }

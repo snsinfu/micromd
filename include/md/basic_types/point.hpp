@@ -23,35 +23,32 @@ namespace md
         {
             double x = 0;
             double y = 0;
-            double z = 0;
 
             // Default constructor initializes coordinates to zero.
             coordinates() = default;
 
             // Constructor initializes coordinates to specified values.
-            inline coordinates(double x_init, double y_init, double z_init)
-                : x{x_init}, y{y_init}, z{z_init}
+            inline coordinates(double x_init, double y_init)
+                : x{x_init}, y{y_init}
             {
             }
 
-            // Index 0, 1 and 2 correspond to x, y and z, respectively.
+            // Index 0 and 2 correspond to x and z, respectively.
             inline double& operator[](std::size_t idx)
             {
                 double* coords[] = {
                     &x,
-                    &y,
-                    &z
+                    &y
                 };
                 return *coords[idx];
             }
 
-            // Index 0, 1 and 2 correspond to x, y and z, respectively.
+            // Index 0 and 1 correspond to x and y, respectively.
             inline double const& operator[](std::size_t idx) const
             {
                 double const* coords[] = {
                     &x,
-                    &y,
-                    &z
+                    &y
                 };
                 return *coords[idx];
             }
@@ -69,7 +66,7 @@ namespace md
 
             if (sentry_type sentry{os}) {
                 Char const delim = os.widen(' ');
-                os << coords.x << delim << coords.y << delim << coords.z;
+                os << coords.x << delim << coords.y;
             }
 
             return os;
@@ -86,7 +83,7 @@ namespace md
             using sentry_type = typename std::basic_istream<Char, Tr>::sentry;
 
             if (sentry_type sentry{is}) {
-                is >> coords.x >> coords.y >> coords.z;
+                is >> coords.x >> coords.y;
             }
 
             return is;
@@ -103,7 +100,6 @@ namespace md
         {
             x += other.x;
             y += other.y;
-            z += other.z;
             return *this;
         }
 
@@ -112,7 +108,6 @@ namespace md
         {
             x -= other.x;
             y -= other.y;
-            z -= other.z;
             return *this;
         }
 
@@ -121,7 +116,6 @@ namespace md
         {
             x *= mult;
             y *= mult;
-            z *= mult;
             return *this;
         }
 
@@ -134,21 +128,7 @@ namespace md
         // dot returns the dot product of this vector and other.
         inline double dot(vector const& other) const noexcept
         {
-            return (
-                x * other.x +
-                y * other.y +
-                z * other.z
-            );
-        }
-
-        // cross returns the cross product of this vector and rhs.
-        inline vector cross(vector const& rhs) const noexcept
-        {
-            return vector {
-                y * rhs.z - z * rhs.y,
-                z * rhs.x - x * rhs.z,
-                x * rhs.y - y * rhs.x
-            };
+            return x * other.x + y * other.y;
         }
 
         // hadamard returns the hadamard product of this vector and rhs.
@@ -156,8 +136,7 @@ namespace md
         {
             return vector {
                 x * rhs.x,
-                y * rhs.y,
-                z * rhs.z
+                y * rhs.y
             };
         }
 
@@ -197,7 +176,7 @@ namespace md
     // Unary negation `-vec` returns an anti-parallel copy of vec.
     inline vector operator-(vector const& vec) noexcept
     {
-        return {-vec.x, -vec.y, -vec.z};
+        return {-vec.x, -vec.y};
     }
 
     // Sum `lhs + rhs` returns a vector with component-wise sum of lhs and rhs.
@@ -240,12 +219,6 @@ namespace md
         return lhs.dot(rhs);
     }
 
-    // cross returns the cross product of lhs and rhs.
-    inline vector cross(vector const& lhs, vector const& rhs) noexcept
-    {
-        return lhs.cross(rhs);
-    }
-
     // hadamard returns the hadamard product of lhs and rhs.
     inline vector hadamard(vector const& lhs, vector const& rhs) noexcept
     {
@@ -286,7 +259,7 @@ namespace md
         // vector returns the coordinate vector of this point.
         inline vector_t vector() const noexcept
         {
-            return vector_t{x, y, z};
+            return vector_t{x, y};
         }
 
         // Adding a vector translates the point.
@@ -294,7 +267,6 @@ namespace md
         {
             x += disp.x;
             y += disp.y;
-            z += disp.z;
             return *this;
         }
 
@@ -303,7 +275,6 @@ namespace md
         {
             x -= disp.x;
             y -= disp.y;
-            z -= disp.z;
             return *this;
         }
 

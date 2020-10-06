@@ -65,7 +65,6 @@ namespace md
                     md::scalar const sigma = std::sqrt(2 * temperature_ * mu_dt);
                     md::vector const weiner = {
                         sigma * normal(random_),
-                        sigma * normal(random_),
                         sigma * normal(random_)
                     };
 
