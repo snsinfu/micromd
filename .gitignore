@@ -1,7 +1,9 @@
+.*
+_*
+!.gitignore
+
 *.dSYM
 *.o
 main
 /bundle/md.hpp
 /experiments
-
-.ccls-cache
