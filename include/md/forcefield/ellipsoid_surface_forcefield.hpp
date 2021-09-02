@@ -1,4 +1,4 @@
-// Copyright snsinfu 2018-2019.
+// Copyright snsinfu 2018-2021.
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -279,9 +279,9 @@ namespace md
         {
         }
 
-        auto ellipsoid_inward_potential(md::system const&, md::index i) const
+        auto ellipsoid_inward_potential(md::system const& system, md::index i) const
         {
-            return potfun_(i);
+            return potfun_(system, i);
         }
 
     private:
@@ -299,9 +299,9 @@ namespace md
         {
         }
 
-        auto ellipsoid_outward_potential(md::system const&, md::index i) const
+        auto ellipsoid_outward_potential(md::system const& system, md::index i) const
         {
-            return potfun_(i);
+            return potfun_(system, i);
         }
 
     private:
@@ -315,7 +315,7 @@ namespace md
     template<typename P>
     auto make_ellipsoid_inward_forcefield(P pot)
     {
-        auto potfun = detail::make_field_potfun(pot);
+        auto potfun = detail::make_field_potential_factory(pot);
         using potfun_type = decltype(potfun);
         return md::basic_ellipsoid_inward_forcefield_impl<potfun_type>{potfun};
     }
@@ -327,7 +327,7 @@ namespace md
     template<typename P>
     auto make_ellipsoid_outward_forcefield(P pot)
     {
-        auto potfun = detail::make_field_potfun(pot);
+        auto potfun = detail::make_field_potential_factory(pot);
         using potfun_type = decltype(potfun);
         return md::basic_ellipsoid_outward_forcefield_impl<potfun_type>{potfun};
     }

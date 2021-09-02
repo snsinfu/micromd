@@ -388,76 +388,88 @@ TEST_CASE("ellipsoid_surface_forcefield::compute_force - collects axial force st
     }
 }
 
-TEST_CASE("make_ellipsoid_inward_forcefield - creates a ellipsoid_surface_forcefield")
+TEST_CASE("make_ellipsoid_inward_forcefield - creates ellipsoid_surface_forcefield")
 {
     SECTION("fixed potential")
     {
-        auto ff =
-            md::make_ellipsoid_inward_forcefield(
-                md::harmonic_potential{1.23}
-            )
-            .set_ellipsoid(md::ellipsoid{});
+        auto ff = md::make_ellipsoid_inward_forcefield(
+            md::harmonic_potential{42}
+        );
 
         md::system system;
-        md::harmonic_potential pot = ff.ellipsoid_inward_potential(system, 0);
-        CHECK(pot.spring_constant == 1.23);
+        md::harmonic_potential potential = ff.ellipsoid_inward_potential(system, 0);
+        CHECK(potential.spring_constant == 42);
 
         using ff_type = decltype(ff);
         CHECK(std::is_base_of<md::ellipsoid_surface_forcefield<ff_type>, ff_type>::value);
     }
 
-    SECTION("lambda potential")
+    SECTION("lambda potential (i)")
     {
-        auto ff =
-            md::make_ellipsoid_inward_forcefield([](md::index i) {
-                return md::harmonic_potential{i * 1.0};
-            })
-            .set_ellipsoid(md::ellipsoid{});
+        auto ff = md::make_ellipsoid_inward_forcefield(
+            [](md::index) {
+                return md::harmonic_potential{42};
+            }
+        );
 
         md::system system;
-        md::harmonic_potential pot1 = ff.ellipsoid_inward_potential(system, 1);
-        md::harmonic_potential pot2 = ff.ellipsoid_inward_potential(system, 2);
-        CHECK(pot1.spring_constant == Approx(1));
-        CHECK(pot2.spring_constant == Approx(2));
+        md::harmonic_potential potential = ff.ellipsoid_inward_potential(system, 0);
+        CHECK(potential.spring_constant == 42);
+    }
 
-        using ff_type = decltype(ff);
-        CHECK(std::is_base_of<md::ellipsoid_surface_forcefield<ff_type>, ff_type>::value);
+    SECTION("lambda potential (system, i)")
+    {
+        auto ff = md::make_ellipsoid_inward_forcefield(
+            [](md::system const&, md::index) {
+                return md::harmonic_potential{42};
+            }
+        );
+
+        md::system system;
+        md::harmonic_potential potential = ff.ellipsoid_inward_potential(system, 0);
+        CHECK(potential.spring_constant == 42);
     }
 }
 
-TEST_CASE("make_ellipsoid_outward_forcefield - creates a ellipsoid_surface_forcefield")
+TEST_CASE("make_ellipsoid_outward_forcefield - creates ellipsoid_surface_forcefield")
 {
     SECTION("fixed potential")
     {
-        auto ff =
-            md::make_ellipsoid_outward_forcefield(
-                md::harmonic_potential{1.23}
-            )
-            .set_ellipsoid(md::ellipsoid{});
+        auto ff = md::make_ellipsoid_outward_forcefield(
+            md::harmonic_potential{42}
+        );
 
         md::system system;
-        md::harmonic_potential pot = ff.ellipsoid_outward_potential(system, 0);
-        CHECK(pot.spring_constant == 1.23);
+        md::harmonic_potential potential = ff.ellipsoid_outward_potential(system, 0);
+        CHECK(potential.spring_constant == 42);
 
         using ff_type = decltype(ff);
         CHECK(std::is_base_of<md::ellipsoid_surface_forcefield<ff_type>, ff_type>::value);
     }
 
-    SECTION("lambda potentialo")
+    SECTION("lambda potential (i)")
     {
-        auto ff =
-            md::make_ellipsoid_outward_forcefield([](md::index i) {
-                return md::harmonic_potential{i * 1.0};
-            })
-            .set_ellipsoid(md::ellipsoid{});
+        auto ff = md::make_ellipsoid_outward_forcefield(
+            [](md::index) {
+                return md::harmonic_potential{42};
+            }
+        );
 
         md::system system;
-        md::harmonic_potential pot1 = ff.ellipsoid_outward_potential(system, 1);
-        md::harmonic_potential pot2 = ff.ellipsoid_outward_potential(system, 2);
-        CHECK(pot1.spring_constant == Approx(1));
-        CHECK(pot2.spring_constant == Approx(2));
+        md::harmonic_potential potential = ff.ellipsoid_outward_potential(system, 0);
+        CHECK(potential.spring_constant == 42);
+    }
 
-        using ff_type = decltype(ff);
-        CHECK(std::is_base_of<md::ellipsoid_surface_forcefield<ff_type>, ff_type>::value);
+    SECTION("lambda potential (system, i)")
+    {
+        auto ff = md::make_ellipsoid_outward_forcefield(
+            [](md::system const&, md::index) {
+                return md::harmonic_potential{42};
+            }
+        );
+
+        md::system system;
+        md::harmonic_potential potential = ff.ellipsoid_outward_potential(system, 0);
+        CHECK(potential.spring_constant == 42);
     }
 }

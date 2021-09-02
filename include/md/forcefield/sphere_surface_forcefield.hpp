@@ -1,4 +1,4 @@
-// Copyright snsinfu 2018.
+// Copyright snsinfu 2018-2021.
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -213,9 +213,9 @@ namespace md
         {
         }
 
-        auto sphere_inward_potential(md::system const&, md::index i) const
+        auto sphere_inward_potential(md::system const& system, md::index i) const
         {
-            return potfun_(i);
+            return potfun_(system, i);
         }
 
     private:
@@ -233,9 +233,9 @@ namespace md
         {
         }
 
-        auto sphere_outward_potential(md::system const&, md::index i) const
+        auto sphere_outward_potential(md::system const& system, md::index i) const
         {
-            return potfun_(i);
+            return potfun_(system, i);
         }
 
     private:
@@ -248,7 +248,7 @@ namespace md
     template<typename P>
     auto make_sphere_inward_forcefield(P pot)
     {
-        auto potfun = detail::make_field_potfun(pot);
+        auto potfun = detail::make_field_potential_factory(pot);
         using potfun_type = decltype(potfun);
         return md::basic_sphere_inward_forcefield_impl<potfun_type>{potfun};
     }
@@ -259,7 +259,7 @@ namespace md
     template<typename P>
     auto make_sphere_outward_forcefield(P pot)
     {
-        auto potfun = detail::make_field_potfun(pot);
+        auto potfun = detail::make_field_potential_factory(pot);
         using potfun_type = decltype(potfun);
         return md::basic_sphere_outward_forcefield_impl<potfun_type>{potfun};
     }
