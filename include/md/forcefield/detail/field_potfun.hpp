@@ -39,6 +39,7 @@ namespace md
         {
             P potential;
 
+            inline
             P operator()(md::system const&, md::index) const
             {
                 return potential;
@@ -50,6 +51,7 @@ namespace md
         {
             P factory;
 
+            inline
             auto operator()(md::system const&, md::index i) const
             {
                 return factory(i);
@@ -61,6 +63,7 @@ namespace md
         {
             P factory;
 
+            inline
             auto operator()(md::system const& system, md::index i) const
             {
                 return factory(system, i);
