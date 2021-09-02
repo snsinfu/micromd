@@ -7,7 +7,7 @@
 
 Header-only molecular dynamics microframework for C++.
 
-[cxx-badge]: https://img.shields.io/badge/C%2B%2B-14%2F17%2F2a-orange.svg
+[cxx-badge]: https://img.shields.io/badge/C%2B%2B-14%2F17%2F20-orange.svg
 [license-badge]: https://img.shields.io/badge/license-Boost-blue.svg
 [license-url]: https://github.com/snsinfu/micromd/blob/master/LICENSE.txt
 [build-badge]: https://github.com/snsinfu/micromd/workflows/test/badge.svg
