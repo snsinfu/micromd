@@ -21,6 +21,10 @@ jobs:
           make clean
           make -j2 TAGS="*" CXX=clang++ EXTRA_CXXFLAGS=-stdlib=libc++
 
+      - name: Build examples
+        run: |
+          make -C examples/packing_cxx2a
+
       - name: Build bundle
         run: |
           cd bundle
