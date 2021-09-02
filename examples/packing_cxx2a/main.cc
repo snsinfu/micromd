@@ -5,6 +5,8 @@
 #include <md.hpp>
 
 
+// Pack 10000 particles in a spherical container.
+
 int main()
 {
     md::system system;
@@ -31,21 +33,24 @@ int main()
     system.add_forcefield(
         md::make_sphere_outward_forcefield(
             md::harmonic_potential {
-                .spring_constant = 1000,
+                .spring_constant = 1000
             }
         )
         .set_sphere(md::sphere {
-            .radius = 1,
-            .center = {0, 0, 0}
+            .center = {0, 0, 0},
+            .radius = 1
         })
     );
+
+    std::clog << "step\tenergy\n";
 
     md::simulate_brownian_dynamics(system, {
         .timestep = 1e-5,
         .steps = 10000,
         .callback = [&](md::step step) {
             if (step % 100 == 0) {
-                auto const energy = system.compute_energy() / system.particle_count();
+                auto const energy =
+                system.compute_energy() / md::scalar(system.particle_count());
                 std::clog << step << '\t' << energy << '\n';
             }
         }

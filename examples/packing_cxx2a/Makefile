@@ -7,7 +7,7 @@ INCLUDES = \
   -I ../../include
 
 CXXFLAGS = \
-  -std=c++2a \
+  -std=c++20 \
   -pedantic \
   -Wall \
   -Wextra \
