@@ -1,4 +1,4 @@
-// Copyright snsinfu 2018-2019.
+// Copyright snsinfu 2018-2021.
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -86,9 +86,9 @@ namespace md
         {
         }
 
-        auto bruteforce_pairwise_potential(md::system const&, md::index i, md::index j) const
+        auto bruteforce_pairwise_potential(md::system const& system, md::index i, md::index j) const
         {
-            return potfun_(i, j);
+            return potfun_(system, i, j);
         }
 
     private:
@@ -101,7 +101,7 @@ namespace md
     template<typename P>
     auto make_bruteforce_pairwise_forcefield(P pot)
     {
-        auto potfun = detail::make_pair_potfun(pot);
+        auto potfun = detail::make_pair_potential_factory(pot);
         using potfun_type = decltype(potfun);
         return md::basic_bruteforce_pairwise_forcefield<potfun_type>{potfun};
     }

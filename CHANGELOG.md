@@ -10,6 +10,10 @@
 - Simulation:
   - Added `simulate_langevin_dynamics()`: A function that simulates Langevin
     dynamics of a system.
+- Forcefield templates:
+  - Added support for `(system, i, j)`-style lambdas as an argument for
+    `make_neighbor_pairwise_forcefield`, `make_bruteforce_pairwise_forcefield`
+    and `make_bonded_pairwise_forcefield`.
 
 ### Bug fixes
 

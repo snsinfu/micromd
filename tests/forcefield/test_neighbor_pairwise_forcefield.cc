@@ -341,3 +341,29 @@ TEST_CASE("neighbor_pairwise_forcefield::set_unit_cell - accepts lambda")
 
     CHECK(actual_energy == Approx(expect_energy));
 }
+
+TEST_CASE("make_neighbor_pairwise_forcefield - accepts lambda(system, i, j)")
+{
+    auto forcefield = md::make_neighbor_pairwise_forcefield(
+        [](md::system const&, md::index, md::index) {
+            return md::harmonic_potential{42};
+        }
+    );
+
+    md::system system;
+    md::harmonic_potential potential = forcefield.neighbor_pairwise_potential(system, 0, 1);
+    CHECK(potential.spring_constant == 42);
+}
+
+TEST_CASE("make_neighbor_pairwise_forcefield - accepts lambda(i, j)")
+{
+    auto forcefield = md::make_neighbor_pairwise_forcefield(
+        [](md::index, md::index) {
+            return md::harmonic_potential{42};
+        }
+    );
+
+    md::system system;
+    md::harmonic_potential potential = forcefield.neighbor_pairwise_potential(system, 0, 1);
+    CHECK(potential.spring_constant == 42);
+}

@@ -204,3 +204,29 @@ TEST_CASE("make_bonded_pairwise_forcefield - creates a bonded_pairwise_forcefiel
     CHECK(std::is_same<pot_type, md::harmonic_potential>::value);
     CHECK(pot.spring_constant == 1.23);
 }
+
+TEST_CASE("make_bonded_pairwise_forcefield - accepts lambda(system, i, j)")
+{
+    auto forcefield = md::make_bonded_pairwise_forcefield(
+        [](md::system const&, md::index, md::index) {
+            return md::harmonic_potential{42};
+        }
+    );
+
+    md::system system;
+    md::harmonic_potential potential = forcefield.bonded_pairwise_potential(system, 0, 1);
+    CHECK(potential.spring_constant == 42);
+}
+
+TEST_CASE("make_bonded_pairwise_forcefield - accepts lambda(i, j)")
+{
+    auto forcefield = md::make_bonded_pairwise_forcefield(
+        [](md::index, md::index) {
+            return md::harmonic_potential{42};
+        }
+    );
+
+    md::system system;
+    md::harmonic_potential potential = forcefield.bonded_pairwise_potential(system, 0, 1);
+    CHECK(potential.spring_constant == 42);
+}
