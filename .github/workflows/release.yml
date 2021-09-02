@@ -1,0 +1,40 @@
+name: release
+
+on:
+  push:
+    tags: "v*"
+
+jobs:
+  release:
+    name: Create release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set metadata
+        run: |
+          version="${GITHUB_REF#refs/tags/v}"
+          echo "VERSION=${version}" >> ${GITHUB_ENV}
+
+      - name: Build bundle
+        run: |
+          cd bundle
+          make
+
+      - uses: actions/create-release@v1
+        id: create_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: true
+
+      - uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: bundle/md.hpp
+          asset_name: md.hpp
+          asset_content_type: text/plain

@@ -1,0 +1,27 @@
+name: test
+
+on: push
+
+jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: g++
+        run: |
+          cd tests
+          make clean
+          make -j2 TAGS="*" CXX=g++
+
+      - name: clang++
+        run: |
+          cd tests
+          make clean
+          make -j2 TAGS="*" CXX=clang++ EXTRA_CXXFLAGS=-stdlib=libc++
+
+      - name: Build bundle
+        run: |
+          cd bundle
+          make

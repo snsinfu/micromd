@@ -1,6 +1,7 @@
 .*
 _*
 !.gitignore
+!.github
 
 *.dSYM
 *.o
