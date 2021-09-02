@@ -1,4 +1,4 @@
-// Copyright snsinfu 2018.
+// Copyright snsinfu 2018-2021.
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -17,28 +17,62 @@ namespace md
 {
     namespace detail
     {
-        template<typename P>
+        template<
+            typename P,
+            typename = decltype(std::declval<P>()(
+                md::index{},
+                md::index{},
+                md::index{}
+            ))
+        >
+        void detect_factory_ijk();
+
+        template<
+            typename P,
+            typename = decltype(std::declval<P>()(
+                std::declval<md::system const&>(),
+                md::index{},
+                md::index{},
+                md::index{}
+            ))
+        >
+        void detect_factory_sijk();
+
+        template<typename P, typename = void>
         struct triple_potential_factory
         {
             P potential;
 
-            inline P operator()(md::index, md::index, md::index) const
+            P operator()(md::system const&, md::index, md::index, md::index) const
             {
                 return potential;
             }
         };
 
-        template<
-            typename PotFun,
-            typename = decltype(std::declval<PotFun>()(md::index{}, md::index{}, md::index{}))
-        >
-        PotFun make_triple_potfun(PotFun potfun)
+        template<typename P>
+        struct triple_potential_factory<P, decltype(detect_factory_ijk<P>())>
         {
-            return potfun;
-        }
+            P factory;
 
-        template<typename P, typename... Dummy>
-        triple_potential_factory<P> make_triple_potfun(P pot, Dummy...)
+            auto operator()(md::system const&, md::index i, md::index j, md::index k) const
+            {
+                return factory(i, j, k);
+            }
+        };
+
+        template<typename P>
+        struct triple_potential_factory<P, decltype(detect_factory_sijk<P>())>
+        {
+            P factory;
+
+            auto operator()(md::system const& system, md::index i, md::index j, md::index k) const
+            {
+                return factory(system, i, j, k);
+            }
+        };
+
+        template<typename P>
+        triple_potential_factory<P> make_triple_potential_factory(P pot)
         {
             return triple_potential_factory<P>{pot};
         }

@@ -1,4 +1,4 @@
-// Copyright snsinfu 2019.
+// Copyright snsinfu 2019-2021.
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
@@ -127,10 +127,10 @@ namespace md
         }
 
         auto bonded_triplewise_potential(
-            md::system const&, md::index i, md::index j, md::index k
+            md::system const& system, md::index i, md::index j, md::index k
         ) const
         {
-            return potfun_(i, j, k);
+            return potfun_(system, i, j, k);
         }
 
     private:
@@ -143,7 +143,7 @@ namespace md
     template<typename P>
     auto make_bonded_triplewise_forcefield(P pot)
     {
-        auto potfun = detail::make_triple_potfun(pot);
+        auto potfun = detail::make_triple_potential_factory(pot);
         using potfun_type = decltype(potfun);
         return md::basic_bonded_triplewise_forcefield<potfun_type>{potfun};
     }

@@ -19,6 +19,8 @@
   - Added support for `(system, i, j)`-style lambdas as an argument for
     `make_neighbor_pairwise_forcefield`, `make_bruteforce_pairwise_forcefield`
     and `make_bonded_pairwise_forcefield`.
+  - Added support for `(system, i, j, k)`-style lambdas as an argument for
+    `make_bonded_triplewise_forcefield`.
 
 ### Bug fixes
 

@@ -228,14 +228,38 @@ TEST_CASE("bonded_triplewise_forcefield::compute_force - adds force to array")
 
 TEST_CASE("make_bonded_triplewise_forcefield - creates a bonded_triplewise_forcefield")
 {
-    md::system system;
+    SECTION("potential")
+    {
+        auto ff = md::make_bonded_triplewise_forcefield(dot_potential{});
 
-    auto ff = md::make_bonded_triplewise_forcefield(dot_potential{});
-    auto pot = ff.bonded_triplewise_potential(system, 0, 1, 2);
+        md::system system;
+        ff.bonded_triplewise_potential(system, 0, 1, 2);
 
-    using ff_type = decltype(ff);
-    using pot_type = decltype(pot);
+        using ff_type = decltype(ff);
+        CHECK(std::is_base_of<md::bonded_triplewise_forcefield<ff_type>, ff_type>::value);
+    }
 
-    CHECK(std::is_base_of<md::bonded_triplewise_forcefield<ff_type>, ff_type>::value);
-    CHECK(std::is_same<pot_type, dot_potential>::value);
+    SECTION("lambda (i, j, k)")
+    {
+        auto ff = md::make_bonded_triplewise_forcefield(
+            [](md::index, md::index, md::index) {
+                return dot_potential{};
+            }
+        );
+
+        md::system system;
+        ff.bonded_triplewise_potential(system, 0, 1, 2);
+    }
+
+    SECTION("lambda (system, i, j, k)")
+    {
+        auto ff = md::make_bonded_triplewise_forcefield(
+            [](md::system const&, md::index, md::index, md::index) {
+                return dot_potential{};
+            }
+        );
+
+        md::system system;
+        ff.bonded_triplewise_potential(system, 0, 1, 2);
+    }
 }
